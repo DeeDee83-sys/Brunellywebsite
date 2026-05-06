@@ -1,0 +1,49 @@
+# Brunelly
+> AI-native software development platform for SMEs and enterprises building complex software.
+
+Brunelly gives engineering teams a single source of context across the full delivery lifecycle — from requirements and architecture through to code generation, reviews, testing, and collaboration. Unlike generic AI coding tools, Brunelly understands your entire codebase and keeps that context persistent across every sprint.
+
+## What Brunelly does
+- Reads and maps your codebase (brownfield and greenfield) to build a persistent context model
+- Generates AI-powered backlogs, user stories, and sprint plans grounded in your real architecture
+- Produces iterative, context-aware code with human approval gates at every step
+- Runs automated code reviews, security scanning, bug detection, and test generation
+- Provides AI expert chat and team collaboration tools — all sharing the same project context
+
+## Who it is for
+- Engineering teams at SMEs and enterprises building complex software
+- Teams working on brownfield (legacy) codebases who need context-aware AI assistance
+- Organisations that need AI across the full delivery lifecycle, not just autocomplete
+
+## Key differentiators
+- Single source of context shared across all features and all team members
+- Built for complexity — works on real production codebases, not side projects
+- Human approval gates at every AI generation step — engineers stay in control
+- Gets smarter over time as it learns more about your system
+
+## Pricing
+- Starter: Free, 1-3 users, 1 project
+- Professional: $25/user/month, up to 25 users, 5 projects, 300 AI credits/month
+- Business: $69/user/month, 5+ users, 50 projects, 1000 AI credits/month
+- Enterprise: Custom pricing, 25+ users, unlimited projects, 15000+ AI credits/month
+
+## Integrations
+GitHub, GitLab, Azure DevOps, Bitbucket
+
+## Company
+- Website: https://brunelly.com
+- Contact: hello@brunelly.com
+- Founded: 2024
+
+## Key pages
+- Homepage: https://brunelly.com/
+- Features overview: https://brunelly.com/features/
+- Pricing: https://brunelly.com/pricing/
+- Resources and articles: https://brunelly.com/resources/
+- Contact: https://brunelly.com/contact/
+
+## Optional: pages AI models may skip
+- /privacy/
+- /cookies/
+- /terms/
+- /admin/

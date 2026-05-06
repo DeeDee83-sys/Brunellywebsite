@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Brunelly CMS — Content Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,.12);--accent-mid:rgba(167,139,250,.4);--green:#4ade80;--green-dim:rgba(74,222,128,.12);--green-mid:rgba(74,222,128,.3);--red:#f87171;--red-dim:rgba(248,113,113,.1);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;font-weight: 400;line-height:1.6;min-height:100vh;}
+#login-screen{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:999;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:3rem;width:360px;text-align:center;}
+.login-logo{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.6rem;letter-spacing:.02em;margin-bottom:.3rem;}
+.login-sub{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:2rem;}
+.login-input{width:100%;font-family:"DM Mono",monospace;font-size:.85rem;padding:.75rem 1rem;background:var(--off-black);border:1px solid var(--border);border-radius:8px;color:var(--white);outline:none;text-align:center;letter-spacing:.15em;transition:border-color .2s;margin-bottom:1rem;}
+.login-input:focus{border-color:var(--accent-mid);}
+.login-btn{width:100%;font-family:"DM Mono",monospace;font-size:.78rem;letter-spacing:.06em;padding:.85rem;background:var(--accent);border:none;border-radius:8px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;}
+.login-btn:hover{background:#c4b5fd;}
+.login-err{font-family:"DM Mono",monospace;font-size:.7rem;color:var(--red);margin-top:.8rem;display:none;}
+#app{display:none;}
+.cms-header{position:sticky;top:0;z-index:50;background:rgba(9,9,11,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:2rem;}
+.cms-title{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.1rem;letter-spacing:.02em;}
+.cms-title span{color:var(--accent);}
+.cms-actions{display:flex;gap:.7rem;align-items:center;}
+.btn{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.05em;padding:.45rem .9rem;border-radius:6px;cursor:pointer;transition:all .2s;border:none;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-primary{background:var(--accent);color:var(--black);font-weight:500;}
+.btn-primary:hover{background:#c4b5fd;}
+.btn-ghost{background:none;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.2);}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.btn-danger:hover{background:rgba(248,113,113,.2);}
+.btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.3);}
+.btn-success:hover{background:rgba(74,222,128,.2);}
+.cms-body{max-width:1300px;margin:0 auto;padding:2.5rem;}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem;}
+.stat-card{background:var(--off-black);padding:1.3rem;}
+.stat-num{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.8rem;letter-spacing:-.02em;color:var(--accent);}
+.stat-label{font-family:"DM Mono",monospace;font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:.25rem;}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+.tab{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.85rem 1.4rem;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;}
+.tab:hover{color:var(--white);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+.table-toolbar h2{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.2rem;letter-spacing:-.01em;}
+.data-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.data-table th{font-family:"DM Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.85rem 1.1rem;text-align:left;background:var(--surface);color:var(--muted);border-bottom:1px solid var(--border);}
+.data-table td{padding:.85rem 1.1rem;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--light);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(255,255,255,.02);}
+.td-title{color:var(--white);font-weight:400;}
+.td-actions{display:flex;gap:.5rem;}
+.tag-pill{display:inline-flex;font-family:"DM Mono",monospace;font-size:.58rem;letter-spacing:.08em;padding:.2rem .55rem;border-radius:4px;border:1px solid;}
+.preview-thumb{width:64px;height:42px;object-fit:cover;border-radius:4px;border:1px solid var(--border);}
+.preview-ph{width:64px;height:42px;border-radius:4px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--muted);}
+.form-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;}
+.form-panel h3{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.2rem;letter-spacing:-.01em;margin-bottom:1.5rem;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-family:"DM Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.form-input,.form-select,.form-textarea{font-family:"DM Sans",sans-serif;font-size:.87rem;padding:.65rem .9rem;background:var(--off-black);border:1px solid var(--border);border-radius:8px;color:var(--white);outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent-mid);}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+.form-select{appearance:none;cursor:pointer;}
+.form-select option{background:var(--off-black);}
+.form-textarea{resize:vertical;min-height:90px;}
+.form-actions{display:flex;gap:.7rem;margin-top:1.5rem;}
+.toggle-wrap{display:flex;align-items:center;gap:.8rem;}
+.toggle{position:relative;width:42px;height:22px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;background:var(--surface);border:1px solid var(--border);border-radius:100px;transition:background .2s;}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:all .2s;}
+.toggle input:checked ~ .toggle-track{background:var(--accent-dim);border-color:var(--accent-mid);}
+.toggle input:checked ~ .toggle-thumb{left:23px;background:var(--accent);}
+.toggle-label{font-size:.83rem;color:var(--light);}
+.published-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"DM Mono",monospace;font-size:.62rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:4px;}
+.pub-yes{background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);}
+.pub-no{background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);}
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.9rem 1.5rem;border-radius:8px;font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.06em;display:none;align-items:center;gap:.6rem;}
+.toast.success{background:var(--green-dim);border:1px solid var(--green-mid);color:var(--green);}
+.toast.error{background:var(--red-dim);border:1px solid rgba(248,113,113,.3);color:var(--red);}
+.empty-state{padding:3rem;text-align:center;color:var(--muted);font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.07em;line-height:1.8;}
+.uc-hint{background:var(--accent-dim);border:1px solid var(--accent-mid);border-radius:8px;padding:.9rem 1.2rem;font-size:.83rem;color:var(--light);margin-bottom:1.5rem;line-height:1.65;}
+.uc-hint strong{color:var(--accent);}
+
+  @media (max-width: 768px) {
+    .admin-grid { grid-template-columns: 1fr !important; }
+    .admin-sidebar { display: none; }
+    .admin-main { padding: 1rem; }
+    table { font-size: 0.8rem; }
+    th, td { padding: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Brunelly <span style="color:var(--accent)">CMS</span></div>
+    <div class="login-sub">Content Manager</div>
+    <input type="password" id="pw-input" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="login-err">Incorrect password</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="cms-header">
+    <div class="cms-title">Brunelly <span>CMS</span></div>
+    <div class="cms-actions">
+      <a href="brunelly-resources.html" target="_blank" class="btn btn-ghost">View site →</a>
+      <a href="brunelly-analytics.html" target="_blank" class="btn btn-ghost">Analytics →</a>
+      <button class="btn btn-primary" id="add-btn" onclick="showAdd()">+ Add New</button>
+      <button class="btn btn-ghost" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="cms-body">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="s-articles">0</div><div class="stat-label">Articles</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-videos-live">0</div><div class="stat-label">Videos Live</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-videos-soon">0</div><div class="stat-label">Videos Coming Soon</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-uc-live">0</div><div class="stat-label">Use Cases Live</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-uc-hidden">0</div><div class="stat-label">Use Cases Hidden</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-images">0/17</div><div class="stat-label">Feature Images</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" id="tab-articles" onclick="switchTab('articles')">Articles</button>
+      <button class="tab" id="tab-videos" onclick="switchTab('videos')">Videos</button>
+      <button class="tab" id="tab-usecases" onclick="switchTab('usecases')">Use Cases</button>
+      <button class="tab" id="tab-images" onclick="switchTab('images')">Feature Images</button>
+      <button class="tab" id="tab-hero" onclick="switchTab('hero')">Hero Images</button>
+      <button class="tab" id="tab-faqs" onclick="switchTab('faqs')">FAQs</button>
+      <button class="tab" id="tab-leads" onclick="switchTab('leads')">Leads</button>
+    </div>
+
+    <!-- ARTICLES VIEW -->
+    <div id="view-articles">
+      <div class="table-toolbar">
+        <h2>Articles <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="art-count"></span></h2>
+        <div style="display:flex;gap:.7rem;">
+          <button class="btn btn-ghost" onclick="exportData('articles')">Export JSON</button>
+          <button class="btn btn-ghost" onclick="triggerImport('articles')">Import JSON</button>
+          <input type="file" id="import-articles" accept=".json" style="display:none" onchange="importData(event,'articles')">
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="articles-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- VIDEOS VIEW -->
+    <div id="view-videos" style="display:none;">
+      <div class="table-toolbar">
+        <h2>Videos <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="vid-count"></span></h2>
+        <div style="display:flex;gap:.7rem;">
+          <button class="btn btn-ghost" onclick="exportData('videos')">Export JSON</button>
+          <button class="btn btn-ghost" onclick="triggerImport('videos')">Import JSON</button>
+          <input type="file" id="import-videos" accept=".json" style="display:none" onchange="importData(event,'videos')">
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Thumbnail</th><th>Title</th><th>YouTube URL</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="videos-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- USE CASES VIEW -->
+    <div id="view-usecases" style="display:none;">
+      <div class="uc-hint">
+        <strong>Use Cases section is hidden on the resources page until at least one use case is published.</strong>
+        Toggle a use case to "Published" to make the entire section visible to visitors. Toggle all off to hide it again.
+      </div>
+      <div class="table-toolbar">
+        <h2>Use Cases</h2>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Icon</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="uc-tbody"></tbody>
+      </table>
+    </div>
+
+
+
+    <!-- HERO IMAGES VIEW -->
+    <div id="view-hero" style="display:none;">
+      <div class="table-toolbar">
+        <h2>Hero Showcase Images</h2>
+        <div style="font-size:.83rem;color:var(--muted);">Paste an image URL for each tab in the homepage hero. Images auto-rotate every 4 seconds. Swap for GIFs later when ready.</div>
+      </div>
+      <div id="hero-images-grid" style="display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+    </div>
+
+    <!-- FEATURE IMAGES VIEW -->
+    <div id="view-images" style="display:none;">
+      <div class="table-toolbar">
+        <h2>Feature Page Images</h2>
+        <div style="font-size:.83rem;color:var(--muted);">Paste an image URL for each slot. Changes appear on the live site immediately.</div>
+      </div>
+      <div id="feat-images-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+    </div>
+
+
+
+    <!-- LEADS VIEW -->
+    <div id="view-leads" style="display:none;">
+      <div class="table-toolbar">
+        <h2>Chat Leads <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="leads-count"></span></h2>
+        <div style="display:flex;gap:.7rem;">
+          <button class="btn btn-ghost" onclick="exportLeads()">Export CSV</button>
+          <button class="btn btn-danger" onclick="clearLeads()">Clear all</button>
+        </div>
+      </div>
+      <div style="font-size:.83rem;color:var(--muted);margin-bottom:1.5rem;">
+        Leads captured from the chatbot on the homepage. Names and emails are stored in the visitor's browser until you export them.
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Source</th><th>Date</th></tr></thead>
+        <tbody id="leads-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- FAQs VIEW -->
+    <div id="view-faqs" style="display:none;">
+      <div class="table-toolbar">
+        <h2>FAQs</h2>
+        <div style="font-size:.83rem;color:var(--muted);">Manage FAQs for the Features Hub and Pricing pages separately.</div>
+      </div>
+
+      <!-- Hub FAQs -->
+      <div style="margin-bottom:2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem;">Features Hub</div>
+            <div style="font-size:.85rem;color:var(--light);">Technical FAQs shown before the CTA on the Features Hub page</div>
+          </div>
+          <button class="btn btn-primary" onclick="showFaqForm('hub')">+ Add FAQ</button>
+        </div>
+        <table class="data-table"><thead><tr><th>#</th><th>Question</th><th>Actions</th></tr></thead>
+        <tbody id="hub-faq-tbody"></tbody></table>
+      </div>
+
+      <!-- Pricing FAQs -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:#60a5fa;margin-bottom:.3rem;">Pricing Page</div>
+            <div style="font-size:.85rem;color:var(--light);">Billing and plan FAQs shown on the Pricing page</div>
+          </div>
+          <button class="btn btn-primary" onclick="showFaqForm('pricing')">+ Add FAQ</button>
+        </div>
+        <table class="data-table"><thead><tr><th>#</th><th>Question</th><th>Actions</th></tr></thead>
+        <tbody id="pricing-faq-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- FAQ FORM -->
+    <div id="view-faq-form" style="display:none;">
+      <div class="form-panel">
+        <h3 id="faq-form-heading">Add FAQ</h3>
+        <input type="hidden" id="faq-form-page" value="hub">
+        <input type="hidden" id="faq-form-idx" value="">
+        <div class="form-group">
+          <label>Question *</label>
+          <input type="text" id="ff-q" class="form-input" placeholder="e.g. How does Brunelly read my codebase?" />
+        </div>
+        <div class="form-group">
+          <label>Answer *</label>
+          <textarea id="ff-a" class="form-textarea" style="min-height:140px;" placeholder="Full answer — plain text, no HTML needed"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveFaq()">Save FAQ</button>
+          <button class="btn btn-ghost" onclick="cancelFaqForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM (shared) -->
+    <div id="view-form" style="display:none;margin-top:0;">
+      <div class="form-panel">
+        <h3 id="form-heading">Add New Article</h3>
+        <input type="hidden" id="form-type" value="article">
+        <input type="hidden" id="form-idx" value="">
+
+        <!-- ARTICLE FIELDS -->
+        <div id="fields-article">
+          <div class="form-grid">
+            <div class="form-group full"><label>Title *</label><input type="text" id="f-title" class="form-input" placeholder="Article title" /></div>
+            <div class="form-group full"><label>Excerpt *</label><textarea id="f-excerpt" class="form-textarea" placeholder="Short summary (1–2 sentences shown on the resources page)"></textarea></div>
+            <div class="form-group"><label>Category *</label>
+              <select id="f-category" class="form-select">
+                <option value="">Select category</option>
+                <option value="AI">AI</option>
+                <option value="Agile">Agile</option>
+                <option value="ChatGPT &amp; AI Orchestration">ChatGPT &amp; AI Orchestration</option>
+                <option value="Behind the Build">Behind the Build</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Date</label><input type="text" id="f-date" class="form-input" placeholder="e.g. April 2026" /></div>
+            <div class="form-group full"><label>Article URL *</label><input type="url" id="f-url" class="form-input" placeholder="https://brunelly.com/article-slug/" /></div>
+            <div class="form-group full"><label>Cover Image URL</label><input type="url" id="f-image" class="form-input" placeholder="https://..." oninput="previewImg()" /><img id="img-prev" style="margin-top:.5rem;max-height:70px;border-radius:6px;border:1px solid var(--border);display:none;" /></div>
+          </div>
+        </div>
+
+        <!-- VIDEO FIELDS -->
+        <div id="fields-video" style="display:none;">
+          <div class="form-grid">
+            <div class="form-group full"><label>Video Title *</label><input type="text" id="fv-title" class="form-input" placeholder="Video title" /></div>
+            <div class="form-group full"><label>Description</label><textarea id="fv-desc" class="form-textarea" placeholder="Short description of what this video covers"></textarea></div>
+            <div class="form-group full"><label>YouTube URL</label><input type="url" id="fv-url" class="form-input" placeholder="https://youtu.be/..." oninput="extractYouTubeId()" /></div>
+            <div class="form-group full"><label>YouTube Video ID (auto-filled)</label><input type="text" id="fv-ytid" class="form-input" placeholder="e.g. DWwjalfXJ3I" readonly style="opacity:.6;" /></div>
+            <div class="form-group"><label>Duration</label><input type="text" id="fv-dur" class="form-input" placeholder="e.g. 5:32" /></div>
+            <div class="form-group"><label>Status</label>
+              <div class="toggle-wrap" style="margin-top:.5rem;">
+                <label class="toggle"><input type="checkbox" id="fv-pub"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                <span class="toggle-label">Published (visible on site)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USE CASE FIELDS -->
+        <div id="fields-uc" style="display:none;">
+          <div class="form-grid">
+            <div class="form-group full"><label>Title *</label><input type="text" id="fuc-title" class="form-input" placeholder="Use case title" /></div>
+            <div class="form-group full"><label>Body *</label><textarea id="fuc-body" class="form-textarea" placeholder="2–3 sentences describing the use case"></textarea></div>
+            <div class="form-group"><label>Icon (emoji or symbol)</label><input type="text" id="fuc-icon" class="form-input" placeholder="e.g. ◈ or 🚀" /></div>
+            <div class="form-group"><label>Icon colour</label><input type="color" id="fuc-color" class="form-input" value="#a78bfa" style="height:38px;padding:.2rem;" /></div>
+            <div class="form-group full"><label>Status</label>
+              <div class="toggle-wrap" style="margin-top:.5rem;">
+                <label class="toggle"><input type="checkbox" id="fuc-pub"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                <span class="toggle-label">Published (shows on site)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveItem()">Save</button>
+          <button class="btn btn-ghost" onclick="cancelForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /cms-body -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// BRUNELLY CMS — Supabase Backend
+// ════════════════════════════════════════════════════════════════
+
+var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
+var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
+
+// ── Auth ──────────────────────────────────────────────────────────
+var PASS = 'brunelly2026';
+function doLogin() {
+  if (document.getElementById('pw-input').value === PASS) {
+    sessionStorage.setItem('cms_auth','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+function logout() { sessionStorage.removeItem('cms_auth'); location.reload(); }
+if (sessionStorage.getItem('cms_auth')==='1') {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+
+// ── Supabase helpers ──────────────────────────────────────────────
+function sbHeaders(extra) {
+  var h = {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+  };
+  if (extra) Object.assign(h, extra);
+  return h;
+}
+
+function sbGet(table, params) {
+  var url = SUPA_URL + '/rest/v1/' + table + '?order=created_at.asc';
+  if (params) url += '&' + params;
+  return fetch(url, { method:'GET', headers: sbHeaders() }).then(function(r){ return r.json(); });
+}
+
+function sbUpsert(table, data) {
+  return fetch(SUPA_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.json(); });
+}
+
+function sbUpdate(table, id, data) {
+  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: sbHeaders({'Prefer':'return=representation'}),
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.json(); });
+}
+
+function sbDelete(table, id) {
+  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: sbHeaders()
+  });
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────
+var currentTab = 'articles';
+function switchTab(t) {
+  currentTab = t;
+  ['articles','videos','usecases','images','faqs','leads'].forEach(function(id) {
+    document.getElementById('view-'+id).style.display = id===t ? 'block' : 'none';
+    document.getElementById('tab-'+id).classList.toggle('active', id===t);
+  });
+  document.getElementById('view-form').style.display = 'none';
+  document.getElementById('view-faq-form').style.display = 'none';
+  var labels = {'articles':'+ Add Article','videos':'+ Add Video','usecases':'+ Add Use Case','images':'Feature Images','faqs':'FAQs','leads':'Leads'};
+  document.getElementById('add-btn').textContent = labels[t] || '+';
+  document.getElementById('add-btn').style.display = (t==='images'||t==='faqs'||t==='leads') ? 'none' : 'inline-flex';
+  render();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────
+function updateStats() {
+  Promise.all([
+    sbGet('articles','select=id'),
+    sbGet('videos','select=id,published,youtube_id'),
+    sbGet('use_cases','select=id,published'),
+    sbGet('feature_images','select=id,image_url'),
+    sbGet('hero_images','select=id,image_url'),
+  ]).then(function(results) {
+    var arts  = Array.isArray(results[0]) ? results[0] : [];
+    var vids  = Array.isArray(results[1]) ? results[1] : [];
+    var ucs   = Array.isArray(results[2]) ? results[2] : [];
+    var fimgs = Array.isArray(results[3]) ? results[3] : [];
+    var himgs = Array.isArray(results[4]) ? results[4] : [];
+    var s = document.getElementById.bind(document);
+    s('s-articles').textContent = arts.length;
+    s('s-videos-live').textContent = vids.filter(function(v){return v.published&&v.youtube_id;}).length;
+    s('s-videos-soon').textContent = vids.filter(function(v){return !v.published||!v.youtube_id;}).length;
+    s('s-uc-live').textContent = ucs.filter(function(u){return u.published;}).length;
+    s('s-uc-hidden').textContent = ucs.filter(function(u){return !u.published;}).length;
+    var imgCount = fimgs.filter(function(i){return i.image_url;}).length + himgs.filter(function(i){return i.image_url;}).length;
+    s('s-images').textContent = imgCount + '/' + (fimgs.length + himgs.length);
+  }).catch(function(e){ console.error('Stats error:', e); });
+}
+
+// ── Category colours ──────────────────────────────────────────────
+var CC  = {'AI':'#a78bfa','Agile':'#60a5fa','ChatGPT & AI Orchestration':'#fb923c','Behind the Build':'#4ade80'};
+var CB  = {'AI':'rgba(167,139,250,.4)','Agile':'rgba(96,165,250,.3)','ChatGPT & AI Orchestration':'rgba(251,146,60,.3)','Behind the Build':'rgba(74,222,128,.3)'};
+var CBG = {'AI':'rgba(167,139,250,.12)','Agile':'rgba(96,165,250,.1)','ChatGPT & AI Orchestration':'rgba(251,146,60,.1)','Behind the Build':'rgba(74,222,128,.1)'};
+
+// ── Render tables ─────────────────────────────────────────────────
+function renderArticles() {
+  sbGet('articles').then(function(arts) {
+    if (!Array.isArray(arts)) { arts = []; }
+    document.getElementById('art-count').textContent = '(' + arts.length + ')';
+    var tbody = document.getElementById('articles-tbody');
+    tbody.innerHTML = arts.length
+      ? arts.map(function(a,i) {
+          return '<tr>'
+            + '<td>' + (a.image ? '<img src="'+a.image+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
+            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
+            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + (a.category||'') + '</span></td>'
+            + '<td style="font-family:'DM Mono',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('articles','+i+','+JSON.stringify(arts).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('articles',''+a.id+'')">Delete</button></td>'
+            + '</tr>';
+        }).join('')
+      : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
+    updateStats();
+  });
+}
+
+function renderVideos() {
+  sbGet('videos').then(function(vids) {
+    if (!Array.isArray(vids)) vids = [];
+    document.getElementById('vid-count').textContent = '(' + vids.length + ')';
+    var tbody = document.getElementById('videos-tbody');
+    tbody.innerHTML = vids.length
+      ? vids.map(function(v,i) {
+          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+v.youtube_id+'/default.jpg' : '';
+          return '<tr>'
+            + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
+            + '<td class="td-title">' + v.title + '</td>'
+            + '<td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
+            + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('videos','+i+','+JSON.stringify(vids).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('videos',''+v.id+'')">Delete</button></td>'
+            + '</tr>';
+        }).join('')
+      : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
+    updateStats();
+  });
+}
+
+function renderUseCases() {
+  sbGet('use_cases','order=sort_order.asc').then(function(ucs) {
+    if (!Array.isArray(ucs)) ucs = [];
+    var tbody = document.getElementById('uc-tbody');
+    tbody.innerHTML = ucs.length
+      ? ucs.map(function(uc,i) {
+          return '<tr>'
+            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+(uc.icon_bg||'var(--accent-dim)')+';color:'+(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+(uc.icon||'◈')+'</div></td>'
+            + '<td class="td-title" style="max-width:340px;">' + uc.title + '</td>'
+            + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
+            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(''+uc.id+'',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('usecases','+i+','+JSON.stringify(ucs).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('use_cases',''+uc.id+'')">Delete</button></td>'
+            + '</tr>';
+        }).join('')
+      : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
+    updateStats();
+  });
+}
+
+function toggleUC(id, val) {
+  sbUpdate('use_cases', id, {published: val, updated_at: new Date().toISOString()})
+    .then(function(){ renderUseCases(); showToast(val ? 'Use case published' : 'Use case hidden', 'success'); });
+}
+
+function render() {
+  if (currentTab==='articles')  renderArticles();
+  else if (currentTab==='videos')    renderVideos();
+  else if (currentTab==='usecases')  renderUseCases();
+  else if (currentTab==='images')    { renderHeroImages(); renderImages(); }
+  else if (currentTab==='faqs')      { renderFaqs(); document.getElementById('view-faq-form').style.display='none'; }
+  else if (currentTab==='leads')     renderLeads();
+}
+
+// ── Form ──────────────────────────────────────────────────────────
+var _currentItems = [];
+
+function showAdd() {
+  document.getElementById('form-idx').value = '';
+  document.getElementById('form-type').value = currentTab==='usecases'?'uc':currentTab==='videos'?'video':'article';
+  var labels = {'articles':'Add New Article','videos':'Add New Video','usecases':'Add New Use Case'};
+  document.getElementById('form-heading').textContent = labels[currentTab] || 'Add New';
+  resetFormFields();
+  showFormView();
+}
+
+function editItem(type, idx, itemsJson) {
+  var items = typeof itemsJson === 'string' ? JSON.parse(itemsJson.replace(/&quot;/g,'"')) : itemsJson;
+  _currentItems = items;
+  var item = items[idx];
+  var t = type==='usecases'?'uc':type==='videos'?'video':'article';
+  document.getElementById('form-idx').value = item.id;
+  document.getElementById('form-type').value = t;
+  document.getElementById('form-heading').textContent = 'Edit ' + (type==='usecases'?'Use Case':type==='videos'?'Video':'Article');
+  resetFormFields();
+  if (t==='article') {
+    document.getElementById('f-title').value    = item.title||'';
+    document.getElementById('f-excerpt').value  = item.excerpt||'';
+    document.getElementById('f-category').value = item.category||'';
+    document.getElementById('f-date').value      = item.date||'';
+    document.getElementById('f-url').value       = item.url||'';
+    document.getElementById('f-image').value     = item.image||'';
+    previewImg();
+  } else if (t==='video') {
+    document.getElementById('fv-title').value  = item.title||'';
+    document.getElementById('fv-desc').value   = item.description||'';
+    document.getElementById('fv-url').value    = item.youtube_url||'';
+    document.getElementById('fv-ytid').value   = item.youtube_id||'';
+    document.getElementById('fv-dur').value    = item.duration||'';
+    document.getElementById('fv-pub').checked  = item.published||false;
+  } else {
+    document.getElementById('fuc-title').value = item.title||'';
+    document.getElementById('fuc-body').value  = item.body||'';
+    document.getElementById('fuc-icon').value  = item.icon||'';
+    document.getElementById('fuc-color').value = item.icon_color||'#a78bfa';
+    document.getElementById('fuc-pub').checked = item.published||false;
+  }
+  showFormView();
+}
+
+function deleteItem(table, id) {
+  if (!confirm('Delete this item? This cannot be undone.')) return;
+  sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); });
+}
+
+function saveItem() {
+  var t    = document.getElementById('form-type').value;
+  var id   = document.getElementById('form-idx').value;
+  var type = t==='uc'?'use_cases':t==='video'?'videos':'articles';
+  var item, now = new Date().toISOString();
+
+  if (t==='article') {
+    var title    = document.getElementById('f-title').value.trim();
+    var excerpt  = document.getElementById('f-excerpt').value.trim();
+    var category = document.getElementById('f-category').value;
+    var url      = document.getElementById('f-url').value.trim();
+    if (!title||!excerpt||!category||!url) { showToast('Fill in all required fields','error'); return; }
+    item = { id: id||'art-'+Date.now(), title:title, excerpt:excerpt, category:category,
+             date:document.getElementById('f-date').value.trim(),
+             url:url, image:document.getElementById('f-image').value.trim(), updated_at:now };
+    if (!id) item.created_at = now;
+  } else if (t==='video') {
+    var vtitle = document.getElementById('fv-title').value.trim();
+    if (!vtitle) { showToast('Video title is required','error'); return; }
+    item = { id: id||'vid-'+Date.now(), title:vtitle,
+             description:document.getElementById('fv-desc').value.trim(),
+             youtube_url:document.getElementById('fv-url').value.trim(),
+             youtube_id:document.getElementById('fv-ytid').value.trim(),
+             duration:document.getElementById('fv-dur').value.trim(),
+             published:document.getElementById('fv-pub').checked, updated_at:now };
+    if (!id) item.created_at = now;
+  } else {
+    var uctitle = document.getElementById('fuc-title').value.trim();
+    var ucbody  = document.getElementById('fuc-body').value.trim();
+    if (!uctitle||!ucbody) { showToast('Title and body are required','error'); return; }
+    var color = document.getElementById('fuc-color').value;
+    item = { id: id||'uc-'+Date.now(), icon:document.getElementById('fuc-icon').value.trim()||'◈',
+             icon_color:color, icon_bg:color+'26', title:uctitle, body:ucbody,
+             published:document.getElementById('fuc-pub').checked, updated_at:now };
+    if (!id) item.created_at = now;
+  }
+
+  sbUpsert(type, item).then(function(){
+    showToast(id ? 'Updated successfully' : 'Added successfully', 'success');
+    switchTab(currentTab);
+  }).catch(function(e){ showToast('Save failed: '+e.message, 'error'); });
+}
+
+function showFormView() {
+  ['articles','videos','usecases'].forEach(function(id){ document.getElementById('view-'+id).style.display='none'; });
+  document.getElementById('view-form').style.display='block';
+  var t = document.getElementById('form-type').value;
+  document.getElementById('fields-article').style.display = t==='article' ? 'block' : 'none';
+  document.getElementById('fields-video').style.display   = t==='video'   ? 'block' : 'none';
+  document.getElementById('fields-uc').style.display      = t==='uc'      ? 'block' : 'none';
+}
+
+function cancelForm() { switchTab(currentTab); }
+
+function resetFormFields() {
+  ['f-title','f-excerpt','f-date','f-url','f-image','fv-title','fv-desc','fv-url','fv-ytid','fv-dur','fuc-title','fuc-body','fuc-icon'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
+  var p=document.getElementById('fv-pub'); if(p)p.checked=false;
+  var q=document.getElementById('fuc-pub'); if(q)q.checked=false;
+  var c=document.getElementById('f-category'); if(c)c.value='';
+  var pr=document.getElementById('img-prev'); if(pr)pr.style.display='none';
+  var cc=document.getElementById('fuc-color'); if(cc)cc.value='#a78bfa';
+}
+
+function previewImg() {
+  var url=document.getElementById('f-image').value.trim();
+  var img=document.getElementById('img-prev');
+  if(url){img.src=url;img.style.display='block';}else{img.style.display='none';}
+}
+
+function extractYouTubeId() {
+  var url=document.getElementById('fv-url').value.trim();
+  var m=url.match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{11})/);
+  document.getElementById('fv-ytid').value=m?m[1]:'';
+}
+
+// ── Feature Images ────────────────────────────────────────────────
+function renderImages() {
+  sbGet('feature_images','order=page.asc,id.asc').then(function(slots) {
+    if (!Array.isArray(slots)) slots = [];
+    var grid = document.getElementById('feat-images-grid');
+    if (!grid) return;
+    var PAGE_LABELS = {
+      'brunelly-features-understand.html':'Understand',
+      'brunelly-features-plan.html':'Plan',
+      'brunelly-features-build.html':'Build',
+      'brunelly-features-quality.html':'Quality',
+      'brunelly-features-collaborate.html':'Collaborate'
+    };
+    var html = '', currentPage = '';
+    slots.forEach(function(s) {
+      if (s.page !== currentPage) {
+        currentPage = s.page;
+        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
+      }
+      var stored = s.image_url || '';
+      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+                         : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
+      var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
+                         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
+      var clearBtn = stored ? '<button onclick="clearFeatImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
+            + thumb + '<div style="flex:1;min-width:0;">'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+'</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-slot="'+s.id+'" onchange="saveFeatImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '</div>' + clearBtn + '</div>';
+    });
+    grid.innerHTML = html || '<div class="empty-state">No feature image slots found.</div>';
+    updateStats();
+  });
+}
+
+function saveFeatImage(input) {
+  var id = input.getAttribute('data-slot');
+  var url = input.value.trim();
+  sbUpdate('feature_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
+    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); });
+}
+
+function clearFeatImage(id) {
+  sbUpdate('feature_images', id, { image_url: null, updated_at: new Date().toISOString() })
+    .then(function(){ renderImages(); showToast('Image cleared', 'success'); });
+}
+
+// ── Hero Images ───────────────────────────────────────────────────
+function renderHeroImages() {
+  sbGet('hero_images').then(function(slots) {
+    if (!Array.isArray(slots)) slots = [];
+    var grid = document.getElementById('hero-images-grid');
+    if (!grid) return;
+    var html = '';
+    slots.forEach(function(s) {
+      var stored = s.image_url || '';
+      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+                         : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
+      var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
+                         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
+      var clearBtn = stored ? '<button onclick="clearHeroImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
+            + thumb + '<div style="flex:1;min-width:0;">'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+' tab</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-hero="'+s.id+'" onchange="saveHeroImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '</div>' + clearBtn + '</div>';
+    });
+    grid.innerHTML = html || '<div class="empty-state">No hero image slots found.</div>';
+  });
+}
+
+function saveHeroImage(input) {
+  var id = input.getAttribute('data-hero');
+  var url = input.value.trim();
+  sbUpdate('hero_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
+    .then(function(){ renderHeroImages(); showToast(url ? 'Hero image saved' : 'Hero image cleared', 'success'); });
+}
+
+function clearHeroImage(id) {
+  sbUpdate('hero_images', id, { image_url: null, updated_at: new Date().toISOString() })
+    .then(function(){ renderHeroImages(); showToast('Hero image cleared', 'success'); });
+}
+
+// ── FAQs ──────────────────────────────────────────────────────────
+function renderFaqs() {
+  Promise.all([
+    sbGet('faqs', 'page=eq.hub&order=sort_order.asc'),
+    sbGet('faqs', 'page=eq.pricing&order=sort_order.asc')
+  ]).then(function(results) {
+    var hubFaqs = Array.isArray(results[0]) ? results[0] : [];
+    var priceFaqs = Array.isArray(results[1]) ? results[1] : [];
+    ['hub','pricing'].forEach(function(page) {
+      var faqs = page==='hub' ? hubFaqs : priceFaqs;
+      var tbody = document.getElementById(page+'-faq-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = faqs.length
+        ? faqs.map(function(f,i) {
+            return '<tr>'
+              + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
+              + '<td class="td-title" style="max-width:500px;">'+f.question+'</td>'
+              + '<td class="td-actions">'
+              + '<button class="btn btn-ghost" onclick="editFaqById(''+page+'',''+f.id+'',''+f.question.replace(/'/g,"\'").replace(/"/g,'&quot;')+'',''+f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;')+''">Edit</button>'
+              + '<button class="btn btn-danger" onclick="deleteFaqById(''+f.id+'')">Delete</button>'
+              + '</td></tr>';
+          }).join('')
+        : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
+    });
+  });
+}
+
+function showFaqForm(page) {
+  document.getElementById('view-faqs').style.display='none';
+  document.getElementById('view-faq-form').style.display='block';
+  document.getElementById('faq-form-page').value = page;
+  document.getElementById('faq-form-idx').value = '';
+  document.getElementById('ff-q').value = '';
+  document.getElementById('ff-a').value = '';
+  document.getElementById('faq-form-heading').textContent = 'Add FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
+}
+
+function editFaqById(page, id, q, a) {
+  document.getElementById('view-faqs').style.display='none';
+  document.getElementById('view-faq-form').style.display='block';
+  document.getElementById('faq-form-page').value = page;
+  document.getElementById('faq-form-idx').value = id;
+  document.getElementById('ff-q').value = q;
+  document.getElementById('ff-a').value = a;
+  document.getElementById('faq-form-heading').textContent = 'Edit FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
+}
+
+function cancelFaqForm() {
+  document.getElementById('view-faq-form').style.display='none';
+  document.getElementById('view-faqs').style.display='block';
+  renderFaqs();
+}
+
+function saveFaq() {
+  var page = document.getElementById('faq-form-page').value;
+  var id   = document.getElementById('faq-form-idx').value;
+  var q    = document.getElementById('ff-q').value.trim();
+  var a    = document.getElementById('ff-a').value.trim();
+  if (!q||!a) { showToast('Question and answer are both required','error'); return; }
+  var now = new Date().toISOString();
+  var item = { id: id||'faq-'+Date.now(), page:page, question:q, answer:a, updated_at:now };
+  if (!id) item.created_at = now;
+  sbUpsert('faqs', item).then(function(){
+    showToast('FAQ saved — live immediately','success');
+    cancelFaqForm();
+  });
+}
+
+function deleteFaqById(id) {
+  if (!confirm('Delete this FAQ?')) return;
+  sbDelete('faqs', id).then(function(){ renderFaqs(); showToast('FAQ deleted','success'); });
+}
+
+// ── Leads ─────────────────────────────────────────────────────────
+function renderLeads() {
+  document.getElementById('leads-count').textContent = '(loading...)';
+  sbGet('leads', 'order=created_at.desc&limit=500').then(function(leads) {
+    if (!Array.isArray(leads)) leads = [];
+    document.getElementById('leads-count').textContent = '(' + leads.length + ')';
+    var tbody = document.getElementById('leads-tbody');
+    if (!leads.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads yet. Leads from the chatbot and contact form will appear here.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      var d = new Date(l.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      var sourceBadge = l.source === 'chatbot'
+        ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-mid);color:var(--accent);">Chatbot</span>'
+        : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;">Contact Form</span>';
+      return '<tr>'
+        + '<td style="color:var(--white);">' + (l.name||'—') + '</td>'
+        + '<td><a href="mailto:'+l.email+'" style="color:var(--accent);text-decoration:none;">'+l.email+'</a></td>'
+        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+l.company+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
+        + '<td>' + sourceBadge + '</td>'
+        + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);">' + d + '</td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function() {
+    document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="5" class="empty-state">Error loading leads. Check Supabase connection.</td></tr>';
+  });
+}
+
+function exportLeads() {
+  sbGet('leads', 'order=created_at.desc&limit=5000').then(function(leads) {
+    if (!Array.isArray(leads) || !leads.length) { showToast('No leads to export','error'); return; }
+    var rows = [['Name','Email','Company','Message','Source','Date']];
+    leads.forEach(function(l) {
+      rows.push([l.name||'', l.email||'', l.company||'', l.message||'', l.source||'', new Date(l.created_at).toISOString()]);
+    });
+    var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download = 'brunelly-leads-'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+    showToast('Exported '+leads.length+' leads','success');
+  });
+}
+
+function clearLeads() {
+  if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
+  fetch('https://frznrjgbbkfvjrxjcaho.supabase.co/rest/v1/leads?id=gt.0', {
+    method: 'DELETE',
+    headers: { 'apikey': 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD', 'Authorization': 'Bearer sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD' }
+  }).then(function(){ renderLeads(); showToast('All leads cleared','success'); });
+}
+
+function clearLeads() {
+  if (!confirm('Clear all leads?')) return;
+  localStorage.removeItem('brunelly_leads');
+  renderLeads();
+  showToast('Leads cleared','success');
+}
+
+// ── Export/Import ─────────────────────────────────────────────────
+function triggerImport(type) { document.getElementById('import-'+type).click(); }
+
+function exportData(type) {
+  var table = type==='articles'?'articles':type==='videos'?'videos':'use_cases';
+  sbGet(table).then(function(data) {
+    var a = document.createElement('a');
+    a.href = 'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+    a.download = 'brunelly-'+type+'-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+    showToast('Exported','success');
+  });
+}
+
+function importData(event, type) {
+  var file = event.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('Invalid format');
+      var table = type==='articles'?'articles':type==='videos'?'videos':'use_cases';
+      sbUpsert(table, data).then(function(){
+        render();
+        showToast('Imported '+data.length+' items','success');
+      });
+    } catch(err) { showToast('Invalid JSON file','error'); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+function showToast(msg, type) {
+  type = type || 'success';
+  var el = document.getElementById('toast');
+  el.textContent = (type==='success'?'✓ ':'✕ ')+msg;
+  el.className = 'toast '+type;
+  el.style.display = 'flex';
+  setTimeout(function(){ el.style.display='none'; }, 3000);
+}
+
+// ── Seed initial data into Supabase ──────────────────────────────
+function seedIfEmpty() {
+  // Check if articles table is empty, if so seed from the built-in data
+  sbGet('articles','select=id&limit=1').then(function(rows) {
+    if (Array.isArray(rows) && rows.length === 0) {
+      console.log('Seeding articles...');
+      var seed = window.ARTICLES_SEED || [];
+      if (seed.length > 0) {
+        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); });
+      }
+    }
+  });
+
+  sbGet('videos','select=id&limit=1').then(function(rows) {
+    if (Array.isArray(rows) && rows.length === 0) {
+      var seed = window.VIDEOS_SEED || [];
+      if (seed.length > 0) sbUpsert('videos', seed).then(function(){ console.log('Videos seeded'); });
+    }
+  });
+
+  sbGet('use_cases','select=id&limit=1').then(function(rows) {
+    if (Array.isArray(rows) && rows.length === 0) {
+      var seed = window.UC_SEED || [];
+      if (seed.length > 0) sbUpsert('use_cases', seed).then(function(){ console.log('Use cases seeded'); });
+    }
+  });
+
+  sbGet('faqs','select=id&limit=1').then(function(rows) {
+    if (Array.isArray(rows) && rows.length === 0) {
+      var seed = window.FAQS_SEED || [];
+      if (seed.length > 0) sbUpsert('faqs', seed).then(function(){ console.log('FAQs seeded'); });
+    }
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+function init() {
+  seedIfEmpty();
+  render();
+  updateStats();
+}
+
+if (sessionStorage.getItem('cms_auth')==='1') init();
+</script>
+</body>
+</html>

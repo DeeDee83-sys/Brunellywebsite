@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /brunelly-admin.html
+Disallow: /brunelly-analytics.html
+
+# AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://brunelly.com/sitemap.xml

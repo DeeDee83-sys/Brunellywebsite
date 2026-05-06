@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brunelly — Font Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400&family=Plus+Jakarta+Sans:wght@200;300;400&family=Geologica:wght@100;200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #09090b;
+    --off-black: #111114;
+    --surface: #16161a;
+    --border: rgba(255,255,255,0.07);
+    --white: #f4f4f5;
+    --muted: #71717a;
+    --accent: #a78bfa;
+    --accent-dim: rgba(167,139,250,0.12);
+    --accent-mid: rgba(167,139,250,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    padding: 3rem 2rem 5rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .page-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .page-title {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .option {
+    background: var(--off-black);
+    padding: 3rem 2.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .option:hover { background: var(--surface); }
+
+  .option-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .option-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: -1rem;
+  }
+
+  /* divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* hero text preview */
+  .preview-hero {
+    line-height: 1.05;
+    font-weight: 300;
+  }
+
+  .preview-hero .accent { color: var(--accent); }
+  .preview-hero .muted  { color: var(--muted); }
+
+  /* section title preview */
+  .preview-section {
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  /* nav label */
+  .preview-nav {
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  /* meta info */
+  .preview-meta {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0;
+  }
+
+  .meta-row span:last-child { color: var(--white); }
+
+  /* ── OPTION 1 — Outfit ── */
+  .opt1 .preview-hero  { font-family: 'Outfit', sans-serif; font-size: clamp(2.4rem, 4.5vw, 3.8rem); }
+  .opt1 .preview-section { font-family: 'Outfit', sans-serif; font-size: 1.5rem; }
+  .opt1 .preview-nav   { font-family: 'Outfit', sans-serif; font-size: 1.1rem; }
+
+  /* ── OPTION 2 — Plus Jakarta Sans ── */
+  .opt2 .preview-hero  { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 200; }
+  .opt2 .preview-section { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.45rem; font-weight: 200; }
+  .opt2 .preview-nav   { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.05rem; font-weight: 200; }
+
+  /* ── OPTION 3 — Geologica ── */
+  .opt3 .preview-hero  { font-family: 'Geologica', sans-serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 200; }
+  .opt3 .preview-section { font-family: 'Geologica', sans-serif; font-size: 1.45rem; font-weight: 200; }
+  .opt3 .preview-nav   { font-family: 'Geologica', sans-serif; font-size: 1.05rem; font-weight: 200; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+    border-radius: 100px;
+    padding: 0.3rem 0.8rem;
+    background: var(--accent-dim);
+  }
+
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  .subtext {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  @media (max-width: 900px) {
+    .options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<p class="page-label">Brunelly — Heading Font Options</p>
+<p class="page-title">Three directions at the same light weight — pick the one that feels right.</p>
+
+<div class="options">
+
+  <!-- OPTION 1: Outfit -->
+  <div class="option opt1">
+    <div>
+      <div class="option-num">Option 01</div>
+      <div class="option-name">Outfit — geometric & friendly</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="badge"><div class="badge-dot"></div> AI-Native Platform</div>
+
+    <div class="preview-hero">
+      Ship software<br>
+      <span class="accent">10× faster</span><br>
+      <span class="muted">with AI agents that work</span><br>
+      like your best team
+    </div>
+
+    <p class="subtext">Plan features, generate backlogs, write production-ready code — coordinated by AI agents, not scattered prompts.</p>
+
+    <div class="divider"></div>
+
+    <div class="preview-nav">Brunelly</div>
+    <div class="preview-section">One system.<br>Full delivery lifecycle.</div>
+
+    <div class="preview-meta">
+      <div class="meta-row"><span>Typeface</span><span>Outfit</span></div>
+      <div class="meta-row"><span>Weight</span><span>300 Light</span></div>
+      <div class="meta-row"><span>Feel</span><span>Geometric, approachable, modern</span></div>
+    </div>
+  </div>
+
+  <!-- OPTION 2: Plus Jakarta Sans -->
+  <div class="option opt2">
+    <div>
+      <div class="option-num">Option 02</div>
+      <div class="option-name">Plus Jakarta Sans — refined & precise</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="badge"><div class="badge-dot"></div> AI-Native Platform</div>
+
+    <div class="preview-hero">
+      Ship software<br>
+      <span class="accent">10× faster</span><br>
+      <span class="muted">with AI agents that work</span><br>
+      like your best team
+    </div>
+
+    <p class="subtext">Plan features, generate backlogs, write production-ready code — coordinated by AI agents, not scattered prompts.</p>
+
+    <div class="divider"></div>
+
+    <div class="preview-nav">Brunelly</div>
+    <div class="preview-section">One system.<br>Full delivery lifecycle.</div>
+
+    <div class="preview-meta">
+      <div class="meta-row"><span>Typeface</span><span>Plus Jakarta Sans</span></div>
+      <div class="meta-row"><span>Weight</span><span>200 ExtraLight</span></div>
+      <div class="meta-row"><span>Feel</span><span>Editorial, precise, premium tech</span></div>
+    </div>
+  </div>
+
+  <!-- OPTION 3: Geologica -->
+  <div class="option opt3">
+    <div>
+      <div class="option-num">Option 03</div>
+      <div class="option-name">Geologica — sharp & architectural</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="badge"><div class="badge-dot"></div> AI-Native Platform</div>
+
+    <div class="preview-hero">
+      Ship software<br>
+      <span class="accent">10× faster</span><br>
+      <span class="muted">with AI agents that work</span><br>
+      like your best team
+    </div>
+
+    <p class="subtext">Plan features, generate backlogs, write production-ready code — coordinated by AI agents, not scattered prompts.</p>
+
+    <div class="divider"></div>
+
+    <div class="preview-nav">Brunelly</div>
+    <div class="preview-section">One system.<br>Full delivery lifecycle.</div>
+
+    <div class="preview-meta">
+      <div class="meta-row"><span>Typeface</span><span>Geologica</span></div>
+      <div class="meta-row"><span>Weight</span><span>200 ExtraLight</span></div>
+      <div class="meta-row"><span>Feel</span><span>Structured, technical, architectural</span></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

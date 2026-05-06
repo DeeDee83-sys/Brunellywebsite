@@ -1,0 +1,184 @@
+
+-- ═══════════════════════════════════════════════════════════
+-- BRUNELLY SUPABASE SCHEMA
+-- Run this in Supabase SQL Editor (Database > SQL Editor)
+-- ═══════════════════════════════════════════════════════════
+
+-- ── Articles ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS articles (
+  id          TEXT PRIMARY KEY,
+  title       TEXT NOT NULL,
+  excerpt     TEXT,
+  category    TEXT,
+  url         TEXT,
+  image       TEXT,
+  date        TEXT,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Videos ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS videos (
+  id           TEXT PRIMARY KEY,
+  title        TEXT NOT NULL,
+  description  TEXT,
+  youtube_url  TEXT,
+  youtube_id   TEXT,
+  duration     TEXT,
+  published    BOOLEAN DEFAULT FALSE,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Use Cases ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS use_cases (
+  id          TEXT PRIMARY KEY,
+  icon        TEXT,
+  icon_bg     TEXT,
+  icon_color  TEXT,
+  title       TEXT NOT NULL,
+  body        TEXT,
+  published   BOOLEAN DEFAULT FALSE,
+  sort_order  INTEGER DEFAULT 0,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── FAQs ──────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS faqs (
+  id          TEXT PRIMARY KEY,
+  page        TEXT NOT NULL,  -- 'hub' or 'pricing'
+  question    TEXT NOT NULL,
+  answer      TEXT NOT NULL,
+  sort_order  INTEGER DEFAULT 0,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Feature Images ────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS feature_images (
+  id          TEXT PRIMARY KEY,  -- e.g. 'understand-onboarding'
+  page        TEXT NOT NULL,
+  label       TEXT NOT NULL,
+  hint        TEXT,
+  image_url   TEXT,
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Hero Images ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS hero_images (
+  id          TEXT PRIMARY KEY,  -- e.g. 'plan', 'code', 'chat'
+  label       TEXT NOT NULL,
+  hint        TEXT,
+  image_url   TEXT,
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Analytics Events ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id           BIGSERIAL PRIMARY KEY,
+  type         TEXT NOT NULL,  -- 'pageview', 'article_click', 'video_click', 'newsletter_signup'
+  ts           BIGINT NOT NULL,
+  source       TEXT,
+  device       TEXT,
+  scroll_depth INTEGER,
+  time_on_page INTEGER,
+  article_id   TEXT,
+  article_title TEXT,
+  category     TEXT,
+  video_title  TEXT,
+  email        TEXT,
+  page_url     TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── Indexes for analytics performance ────────────────────
+CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(type);
+CREATE INDEX IF NOT EXISTS idx_analytics_ts   ON analytics_events(ts);
+CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
+
+-- ── Row Level Security — allow public reads and inserts ───
+ALTER TABLE articles        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE videos          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE use_cases       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE faqs            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE feature_images  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hero_images     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to read content tables
+CREATE POLICY "Public read articles"        ON articles        FOR SELECT USING (true);
+CREATE POLICY "Public read videos"          ON videos          FOR SELECT USING (true);
+CREATE POLICY "Public read use_cases"       ON use_cases       FOR SELECT USING (true);
+CREATE POLICY "Public read faqs"            ON faqs            FOR SELECT USING (true);
+CREATE POLICY "Public read feature_images"  ON feature_images  FOR SELECT USING (true);
+CREATE POLICY "Public read hero_images"     ON hero_images     FOR SELECT USING (true);
+
+-- Allow anyone to write content (CMS uses same anon key)
+CREATE POLICY "Public write articles"       ON articles        FOR ALL USING (true);
+CREATE POLICY "Public write videos"         ON videos          FOR ALL USING (true);
+CREATE POLICY "Public write use_cases"      ON use_cases       FOR ALL USING (true);
+CREATE POLICY "Public write faqs"           ON faqs            FOR ALL USING (true);
+CREATE POLICY "Public write feature_images" ON feature_images  FOR ALL USING (true);
+CREATE POLICY "Public write hero_images"    ON hero_images     FOR ALL USING (true);
+
+-- Allow anyone to insert analytics (visitors fire events)
+CREATE POLICY "Public insert analytics"     ON analytics_events FOR INSERT WITH CHECK (true);
+-- Only allow reading analytics with service key (dashboard uses anon key so we allow select too)
+CREATE POLICY "Public read analytics"       ON analytics_events FOR SELECT USING (true);
+
+-- ── Seed hero image slots ─────────────────────────────────
+INSERT INTO hero_images (id, label, hint) VALUES
+  ('plan',   'Plan',         'Backlog/story generation interface'),
+  ('code',   'Code',         'Code generation with approval gate'),
+  ('chat',   'Expert Chat',  'AI chat answering a technical question'),
+  ('test',   'Test',         'Bug hunter or test output'),
+  ('review', 'Review',       'Analysis tools dashboard')
+ON CONFLICT (id) DO NOTHING;
+
+-- ── Seed feature image slots ──────────────────────────────
+INSERT INTO feature_images (id, page, label, hint) VALUES
+  ('understand-onboarding',  'brunelly-features-understand.html', 'Smart Onboarding',        'First-run onboarding experience'),
+  ('understand-codebase',    'brunelly-features-understand.html', 'Codebase Intelligence',    'Codebase reading and mapping'),
+  ('understand-context',     'brunelly-features-understand.html', 'Persistent Context',       'Context retention across sessions'),
+  ('plan-architecture',      'brunelly-features-plan.html',       'Concept to Architecture',  'Architecture generation from brief'),
+  ('plan-stories',           'brunelly-features-plan.html',       'AI Story Generation',      'User story generation'),
+  ('plan-sprint',            'brunelly-features-plan.html',       'Sprint Health Monitoring', 'Sprint tracking dashboard'),
+  ('build-codegen',          'brunelly-features-build.html',      'Iterative Code Generation','Step-by-step code generation'),
+  ('build-pr',               'brunelly-features-build.html',      'PR Management',            'Pull request workflow'),
+  ('build-approval',         'brunelly-features-build.html',      'Approval Gates',           'Human approval checkpoints'),
+  ('quality-review',         'brunelly-features-quality.html',    'AI Code Reviews',          'Automated code review output'),
+  ('quality-security',       'brunelly-features-quality.html',    'Security Scanning',        'Security scan results'),
+  ('quality-bughunter',      'brunelly-features-quality.html',    'Bug Hunter',               'Bug detection interface'),
+  ('quality-testing',        'brunelly-features-quality.html',    'Automated Testing',        'Test generation and results'),
+  ('collab-chat',            'brunelly-features-collaborate.html','AI Expert Chat',           'AI chat interface'),
+  ('collab-kanban',          'brunelly-features-collaborate.html','Kanban Boards',            'Kanban board view'),
+  ('collab-realtime',        'brunelly-features-collaborate.html','Real-Time Collaboration',  'Team collaboration view')
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ── Leads ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS leads (
+  id          BIGSERIAL PRIMARY KEY,
+  name        TEXT,
+  email       TEXT NOT NULL,
+  source      TEXT,           -- 'chatbot' or 'contact-form'
+  page        TEXT,           -- page URL they came from
+  message     TEXT,           -- contact form message if applicable
+  company     TEXT,           -- contact form company if applicable
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
+CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
+
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert a lead (chatbot/contact form visitors)
+CREATE POLICY "Public insert leads" ON leads FOR INSERT WITH CHECK (true);
+-- Only authenticated reads (admin uses anon key so we allow select)
+CREATE POLICY "Public read leads"   ON leads FOR SELECT USING (true);
+
+-- Done!
+SELECT 'Schema created successfully' as status;

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brunelly — Background Animation Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #09090b;
+    --off-black: #111114;
+    --border: rgba(255,255,255,0.07);
+    --white: #f4f4f5;
+    --muted: #71717a;
+    --accent: #a78bfa;
+    --accent-dim: rgba(167,139,250,0.12);
+    --accent-mid: rgba(167,139,250,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #07070a;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .page-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-title {
+    font-family: 'Geologica', sans-serif;
+    font-weight: 200;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .card {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .preview {
+    width: 100%;
+    height: 340px;
+    position: relative;
+    overflow: hidden;
+    background: var(--black);
+  }
+
+  /* hero text overlay on each preview */
+  .preview-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+    pointer-events: none;
+  }
+
+  .preview-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+    border-radius: 100px;
+    padding: 0.28rem 0.75rem;
+    background: var(--accent-dim);
+    margin-bottom: 1rem;
+  }
+
+  .preview-h1 {
+    font-family: 'Geologica', sans-serif;
+    font-weight: 200;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .preview-h1 .acc { color: var(--accent); }
+  .preview-h1 .mut { color: var(--muted); }
+
+  .preview-sub {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  /* card label */
+  .card-label {
+    padding: 1.2rem 1.5rem;
+    background: var(--off-black);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+
+  .card-name {
+    font-family: 'Geologica', sans-serif;
+    font-weight: 300;
+    font-size: 0.95rem;
+  }
+
+  .card-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* ═══════════════════════════════════════
+     OPTION 1 — PARTICLE NETWORK
+  ═══════════════════════════════════════ */
+  #canvas1 {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ═══════════════════════════════════════
+     OPTION 2 — AURORA ORBS
+  ═══════════════════════════════════════ */
+  .aurora-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.18;
+    animation: drift linear infinite;
+  }
+
+  .orb1 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, #a78bfa, transparent 70%);
+    top: -80px; left: -60px;
+    animation-duration: 18s;
+    animation-name: drift1;
+  }
+
+  .orb2 {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, #60a5fa, transparent 70%);
+    bottom: -60px; right: -40px;
+    animation-duration: 22s;
+    animation-name: drift2;
+    opacity: 0.13;
+  }
+
+  .orb3 {
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, #e879f9, transparent 70%);
+    top: 40%; left: 50%;
+    animation-duration: 26s;
+    animation-name: drift3;
+    opacity: 0.1;
+  }
+
+  @keyframes drift1 {
+    0%   { transform: translate(0, 0) scale(1); }
+    33%  { transform: translate(60px, 40px) scale(1.1); }
+    66%  { transform: translate(20px, 80px) scale(0.95); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  @keyframes drift2 {
+    0%   { transform: translate(0, 0) scale(1); }
+    40%  { transform: translate(-50px, -30px) scale(1.15); }
+    70%  { transform: translate(-20px, -60px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  @keyframes drift3 {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-50%, -50%) translate(40px, -30px) scale(1.2); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* ═══════════════════════════════════════
+     OPTION 3 — ANIMATED GRID
+  ═══════════════════════════════════════ */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .grid-lines {
+    position: absolute;
+    inset: -20px;
+    background-image:
+      linear-gradient(rgba(167,139,250,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167,139,250,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridShift 12s linear infinite;
+  }
+
+  @keyframes gridShift {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(48px, 48px); }
+  }
+
+  .grid-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(167,139,250,0.12) 0%, transparent 65%);
+    animation: glowPulse 5s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.08); }
+  }
+
+  /* circuit traces */
+  .circuit-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0.25;
+  }
+
+  .trace {
+    fill: none;
+    stroke: #a78bfa;
+    stroke-width: 1;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: traceDraw 4s ease-in-out infinite;
+  }
+
+  .trace:nth-child(2) { animation-delay: 1.2s; stroke: #60a5fa; }
+  .trace:nth-child(3) { animation-delay: 2.4s; }
+
+  @keyframes traceDraw {
+    0%   { stroke-dashoffset: 200; opacity: 0; }
+    20%  { opacity: 1; }
+    60%  { stroke-dashoffset: 0; opacity: 1; }
+    100% { stroke-dashoffset: -200; opacity: 0; }
+  }
+
+  /* ═══════════════════════════════════════
+     OPTION 4 — FLOWING NOISE / SMOKE
+  ═══════════════════════════════════════ */
+  #canvas4 {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.85;
+  }
+
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<p class="page-label">Brunelly — Background Animation Options</p>
+<p class="page-title">Pick the mood that feels right</p>
+
+<div class="grid">
+
+  <!-- OPTION 1: Particle Network -->
+  <div class="card">
+    <div class="preview" id="preview1">
+      <canvas id="canvas1"></canvas>
+      <div class="preview-text">
+        <div class="preview-badge">AI-Native Platform</div>
+        <div class="preview-h1">
+          Ship software<br>
+          <span class="acc">10× faster</span><br>
+          <span class="mut">with agents that work</span><br>
+          like your best team
+        </div>
+        <p class="preview-sub">Coordinated by AI agents, not scattered prompts.</p>
+      </div>
+    </div>
+    <div class="card-label">
+      <div>
+        <div class="card-num">Option 01</div>
+        <div class="card-name">Particle Network</div>
+        <div class="card-desc">Floating connected dots — like a live neural mesh</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION 2: Aurora Orbs -->
+  <div class="card">
+    <div class="preview" id="preview2">
+      <div class="aurora-bg">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+      </div>
+      <div class="preview-text">
+        <div class="preview-badge">AI-Native Platform</div>
+        <div class="preview-h1">
+          Ship software<br>
+          <span class="acc">10× faster</span><br>
+          <span class="mut">with agents that work</span><br>
+          like your best team
+        </div>
+        <p class="preview-sub">Coordinated by AI agents, not scattered prompts.</p>
+      </div>
+    </div>
+    <div class="card-label">
+      <div>
+        <div class="card-num">Option 02</div>
+        <div class="card-name">Drifting Aurora Orbs</div>
+        <div class="card-desc">Slow glowing blobs of colour — dreamy and premium</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION 3: Grid + Circuit -->
+  <div class="card">
+    <div class="preview" id="preview3">
+      <div class="grid-bg">
+        <div class="grid-lines"></div>
+        <div class="grid-glow"></div>
+        <svg class="circuit-svg" viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">
+          <path class="trace" d="M 20 80 L 100 80 L 100 160 L 200 160 L 200 80 L 340 80 L 340 200 L 500 200"/>
+          <path class="trace" d="M 580 260 L 460 260 L 460 140 L 320 140 L 320 260 L 180 260 L 180 300"/>
+          <path class="trace" d="M 80 300 L 80 220 L 240 220 L 240 120 L 420 120 L 420 240 L 560 240"/>
+        </svg>
+      </div>
+      <div class="preview-text">
+        <div class="preview-badge">AI-Native Platform</div>
+        <div class="preview-h1">
+          Ship software<br>
+          <span class="acc">10× faster</span><br>
+          <span class="mut">with agents that work</span><br>
+          like your best team
+        </div>
+        <p class="preview-sub">Coordinated by AI agents, not scattered prompts.</p>
+      </div>
+    </div>
+    <div class="card-label">
+      <div>
+        <div class="card-num">Option 03</div>
+        <div class="card-name">Animated Grid & Circuit Lines</div>
+        <div class="card-desc">Scrolling grid with traces — sharp and architectural</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION 4: Flowing Noise / Smoke -->
+  <div class="card">
+    <div class="preview" id="preview4">
+      <canvas id="canvas4"></canvas>
+      <div class="preview-text">
+        <div class="preview-badge">AI-Native Platform</div>
+        <div class="preview-h1">
+          Ship software<br>
+          <span class="acc">10× faster</span><br>
+          <span class="mut">with agents that work</span><br>
+          like your best team
+        </div>
+        <p class="preview-sub">Coordinated by AI agents, not scattered prompts.</p>
+      </div>
+    </div>
+    <div class="card-label">
+      <div>
+        <div class="card-num">Option 04</div>
+        <div class="card-name">Flowing Noise / Smoke</div>
+        <div class="card-desc">Organic shifting wisps of colour — mysterious and alive</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── OPTION 1: PARTICLE NETWORK ───────────────────────────────
+(function() {
+  const canvas = document.getElementById('canvas1');
+  const container = document.getElementById('preview1');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+  }
+  resize();
+
+  const PARTICLE_COUNT = 55;
+  const MAX_DIST = 110;
+  const particles = [];
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      r: Math.random() * 1.8 + 0.6
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+      // dot
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(167,139,250,0.6)';
+      ctx.fill();
+
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(167,139,250,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── OPTION 4: FLOWING NOISE / SMOKE ─────────────────────────
+(function() {
+  const canvas = document.getElementById('canvas4');
+  const container = document.getElementById('preview4');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+  }
+  resize();
+
+  // Simple smooth noise using sin/cos superposition
+  function noise(x, y, t) {
+    return (
+      Math.sin(x * 0.008 + t * 0.4) * 0.3 +
+      Math.sin(y * 0.010 + t * 0.3) * 0.3 +
+      Math.sin((x + y) * 0.006 + t * 0.5) * 0.2 +
+      Math.cos(x * 0.012 - y * 0.007 + t * 0.35) * 0.2
+    );
+  }
+
+  let t = 0;
+  const W = canvas.width;
+  const H = canvas.height;
+  const STEP = 6; // pixel block size for performance
+
+  function draw() {
+    t += 0.012;
+    ctx.clearRect(0, 0, W, H);
+
+    for (let x = 0; x < W; x += STEP) {
+      for (let y = 0; y < H; y += STEP) {
+        const n = noise(x, y, t);
+        // Map noise to hue around purple/violet
+        const hue = 260 + n * 40;
+        const lightness = 30 + n * 20;
+        const alpha = Math.max(0, 0.06 + n * 0.08);
+        ctx.fillStyle = `hsla(${hue}, 70%, ${lightness}%, ${alpha})`;
+        ctx.fillRect(x, y, STEP, STEP);
+      }
+    }
+
+    // overlay a soft vignette
+    const grad = ctx.createRadialGradient(W/2, H/2, H*0.1, W/2, H/2, H*0.9);
+    grad.addColorStop(0, 'rgba(9,9,11,0)');
+    grad.addColorStop(1, 'rgba(9,9,11,0.7)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
