@@ -180,5 +180,27 @@ CREATE POLICY "Public insert leads" ON leads FOR INSERT WITH CHECK (true);
 -- Only authenticated reads (admin uses anon key so we allow select)
 CREATE POLICY "Public read leads"   ON leads FOR SELECT USING (true);
 
+-- ── Profiles (role-based access control) ──────────────────────────
+CREATE TABLE IF NOT EXISTS profiles (
+  id          UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role        TEXT NOT NULL CHECK (role IN ('admin', 'content_editor', 'analytics_viewer')),
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- Users can read their own profile (required for login role check)
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT USING (auth.uid() = id);
+
+-- Admins can manage all profiles
+CREATE POLICY "Admins can manage profiles"
+  ON profiles FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
 -- Done!
 SELECT 'Schema created successfully' as status;

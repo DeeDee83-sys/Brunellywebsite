@@ -8,6 +8,7 @@ Agent-focused guidance for the Brunelly website codebase.
 code/
 ├── *.html              # Static pages (public site, articles, features, CMS, analytics)
 ├── supabase-config.js  # Centralised Supabase client configuration (URL + anon key)
+├── supabase-auth.js    # Shared Supabase Auth client + role helpers
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
@@ -36,9 +37,19 @@ code/
 ### Current Work
 Bug 1: Critical security vulnerability — hardcoded Supabase API key with public write access.
 - **Step 1 (Complete)**: Exposed key rotated in code; centralised config created; inline declarations removed.
-- **Step 2 (Pending)**: Replace client-side password gates with real Supabase Auth + role-based access control.
+- **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
+- **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
 - **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
 - **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated sessions where required.
+
+### Auth Architecture
+- **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
+- **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
+- **Session state**: `window.currentSession`, `window.currentUser`, `window.currentRole` are kept in sync via `onAuthStateChange`.
+- **Role gating**:
+  - `brunelly-admin.html` allows `admin` and `content_editor`.
+  - `brunelly-analytics.html` allows `admin` and `analytics_viewer`.
+- **Fetch helpers** (`sbHeaders()`, `sbFetchAna()`) attach the user's `access_token` when available, falling back to the anon key for unauthenticated requests.
 
 ### Key Rules
 - `supabase-config.js` must contain **only** the client-safe anon/public key.
@@ -48,7 +59,8 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 ## Database
 
 - Schema and seed data are defined in `brunelly-supabase-setup.sql`.
-- Tables: `articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`, `analytics_events`, `leads`.
+- Tables: `articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`, `analytics_events`, `leads`, `profiles`.
+- `profiles` table: `id` (UUID, references `auth.users`), `role` (`admin` | `content_editor` | `analytics_viewer`).
 - RLS policies are currently permissive and will be tightened as part of the security remediation.
 
 ## Git Workflow
@@ -62,3 +74,4 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - The Supabase anon key in `supabase-config.js` is a placeholder.
 - Before production deployment, generate a new anon key in the Supabase dashboard and update the placeholder value.
 - Verify the old leaked key `sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD` is revoked in Supabase.
+- Create users via the Supabase Auth dashboard, then insert matching rows into `profiles` with the appropriate role.

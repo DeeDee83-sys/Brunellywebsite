@@ -92,7 +92,9 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
     th, td { padding: 0.5rem; }
   }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="supabase-auth.js"></script>
 </head>
 <body>
 
@@ -100,9 +102,10 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
   <div class="login-box">
     <div class="login-logo">Brunelly <span style="color:var(--accent)">CMS</span></div>
     <div class="login-sub">Content Manager</div>
-    <input type="password" id="pw-input" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="email" id="email-input" class="login-input" placeholder="Email" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="password" id="pw-input" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
-    <div class="login-err" id="login-err">Incorrect password</div>
+    <div class="login-err" id="login-err" style="display:none;"></div>
   </div>
 </div>
 
@@ -360,30 +363,92 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 
 
 // ── Auth ──────────────────────────────────────────────────────────
-var PASS = 'brunelly2026';
 function doLogin() {
-  if (document.getElementById('pw-input').value === PASS) {
-    sessionStorage.setItem('cms_auth','1');
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    init();
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('pw-input').value='';
+  var email = document.getElementById('email-input').value.trim();
+  var password = document.getElementById('pw-input').value;
+  var errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter email and password.';
+    errEl.style.display = 'block';
+    return;
   }
+
+  signIn(email, password).then(function(response) {
+    if (response.error) {
+      errEl.textContent = response.error.message || 'Sign in failed.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    window.currentSession = response.data.session;
+    window.currentUser = response.data.user;
+
+    return getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (!role) {
+        errEl.textContent = 'Account not authorised. No role assigned.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      if (role !== 'admin' && role !== 'content_editor') {
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    });
+  }).catch(function(e) {
+    errEl.textContent = 'Sign in error: ' + (e.message || 'Unknown error');
+    errEl.style.display = 'block';
+  });
 }
-function logout() { sessionStorage.removeItem('cms_auth'); location.reload(); }
-if (sessionStorage.getItem('cms_auth')==='1') {
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
+
+function logout() {
+  signOut().then(function() {
+    window.currentSession = null;
+    window.currentUser = null;
+    window.currentRole = null;
+    location.reload();
+  });
 }
+
+function requireAuthAndRole() {
+  getCurrentSession().then(function(result) {
+    var session = result.data.session;
+    if (!session) return;
+    window.currentSession = session;
+    window.currentUser = session.user;
+    getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (role === 'admin' || role === 'content_editor') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        init();
+      } else {
+        var errEl = document.getElementById('login-err');
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+      }
+    });
+  });
+}
+requireAuthAndRole();
 
 // ── Supabase helpers ──────────────────────────────────────────────
 function sbHeaders(extra) {
+  var token = (window.currentSession && window.currentSession.access_token) ? window.currentSession.access_token : SUPA_KEY;
   var h = {
     'Content-Type': 'application/json',
     'apikey': SUPA_KEY,
-    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Authorization': 'Bearer ' + token,
   };
   if (extra) Object.assign(h, extra);
   return h;
@@ -968,7 +1033,7 @@ function init() {
   updateStats();
 }
 
-if (sessionStorage.getItem('cms_auth')==='1') init();
+// init() is called by requireAuthAndRole() after successful session + role check
 </script>
 </body>
 </html>
