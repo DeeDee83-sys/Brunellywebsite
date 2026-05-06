@@ -442,44 +442,82 @@ function requireAuthAndRole() {
 }
 requireAuthAndRole();
 
-// ── Supabase helpers ──────────────────────────────────────────────
-function sbHeaders(extra) {
-  var token = (window.currentSession && window.currentSession.access_token) ? window.currentSession.access_token : SUPA_KEY;
-  var h = {
-    'Content-Type': 'application/json',
-    'apikey': SUPA_KEY,
-    'Authorization': 'Bearer ' + token,
-  };
-  if (extra) Object.assign(h, extra);
-  return h;
-}
-
+// ── Supabase helpers (use authenticated client) ───────────────────
 function sbGet(table, params) {
-  var url = SUPA_URL + '/rest/v1/' + table + '?order=created_at.asc';
-  if (params) url += '&' + params;
-  return fetch(url, { method:'GET', headers: sbHeaders() }).then(function(r){ return r.json(); });
+  var select = '*';
+  var orders = [];
+  var limit = null;
+  var eqFilters = [];
+  var hasExplicitOrder = false;
+
+  if (params) {
+    var parts = params.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var eqIdx = part.indexOf('=');
+      if (eqIdx === -1) continue;
+      var key = decodeURIComponent(part.substring(0, eqIdx));
+      var val = decodeURIComponent(part.substring(eqIdx + 1));
+
+      if (key === 'select') {
+        select = val;
+      } else if (key === 'order') {
+        hasExplicitOrder = true;
+        var orderParts = val.split(',');
+        for (var j = 0; j < orderParts.length; j++) {
+          var op = orderParts[j].split('.');
+          orders.push({ col: op[0], asc: op[1] === 'asc' });
+        }
+      } else if (key === 'limit') {
+        limit = parseInt(val, 10);
+      } else if (key.indexOf('.eq') !== -1) {
+        eqFilters.push({ col: key.replace('.eq', ''), val: val });
+      }
+    }
+  }
+
+  var query = supabaseClient.from(table).select(select);
+
+  if (!hasExplicitOrder && !params) {
+    query = query.order('created_at', {ascending: true});
+  }
+
+  for (var k = 0; k < orders.length; k++) {
+    query = query.order(orders[k].col, {ascending: orders[k].asc});
+  }
+
+  for (var m = 0; m < eqFilters.length; m++) {
+    query = query.eq(eqFilters[m].col, eqFilters[m].val);
+  }
+
+  if (limit !== null) {
+    query = query.limit(limit);
+  }
+
+  return query.then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbUpsert(table, data) {
-  return fetch(SUPA_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
-    body: JSON.stringify(data)
-  }).then(function(r){ return r.json(); });
+  return supabaseClient.from(table).upsert(data).select().then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbUpdate(table, id, data) {
-  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
-    method: 'PATCH',
-    headers: sbHeaders({'Prefer':'return=representation'}),
-    body: JSON.stringify(data)
-  }).then(function(r){ return r.json(); });
+  return supabaseClient.from(table).update(data).eq('id', id).select().then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbDelete(table, id) {
-  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
-    method: 'DELETE',
-    headers: sbHeaders()
+  return supabaseClient.from(table).delete().eq('id', id).then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
   });
 }
 
@@ -936,10 +974,14 @@ function exportLeads() {
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
-  fetch(SUPA_URL + '/rest/v1/leads?id=gt.0', {
-    method: 'DELETE',
-    headers: sbHeaders()
-  }).then(function(){ renderLeads(); showToast('All leads cleared','success'); });
+  supabaseClient.from('leads').delete().gt('id', 0).then(function(res) {
+    if (res.error) {
+      showToast('Error clearing leads: ' + (res.error.message || ''), 'error');
+      return;
+    }
+    renderLeads();
+    showToast('All leads cleared', 'success');
+  });
 }
 
 function clearLeads() {

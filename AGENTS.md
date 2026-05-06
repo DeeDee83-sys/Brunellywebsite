@@ -39,7 +39,7 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - **Step 1 (Complete)**: Exposed key rotated in code; centralised config created; inline declarations removed.
 - **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
 - **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
-- **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated Supabase client/session where required.
+- **Step 4 (Complete)**: Refactored admin and analytics dashboards to use `supabaseClient.from()` for all reads/writes. Removed raw `fetch()` helpers and `sbHeaders()`. Public pages continue to use the anon-key global for minimum required reads.
 - **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
 - **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated sessions where required.
 

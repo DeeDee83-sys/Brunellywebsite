@@ -234,13 +234,32 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 
 
 function sbFetchAna(params) {
-  var url = SUPA_URL + '/rest/v1/analytics_events';
-  if (params) url += '?' + params;
-  var token = (window.currentSession && window.currentSession.access_token) ? window.currentSession.access_token : SUPA_KEY;
-  return fetch(url, {
-    method: 'GET',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'count=exact' }
-  }).then(function(r) { return r.json(); });
+  var query = supabaseClient.from('analytics_events').select('*');
+
+  if (params) {
+    var parts = params.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var eqIdx = part.indexOf('=');
+      if (eqIdx === -1) continue;
+      var key = decodeURIComponent(part.substring(0, eqIdx));
+      var val = decodeURIComponent(part.substring(eqIdx + 1));
+
+      if (key === 'order') {
+        var op = val.split('.');
+        query = query.order(op[0], {ascending: op[1] === 'asc'});
+      } else if (key === 'limit') {
+        query = query.limit(parseInt(val, 10));
+      } else if (key.indexOf('.gte') !== -1) {
+        query = query.gte(key.replace('.gte', ''), val);
+      }
+    }
+  }
+
+  return query.then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 // Convert Supabase row format to analytics event format
