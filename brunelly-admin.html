@@ -92,6 +92,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
     th, td { padding: 0.5rem; }
   }
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -357,8 +358,6 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 // BRUNELLY CMS — Supabase Backend
 // ════════════════════════════════════════════════════════════════
 
-var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
 // ── Auth ──────────────────────────────────────────────────────────
 var PASS = 'brunelly2026';
@@ -872,9 +871,9 @@ function exportLeads() {
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
-  fetch('https://frznrjgbbkfvjrxjcaho.supabase.co/rest/v1/leads?id=gt.0', {
+  fetch(SUPA_URL + '/rest/v1/leads?id=gt.0', {
     method: 'DELETE',
-    headers: { 'apikey': 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD', 'Authorization': 'Bearer sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD' }
+    headers: sbHeaders()
   }).then(function(){ renderLeads(); showToast('All leads cleared','success'); });
 }
 

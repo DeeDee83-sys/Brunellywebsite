@@ -101,6 +101,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.row-2,.row-half{grid-template-columns:1fr;}.row-3{grid-template-columns:1fr 1fr;}}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.row-3{grid-template-columns:1fr;}.header-right .btn-sm:not(:last-child){display:none;}}
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -228,8 +229,6 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 
-var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
 function sbFetchAna(params) {
   var url = SUPA_URL + '/rest/v1/analytics_events';

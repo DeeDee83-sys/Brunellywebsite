@@ -612,6 +612,7 @@ footer {
     .feat-section { padding: 2rem 1rem; }
   }
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -840,8 +841,6 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
   var slots = ["understand-onboarding", "understand-codebase", "understand-context"];
 
   fetch(SUPA_URL + '/rest/v1/feature_images?id=in.(' + slots.join(',') + ')&select=id,image_url', {
@@ -863,8 +862,6 @@ function setCookieConsent(level){
 </script>
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   function fireEvent(evt) {
     fetch(SUPA_URL + '/rest/v1/analytics_events', {

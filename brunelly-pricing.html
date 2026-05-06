@@ -616,6 +616,7 @@ footer {
 }
 
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -991,8 +992,6 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   function fireEvent(evt) {
     fetch(SUPA_URL + '/rest/v1/analytics_events', {
@@ -1088,8 +1087,6 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   fetch(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
