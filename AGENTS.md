@@ -38,7 +38,8 @@ code/
 Bug 1: Critical security vulnerability — hardcoded Supabase API key with public write access.
 - **Step 1 (Complete)**: Exposed key rotated in code; centralised config created; inline declarations removed.
 - **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
-- **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
+- **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
+- **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated Supabase client/session where required.
 - **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
 - **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated sessions where required.
 
@@ -55,13 +56,18 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - `supabase-config.js` must contain **only** the client-safe anon/public key.
 - The Supabase service-role key must **never** appear in any client-side file.
 - RLS policies must deny anonymous `UPDATE` and `DELETE` on all tables.
+- `user_has_role(ARRAY['admin','content_editor'])` is the centralised role-check helper used in all content-table policies.
 
 ## Database
 
 - Schema and seed data are defined in `brunelly-supabase-setup.sql`.
 - Tables: `articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`, `analytics_events`, `leads`, `profiles`.
 - `profiles` table: `id` (UUID, references `auth.users`), `role` (`admin` | `content_editor` | `analytics_viewer`).
-- RLS policies are currently permissive and will be tightened as part of the security remediation.
+- RLS policies are now restrictive:
+  - **Content tables** (`articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`): public `SELECT` only (published filter for `videos`/`use_cases`); authenticated `admin`/`content_editor` can write.
+  - **analytics_events**: public `INSERT` only; `admin`/`analytics_viewer` can `SELECT`.
+  - **leads**: public `INSERT` only; `admin` can `SELECT` and `DELETE`.
+  - **profiles**: users read own; admins manage all.
 
 ## Git Workflow
 
