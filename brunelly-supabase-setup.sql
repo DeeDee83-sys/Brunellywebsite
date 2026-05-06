@@ -105,6 +105,7 @@ ALTER TABLE faqs            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_images  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hero_images     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads            ENABLE ROW LEVEL SECURITY;
 
 -- Drop old permissive policies
 DROP POLICY IF EXISTS "Public read articles"        ON articles;
@@ -250,13 +251,6 @@ CREATE TABLE IF NOT EXISTS leads (
 CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
 CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
 CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
-
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
-
--- Anyone can insert a lead (chatbot/contact form visitors)
-CREATE POLICY "Public insert leads" ON leads FOR INSERT WITH CHECK (true);
--- Only authenticated reads (admin uses anon key so we allow select)
-CREATE POLICY "Public read leads"   ON leads FOR SELECT USING (true);
 
 -- ── Profiles (role-based access control) ──────────────────────────
 CREATE TABLE IF NOT EXISTS profiles (
