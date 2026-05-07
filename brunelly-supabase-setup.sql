@@ -97,6 +97,22 @@ CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(type);
 CREATE INDEX IF NOT EXISTS idx_analytics_ts   ON analytics_events(ts);
 CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
 
+-- ── Leads ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS leads (
+  id          BIGSERIAL PRIMARY KEY,
+  name        TEXT,
+  email       TEXT NOT NULL,
+  source      TEXT,           -- 'chatbot' or 'contact-form'
+  page        TEXT,           -- page URL they came from
+  message     TEXT,           -- contact form message if applicable
+  company     TEXT,           -- contact form company if applicable
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
+CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
+
 -- ── Row Level Security — lock down policies ───────────────────────
 ALTER TABLE articles        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE videos          ENABLE ROW LEVEL SECURITY;
@@ -235,22 +251,6 @@ INSERT INTO feature_images (id, page, label, hint) VALUES
   ('collab-realtime',        'brunelly-features-collaborate.html','Real-Time Collaboration',  'Team collaboration view')
 ON CONFLICT (id) DO NOTHING;
 
-
--- ── Leads ─────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS leads (
-  id          BIGSERIAL PRIMARY KEY,
-  name        TEXT,
-  email       TEXT NOT NULL,
-  source      TEXT,           -- 'chatbot' or 'contact-form'
-  page        TEXT,           -- page URL they came from
-  message     TEXT,           -- contact form message if applicable
-  company     TEXT,           -- contact form company if applicable
-  created_at  TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
-CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
-CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
 
 -- ── Profiles (role-based access control) ──────────────────────────
 CREATE TABLE IF NOT EXISTS profiles (
