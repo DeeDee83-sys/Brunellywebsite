@@ -40,8 +40,8 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
 - **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
 - **Step 4 (Complete)**: Refactored admin and analytics dashboards to use `supabaseClient.from()` for all reads/writes. Removed raw `fetch()` helpers and `sbHeaders()`. Public pages continue to use the anon-key global for minimum required reads.
-- **Step 3 (Pending)**: Lock down Row Level Security policies (public read-only; authenticated writes only).
-- **Step 4 (Pending)**: Refactor all client-side REST calls to use authenticated sessions where required.
+- **Step 5 (Complete)**: Fixed `sbGet` and `sbFetchAna` query-string filter parsing to support PostgREST operator syntax (e.g., `page=eq.hub`, `ts=gte.12345`).
+- **Step 6 (Complete)**: Fixed pre-existing JavaScript syntax errors in `brunelly-admin.html` inline script block (unescaped single quotes inside single-quoted string literals).
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
@@ -50,7 +50,10 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - **Role gating**:
   - `brunelly-admin.html` allows `admin` and `content_editor`.
   - `brunelly-analytics.html` allows `admin` and `analytics_viewer`.
-- **Fetch helpers** (`sbHeaders()`, `sbFetchAna()`) attach the user's `access_token` when available, falling back to the anon key for unauthenticated requests.
+- **Fetch helpers**:
+  - `sbGet(table, params)` in `brunelly-admin.html`: parses query-string params into Supabase query-builder calls. Supports `select`, `order`, `limit`, and PostgREST operators (`eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `like`, `ilike`, `is`) encoded in the value (e.g., `page=eq.hub`).
+  - `sbFetchAna(params)` in `brunelly-analytics.html`: similar filter parsing for `analytics_events` queries.
+  - Both helpers attach the user's `access_token` when available, falling back to the anon key for unauthenticated requests.
 
 ### Key Rules
 - `supabase-config.js` must contain **only** the client-safe anon/public key.
