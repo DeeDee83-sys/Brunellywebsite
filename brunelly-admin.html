@@ -597,10 +597,10 @@ function renderArticles() {
       ? arts.map(function(a,i) {
           return '<tr>'
             + '<td>' + (a.image ? '<img src="'+a.image+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
+            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
             + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + (a.category||'') + '</span></td>'
-            + '<td style="font-family:'DM Mono',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('articles','+i+','+JSON.stringify(arts).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('articles',''+a.id+'')">Delete</button></td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'articles\',' + i + ',' + JSON.stringify(arts).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'articles\',\'' + a.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
@@ -619,9 +619,9 @@ function renderVideos() {
           return '<tr>'
             + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
             + '<td class="td-title">' + v.title + '</td>'
-            + '<td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('videos','+i+','+JSON.stringify(vids).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('videos',''+v.id+'')">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'videos\',' + i + ',' + JSON.stringify(vids).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'videos\',\'' + v.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
@@ -639,8 +639,8 @@ function renderUseCases() {
             + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+(uc.icon_bg||'var(--accent-dim)')+';color:'+(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+(uc.icon||'◈')+'</div></td>'
             + '<td class="td-title" style="max-width:340px;">' + uc.title + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
-            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(''+uc.id+'',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('usecases','+i+','+JSON.stringify(ucs).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('use_cases',''+uc.id+'')">Delete</button></td>'
+            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(\'' + uc.id + '\',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'usecases\',' + i + ',' + JSON.stringify(ucs).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'use_cases\',\'' + uc.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
@@ -812,7 +812,7 @@ function renderImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearFeatImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button onclick="clearFeatImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+'</span>'+badge+'</div>'
@@ -850,7 +850,7 @@ function renderHeroImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearHeroImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button onclick="clearHeroImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+' tab</span>'+badge+'</div>'
@@ -892,8 +892,8 @@ function renderFaqs() {
               + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
               + '<td class="td-title" style="max-width:500px;">'+f.question+'</td>'
               + '<td class="td-actions">'
-              + '<button class="btn btn-ghost" onclick="editFaqById(''+page+'',''+f.id+'',''+f.question.replace(/'/g,"\'").replace(/"/g,'&quot;')+'',''+f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;')+''">Edit</button>'
-              + '<button class="btn btn-danger" onclick="deleteFaqById(''+f.id+'')">Delete</button>'
+              + '<button class="btn btn-ghost" onclick="editFaqById(\'' + page + '\',\'' + f.id + '\',\'' + f.question.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\',\'' + f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\')">Edit</button>'
+              + '<button class="btn btn-danger" onclick="deleteFaqById(\'' + f.id + '\')">Delete</button>'
               + '</td></tr>';
           }).join('')
         : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
