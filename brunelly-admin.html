@@ -447,7 +447,7 @@ function sbGet(table, params) {
   var select = '*';
   var orders = [];
   var limit = null;
-  var eqFilters = [];
+  var filters = [];
   var hasExplicitOrder = false;
 
   if (params) {
@@ -470,8 +470,19 @@ function sbGet(table, params) {
         }
       } else if (key === 'limit') {
         limit = parseInt(val, 10);
-      } else if (key.indexOf('.eq') !== -1) {
-        eqFilters.push({ col: key.replace('.eq', ''), val: val });
+      } else {
+        var dotIdx = val.indexOf('.');
+        if (dotIdx !== -1) {
+          var op = val.substring(0, dotIdx);
+          var operand = val.substring(dotIdx + 1);
+          if (['eq','neq','gt','gte','lt','lte','like','ilike','is'].indexOf(op) !== -1) {
+            filters.push({ col: key, op: op, val: operand });
+            continue;
+          }
+        }
+        if (key.indexOf('.eq') !== -1) {
+          filters.push({ col: key.replace('.eq', ''), op: 'eq', val: val });
+        }
       }
     }
   }
@@ -486,8 +497,17 @@ function sbGet(table, params) {
     query = query.order(orders[k].col, {ascending: orders[k].asc});
   }
 
-  for (var m = 0; m < eqFilters.length; m++) {
-    query = query.eq(eqFilters[m].col, eqFilters[m].val);
+  for (var m = 0; m < filters.length; m++) {
+    var f = filters[m];
+    if (f.op === 'eq') query = query.eq(f.col, f.val);
+    else if (f.op === 'neq') query = query.neq(f.col, f.val);
+    else if (f.op === 'gt') query = query.gt(f.col, f.val);
+    else if (f.op === 'gte') query = query.gte(f.col, f.val);
+    else if (f.op === 'lt') query = query.lt(f.col, f.val);
+    else if (f.op === 'lte') query = query.lte(f.col, f.val);
+    else if (f.op === 'like') query = query.like(f.col, f.val);
+    else if (f.op === 'ilike') query = query.ilike(f.col, f.val);
+    else if (f.op === 'is') query = query.is(f.col, f.val);
   }
 
   if (limit !== null) {
