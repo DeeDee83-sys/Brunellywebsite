@@ -235,6 +235,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 
 function sbFetchAna(params) {
   var query = supabaseClient.from('analytics_events').select('*');
+  var filters = [];
 
   if (params) {
     var parts = params.split('&');
@@ -250,10 +251,34 @@ function sbFetchAna(params) {
         query = query.order(op[0], {ascending: op[1] === 'asc'});
       } else if (key === 'limit') {
         query = query.limit(parseInt(val, 10));
-      } else if (key.indexOf('.gte') !== -1) {
-        query = query.gte(key.replace('.gte', ''), val);
+      } else {
+        var dotIdx = val.indexOf('.');
+        if (dotIdx !== -1) {
+          var op = val.substring(0, dotIdx);
+          var operand = val.substring(dotIdx + 1);
+          if (['eq','neq','gt','gte','lt','lte','like','ilike','is'].indexOf(op) !== -1) {
+            filters.push({ col: key, op: op, val: operand });
+            continue;
+          }
+        }
+        if (key.indexOf('.gte') !== -1) {
+          filters.push({ col: key.replace('.gte', ''), op: 'gte', val: val });
+        }
       }
     }
+  }
+
+  for (var m = 0; m < filters.length; m++) {
+    var f = filters[m];
+    if (f.op === 'eq') query = query.eq(f.col, f.val);
+    else if (f.op === 'neq') query = query.neq(f.col, f.val);
+    else if (f.op === 'gt') query = query.gt(f.col, f.val);
+    else if (f.op === 'gte') query = query.gte(f.col, f.val);
+    else if (f.op === 'lt') query = query.lt(f.col, f.val);
+    else if (f.op === 'lte') query = query.lte(f.col, f.val);
+    else if (f.op === 'like') query = query.like(f.col, f.val);
+    else if (f.op === 'ilike') query = query.ilike(f.col, f.val);
+    else if (f.op === 'is') query = query.is(f.col, f.val);
   }
 
   return query.then(function(res) {
