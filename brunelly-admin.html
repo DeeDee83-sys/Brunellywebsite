@@ -999,16 +999,10 @@ function clearLeads() {
       showToast('Error clearing leads: ' + (res.error.message || ''), 'error');
       return;
     }
+    try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
     renderLeads();
     showToast('All leads cleared', 'success');
   });
-}
-
-function clearLeads() {
-  if (!confirm('Clear all leads?')) return;
-  localStorage.removeItem('brunelly_leads');
-  renderLeads();
-  showToast('Leads cleared','success');
 }
 
 // ── Export/Import ─────────────────────────────────────────────────
