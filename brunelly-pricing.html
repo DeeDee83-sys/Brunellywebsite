@@ -1088,6 +1088,25 @@ function setCookieConsent(level){
 <script>
 (function() {
 
+  function renderSafeFaqItem(list, faq) {
+    var item = document.createElement('div');
+    item.className = 'faq-item';
+    item.setAttribute('data-faq-id', faq.id);
+    var qBtn = document.createElement('button');
+    qBtn.className = 'faq-q';
+    qBtn.textContent = faq.question;
+    var icon = document.createElement('span');
+    icon.className = 'faq-q-icon';
+    icon.textContent = '+';
+    qBtn.appendChild(icon);
+    var aDiv = document.createElement('div');
+    aDiv.className = 'faq-a';
+    aDiv.textContent = faq.answer;
+    item.appendChild(qBtn);
+    item.appendChild(aDiv);
+    list.appendChild(item);
+  }
+
   fetch(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
@@ -1097,24 +1116,7 @@ function setCookieConsent(level){
     var list = document.getElementById('pricing-faq-list');
     if (!list) return;
     list.innerHTML = '';
-    data.forEach(function(f) {
-      var item = document.createElement('div');
-      item.className = 'faq-item';
-      item.setAttribute('data-faq-id', f.id);
-      var qBtn = document.createElement('button');
-      qBtn.className = 'faq-q';
-      qBtn.textContent = f.question;
-      var icon = document.createElement('span');
-      icon.className = 'faq-q-icon';
-      icon.textContent = '+';
-      qBtn.appendChild(icon);
-      var aDiv = document.createElement('div');
-      aDiv.className = 'faq-a';
-      aDiv.textContent = f.answer;
-      item.appendChild(qBtn);
-      item.appendChild(aDiv);
-      list.appendChild(item);
-    });
+    data.forEach(function(f) { renderSafeFaqItem(list, f); });
     // Re-attach accordion
     list.querySelectorAll('.faq-q').forEach(function(q) {
       q.addEventListener('click', function() {
