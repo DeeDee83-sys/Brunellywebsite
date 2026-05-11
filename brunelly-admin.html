@@ -623,7 +623,7 @@ function renderArticles() {
             + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br>' + (isSafeUrl(a.url) ? '<a href="'+escapeHtml(a.url)+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a>' : '<span style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);">'+escapeHtml(a.url||'—')+'</span>') + '</td>'
             + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + escapeHtml(a.category||'') + '</span></td>'
             + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + escapeHtml(a.date||'—') + '</td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="articles" data-index="' + i + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="articles" data-id="' + a.id + '">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="articles" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="articles" data-id="' + escapeHtml(a.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
@@ -645,7 +645,7 @@ function renderVideos() {
             + '<td class="td-title">' + escapeHtml(v.title) + '</td>'
             + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + i + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + v.id + '">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + escapeHtml(v.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
@@ -664,8 +664,8 @@ function renderUseCases() {
             + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+escapeHtml(uc.icon_bg||'var(--accent-dim)')+';color:'+escapeHtml(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+escapeHtml(uc.icon||'◈')+'</div></td>'
             + '<td class="td-title" style="max-width:340px;">' + escapeHtml(uc.title) + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
-            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' data-id="' + uc.id + '"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + i + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + uc.id + '">Delete</button></td>'
+            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' data-id="' + escapeHtml(uc.id) + '"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + escapeHtml(uc.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
@@ -849,12 +849,12 @@ function renderImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button data-action="clear-feat" data-id="' + s.id + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button data-action="clear-feat" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+'</span>'+badge+'</div>'
             + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-slot="'+escapeHtml(s.id)+'" data-action="save-feat" data-id="' + s.id + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-slot="'+escapeHtml(s.id)+'" data-action="save-feat" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No feature image slots found.</div>';
@@ -889,12 +889,12 @@ function renderHeroImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button data-action="clear-hero" data-id="' + s.id + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button data-action="clear-hero" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+' tab</span>'+badge+'</div>'
             + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-hero="'+escapeHtml(s.id)+'" data-action="save-hero" data-id="' + s.id + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-hero="'+escapeHtml(s.id)+'" data-action="save-hero" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No hero image slots found.</div>';
@@ -935,8 +935,8 @@ function renderFaqs() {
               + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
               + '<td class="td-title" style="max-width:500px;">'+escapeHtml(f.question)+'</td>'
               + '<td class="td-actions">'
-              + '<button class="btn btn-ghost" data-action="edit-faq" data-page="' + page + '" data-id="' + f.id + '">Edit</button>'
-              + '<button class="btn btn-danger" data-action="delete-faq" data-id="' + f.id + '">Delete</button>'
+              + '<button class="btn btn-ghost" data-action="edit-faq" data-page="' + escapeHtml(page) + '" data-id="' + escapeHtml(f.id) + '">Edit</button>'
+              + '<button class="btn btn-danger" data-action="delete-faq" data-id="' + escapeHtml(f.id) + '">Delete</button>'
               + '</td></tr>';
           }).join('')
         : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
