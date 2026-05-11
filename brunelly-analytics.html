@@ -134,7 +134,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
       <a href="brunelly-resources.html" target="_blank" class="btn-sm btn-ghost-sm" style="text-decoration:none;">View site →</a>
       <a href="brunelly-admin.html" target="_blank" class="btn-sm btn-ghost-sm" style="text-decoration:none;">CMS →</a>
       <button class="btn-sm btn-ghost-sm" onclick="exportCSV()">Export CSV</button>
-      <button class="btn-sm btn-danger-sm" onclick="clearData()">Clear data</button>
+      <button class="btn-sm btn-danger-sm" id="clear-btn" onclick="clearData()">Clear data</button>
       <button class="btn-sm btn-ghost-sm" onclick="logout()">Sign out</button>
     </div>
   </div>
@@ -779,6 +779,8 @@ function renderAll(){
 }
 
 function init(){
+  var clearBtn = document.getElementById('clear-btn');
+  if (clearBtn) clearBtn.style.display = (window.currentRole === 'admin') ? 'inline-block' : 'none';
   seedDemoData();
   renderAll();
   setInterval(()=>{const a=getEvents();renderKPIs(filterByRange(a),prevPeriod(a));renderEvents();},60000);
