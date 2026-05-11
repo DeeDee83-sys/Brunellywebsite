@@ -563,6 +563,11 @@ function isSafeUrl(str) {
   return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
 }
 
+function stripHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/<[^>]*>/g, '');
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────
 var currentTab = 'articles';
 function switchTab(t) {
@@ -1069,8 +1074,8 @@ function cancelFaqForm() {
 function saveFaq() {
   var page = document.getElementById('faq-form-page').value;
   var id   = document.getElementById('faq-form-idx').value;
-  var q    = document.getElementById('ff-q').value.trim();
-  var a    = document.getElementById('ff-a').value.trim();
+  var q    = stripHtml(document.getElementById('ff-q').value.trim());
+  var a    = stripHtml(document.getElementById('ff-a').value.trim());
   if (!q||!a) { showToast('Question and answer are both required','error'); return; }
   var now = new Date().toISOString();
   var item = { id: id||'faq-'+Date.now(), page:page, question:q, answer:a, updated_at:now };
