@@ -723,6 +723,8 @@ function clearData(){
   if(!confirm('Clear all analytics data? This cannot be undone.'))return;
   supabaseClient.from('analytics_events').delete().gt('id',0).then(function(){
     localStorage.removeItem('brunelly_analytics');
+    _eventsCache = null;
+    _eventsCacheTime = 0;
     renderAll();
     showToast('All analytics data cleared');
   }).catch(function(err){
