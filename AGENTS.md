@@ -60,6 +60,7 @@ Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors an
 - **Step 6 (Complete)**: Updated `clearData()` in `brunelly-analytics.html` to actually delete `analytics_events` records from Supabase (via `.delete().gt('id',0)`) before clearing local cache. Added admin-only DELETE RLS policy. Extended `showToast()` to support error styling so failures are visible.
 - **Step 7 (Complete)**: Added `.catch()` to `exportLeads()`, `exportData()`, and `importData()` in `brunelly-admin.html` to ensure Supabase failures during import/export operations surface user-visible toast errors instead of failing silently.
 - **Step 8 (Complete)**: Hardened XSS/injection defenses in `brunelly-admin.html` rendering. Added `isSafeUrl()` helper that permits only `http://` and `https://` schemes. Article URLs are now rendered as plain text when unsafe, and lead email `mailto:` links were removed in favour of plain text.
+- **Step 9 (Complete)**: Applied defense-in-depth escaping to all dynamically generated `data-*` attribute values (`data-id`, `data-index`, `data-page`) in `brunelly-admin.html` using `escapeHtml()`. This prevents attribute-breakout injection even if future IDs contain quote characters.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
