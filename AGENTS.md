@@ -63,6 +63,7 @@ Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors an
 - **Step 9 (Complete)**: Applied defense-in-depth escaping to all dynamically generated `data-*` attribute values (`data-id`, `data-index`, `data-page`) in `brunelly-admin.html` using `escapeHtml()`. This prevents attribute-breakout injection even if future IDs contain quote characters.
 - **Step 10 (Complete)**: Improved analytics UX alignment with authorization in `brunelly-analytics.html`. The **Clear data** button now has `id="clear-btn"` and `init()` conditionally shows it only when `window.currentRole === 'admin'`, matching the RLS policy that restricts `analytics_events` DELETE to admins.
 - **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
+- **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
