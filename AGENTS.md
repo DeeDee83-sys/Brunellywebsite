@@ -57,7 +57,7 @@ Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors an
 - **Step 3 (Complete)**: FAQ edit-button injection issue resolved during Step 2. Broken single-quote escaping removed; FAQ question/answer values are no longer interpolated into executable JS contexts. `editFaqById()` now looks up FAQ data from global cache by stable `data-id`.
 - **Step 4 (Complete)**: Added `.catch()` to all previously unhandled promise chains in `brunelly-admin.html`. User-facing operations (`toggleUC`, `saveFeatImage`, `clearFeatImage`, `saveHeroImage`, `clearHeroImage`, `saveFaq`, `deleteFaqById`, `deleteItem`) now surface errors via `showToast`. Background `seedIfEmpty` seeding routines log errors via `console.error`.
 - **Step 5 (Complete)**: Extended `sbDelete()` with an optional `filter` parameter and refactored `clearLeads()` to use it instead of a raw `supabaseClient.from(...).delete()` call. Added `.catch()` with `showToast` error handling so failures are visible to the user.
-- **Step 6 (Pending)**: Resolve misleading "Clear all analytics data" button in `brunelly-analytics.html` — ensure the confirmation dialog matches actual destructive behaviour (clear local cache + delete Supabase records in an RLS-compatible way).
+- **Step 6 (Complete)**: Updated `clearData()` in `brunelly-analytics.html` to actually delete `analytics_events` records from Supabase (via `.delete().gt('id',0)`) before clearing local cache. Added admin-only DELETE RLS policy. Extended `showToast()` to support error styling so failures are visible.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
