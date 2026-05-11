@@ -772,7 +772,7 @@ function renderArticles() {
 
       var card = document.createElement('a');
       card.className = 'article-card';
-      card.setAttribute('data-id', escapeHtml(a.id));
+      card.setAttribute('data-id', a.id);
       if (isSafeUrl(a.url)) {
         card.href = a.url;
         card.target = '_blank';
