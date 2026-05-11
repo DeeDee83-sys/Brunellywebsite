@@ -34,14 +34,20 @@ code/
 
 ## Security
 
-### Current Work
-Bug 1: Critical security vulnerability — hardcoded Supabase API key with public write access.
+### Completed Work
+
+**Bug 1: Hardcoded Supabase API key with public write access**
 - **Step 1 (Complete)**: Exposed key rotated in code; centralised config created; inline declarations removed.
 - **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
 - **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
 - **Step 4 (Complete)**: Refactored admin and analytics dashboards to use `supabaseClient.from()` for all reads/writes. Removed raw `fetch()` helpers and `sbHeaders()`. Public pages continue to use the anon-key global for minimum required reads.
 - **Step 5 (Complete)**: Fixed `sbGet` and `sbFetchAna` query-string filter parsing to support PostgREST operator syntax (e.g., `page=eq.hub`, `ts=gte.12345`).
 - **Step 6 (Complete)**: Fixed pre-existing JavaScript syntax errors in `brunelly-admin.html` inline script block (unescaped single quotes inside single-quoted string literals).
+
+**Bug 2: Hardcoded admin password in client-side JavaScript / sessionStorage auth bypass**
+- **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
+- Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
+- No further code changes were required on the Bug 2 branch.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
@@ -61,6 +67,15 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - RLS policies must deny anonymous `UPDATE` and `DELETE` on all tables.
 - `user_has_role(ARRAY['admin','content_editor'])` is the centralised role-check helper used in all content-table policies.
 
+## Multi-Factor Authentication (MFA)
+
+- Supabase Auth supports optional MFA (TOTP via authenticator apps).
+- MFA is **not currently enforced** for any role. To enable it:
+  1. Enable MFA in the Supabase Auth dashboard (Authentication → Providers → Phone/OTP or Authenticator App).
+  2. Update the login flow in `brunelly-admin.html` and `brunelly-analytics.html` to challenge for a TOTP code after successful password verification.
+  3. Store the `aal` (Authenticator Assurance Level) requirement per role in the `profiles` table if granular enforcement is needed.
+- For now, single-factor auth is sufficient. Document any future MFA mandate as a separate security initiative.
+
 ## Database
 
 - Schema and seed data are defined in `brunelly-supabase-setup.sql`.
@@ -74,8 +89,8 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 
 ## Git Workflow
 
-- Branch: `bug/1-critical-security-vulnerability-hardcoded-supabase`
-- Commit messages: `security(step-N): brief description`
+- Branch: `bug/2-critical-security-vulnerability-hardcoded-admin`
+- Commit messages: `security(step-N): brief description` or `docs(bug-2): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
 
 ## Deployment Notes
