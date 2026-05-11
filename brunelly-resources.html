@@ -845,7 +845,7 @@ function renderVideos() {
     for (var i = 0; i < all.length; i++) {
       var v = all[i];
       var hasVideo = !!(v.youtubeUrl && v.youtubeId);
-      var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + escapeHtml(v.youtubeId) + '/mqdefault.jpg' : '';
+      var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg' : '';
       var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
 
       var card;
