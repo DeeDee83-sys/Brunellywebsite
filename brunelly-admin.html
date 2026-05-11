@@ -534,8 +534,14 @@ function sbUpdate(table, id, data) {
   });
 }
 
-function sbDelete(table, id) {
-  return supabaseClient.from(table).delete().eq('id', id).then(function(res) {
+function sbDelete(table, id, filter) {
+  var query = supabaseClient.from(table).delete();
+  if (filter && filter.op === 'gt') {
+    query = query.gt(filter.col, filter.val);
+  } else {
+    query = query.eq('id', id);
+  }
+  return query.then(function(res) {
     if (res.error) throw res.error;
     return res.data;
   });
@@ -1032,15 +1038,15 @@ function exportLeads() {
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
-  supabaseClient.from('leads').delete().gt('id', 0).then(function(res) {
-    if (res.error) {
-      showToast('Error clearing leads: ' + (res.error.message || ''), 'error');
-      return;
-    }
-    try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
-    renderLeads();
-    showToast('All leads cleared', 'success');
-  });
+  sbDelete('leads', null, {op:'gt', col:'id', val:0})
+    .then(function(){
+      try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
+      renderLeads();
+      showToast('All leads cleared', 'success');
+    })
+    .catch(function(err){
+      showToast('Error clearing leads: ' + (err && err.message ? err.message : ''), 'error');
+    });
 }
 
 // ── Export/Import ─────────────────────────────────────────────────
