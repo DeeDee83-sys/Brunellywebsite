@@ -1096,14 +1096,25 @@ function setCookieConsent(level){
     if (!Array.isArray(data) || data.length === 0) return;
     var list = document.getElementById('pricing-faq-list');
     if (!list) return;
-    var html = '';
+    list.innerHTML = '';
     data.forEach(function(f) {
-      html += '<div class="faq-item" data-faq-id="' + f.id + '">'
-            + '<button class="faq-q">' + f.question + '<span class="faq-q-icon">+</span></button>'
-            + '<div class="faq-a">' + f.answer + '</div>'
-            + '</div>';
+      var item = document.createElement('div');
+      item.className = 'faq-item';
+      item.setAttribute('data-faq-id', f.id);
+      var qBtn = document.createElement('button');
+      qBtn.className = 'faq-q';
+      qBtn.textContent = f.question;
+      var icon = document.createElement('span');
+      icon.className = 'faq-q-icon';
+      icon.textContent = '+';
+      qBtn.appendChild(icon);
+      var aDiv = document.createElement('div');
+      aDiv.className = 'faq-a';
+      aDiv.textContent = f.answer;
+      item.appendChild(qBtn);
+      item.appendChild(aDiv);
+      list.appendChild(item);
     });
-    list.innerHTML = html;
     // Re-attach accordion
     list.querySelectorAll('.faq-q').forEach(function(q) {
       q.addEventListener('click', function() {
