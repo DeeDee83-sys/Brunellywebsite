@@ -1058,6 +1058,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   var pageViewId = generateId();
   var t0 = Date.now();
   var maxS = 0;
+  var unloadSent = false;
 
   function getSource() {
     var r = document.referrer || '';
@@ -1172,6 +1173,8 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   }
 
   function trackPageview(isUnload) {
+    if (isUnload && unloadSent) return;
+
     var payload = buildPageviewPayload({
       type: 'pageview',
       ts: t0,
@@ -1182,6 +1185,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
     });
 
     if (isUnload) {
+      unloadSent = true;
       sendReliably(payload);
     } else {
       fetch(EVENT_URL, {
