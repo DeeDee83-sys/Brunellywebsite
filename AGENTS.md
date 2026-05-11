@@ -72,11 +72,11 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 - **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
 
 **Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
-- **Status (In Progress)**: Active work on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
+- **Status (Complete)**: Remediated on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
 - `renderUseCases()` was refactored from unsafe string-concatenation `innerHTML` to safe DOM construction (`createElement`, `textContent`, `setAttribute`) with `isSafeCssValue()` guards for `icon_bg` and `icon_color` style values.
 - `renderArticles()` was refactored to safe DOM construction; the unnecessary `escapeHtml()` on `data-id` via `setAttribute()` has been removed.
 - `renderVideos()` was refactored to safe DOM construction; the unnecessary `escapeHtml()` on the YouTube thumbnail URL has been removed.
-- Pending: resolve relative-URL breakage for seed article links so fallback articles remain clickable when Supabase is unavailable.
+- Seed article fallback URLs in `ARTICLES_SEED` were updated to absolute URLs so they pass `isSafeUrl()` and remain clickable when Supabase is unavailable.
 - Added `escapeHtml()`, `isSafeUrl()`, and `isSafeCssValue()` helpers to the page. All `href`/`src` URLs are validated before assignment; unsafe URLs fall back to plain text.
 - Added `rel="noopener noreferrer"` to all `target="_blank"` links.
 - Hardened `sbFetch()` to validate HTTP status (`r.ok`) before parsing JSON.
