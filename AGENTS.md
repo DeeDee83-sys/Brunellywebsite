@@ -31,6 +31,7 @@ code/
 - Do not introduce new inline `var SUPA_URL` / `var SUPA_KEY` declarations in HTML files.
 - Prefer `window.SUPA_URL` and `window.SUPA_KEY` globals loaded from `supabase-config.js`.
 - Validate HTML and check JavaScript syntax before committing.
+- Escape all user-controlled values before inserting them into HTML via `innerHTML`. Use the shared `escapeHtml()` helper (or safe DOM construction) rather than raw string concatenation.
 
 ## Security
 
@@ -47,7 +48,16 @@ code/
 **Bug 2: Hardcoded admin password in client-side JavaScript / sessionStorage auth bypass**
 - **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
 - Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
-- No further code changes were required on the Bug 2 branch.
+
+### Defensive Security Hardening (In Progress)
+Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors and brittle patterns:
+
+- **Step 1 (Complete)**: Stored XSS remediation. Added `escapeHtml()` helper to `brunelly-admin.html` and applied explicit HTML-escaping to all user-controlled values in `renderArticles`, `renderVideos`, `renderUseCases`, `renderFaqs`, `renderLeads`, `renderImages`, and `renderHeroImages`.
+- **Step 2 (Pending)**: Remove fragile inline `onclick` handlers (including `JSON.stringify(...)` embedded in HTML attributes) and replace with event delegation using stable `data-*` identifiers.
+- **Step 3 (Pending)**: Fix FAQ edit-button injection issue — eliminate broken single-quote escaping and ensure FAQ values are never interpolated into executable JS contexts.
+- **Step 4 (Pending)**: Add explicit `.catch()` handling to all previously unhandled promise chains (`toggleUC`, `saveFeatImage`, `clearFeatImage`, `saveHeroImage`, `clearHeroImage`, `saveFaq`, `deleteFaqById`, seed routines).
+- **Step 5 (Pending)**: Standardise leads deletion in `brunelly-admin.html` — refactor `clearLeads()` to use a shared deletion helper with consistent error handling / toast behaviour.
+- **Step 6 (Pending)**: Resolve misleading "Clear all analytics data" button in `brunelly-analytics.html` — ensure the confirmation dialog matches actual destructive behaviour (clear local cache + delete Supabase records in an RLS-compatible way).
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
