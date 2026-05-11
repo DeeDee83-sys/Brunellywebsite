@@ -72,9 +72,10 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 - **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
 
 **Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
-- **Status (Complete)**: Remediated on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
-- `brunelly-resources.html` `renderArticles()`, `renderVideos()`, and `renderUseCases()` were refactored from unsafe string-concatenation `innerHTML` to safe DOM construction (`createElement`, `textContent`, `setAttribute`).
-- Added `escapeHtml()`, `isSafeUrl()`, and `isSafeCssValue()` helpers to the page. All `href`/`src` URLs are validated before assignment; unsafe URLs fall back to plain text. CSS values (`icon_bg`, `icon_color`) are sanitized before `style` assignment.
+- **Status (In Progress)**: Active work on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
+- `renderUseCases()` was refactored from unsafe string-concatenation `innerHTML` to safe DOM construction (`createElement`, `textContent`, `setAttribute`) with `isSafeCssValue()` guards for `icon_bg` and `icon_color` style values.
+- `renderArticles()` and `renderVideos()` were previously refactored to safe DOM construction but still apply `escapeHtml()` to non-HTML contexts (`data-id` attribute and YouTube thumbnail URL) — pending correction.
+- Added `escapeHtml()`, `isSafeUrl()`, and `isSafeCssValue()` helpers to the page. All `href`/`src` URLs are validated before assignment; unsafe URLs fall back to plain text.
 - Added `rel="noopener noreferrer"` to all `target="_blank"` links.
 - Hardened `sbFetch()` to validate HTTP status (`r.ok`) before parsing JSON.
 - Added `article_submissions` table to `brunelly-supabase-setup.sql` with restricted public INSERT: anonymous users can submit `suggested_url`, `submitter_email`, and `notes`, but cannot write directly to content tables. Admins review submissions and promote valid entries to `articles`.
