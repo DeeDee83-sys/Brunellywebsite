@@ -31,7 +31,13 @@ In that commit the following changes were made:
 - **Access control:** Role-based; unauthenticated or unauthorised users cannot access CMS or analytics interfaces.
 - **Data protection:** Row-Level Security (RLS) policies restrict all writes to authenticated users with verified roles.
 
+### Multi-Factor Authentication (MFA) Status
+
+- **MFA is not implemented in the current login flows.**
+- The user story specified MFA as "optional, configurable by admin." While Supabase Auth supports TOTP-based MFA and the high-level enablement steps are documented in `AGENTS.md`, no MFA challenge logic exists in `brunelly-admin.html` or `brunelly-analytics.html`.
+- **MFA remains out of scope for this bug fix.** Implementing full MFA enrollment and verification flows (TOTP setup UI, backup codes, per-role enforcement flags) is a separate security enhancement, not a requirement for resolving the reported hardcoded-password vulnerability.
+- The current security posture is accurately represented as: **single-factor Supabase Auth + role-based access control + RLS**.
+
 ### Notes
 
 - No further code changes are required to resolve the reported vulnerability.
-- Optional MFA (multi-factor authentication) enablement is documented as a separate consideration; see follow-up work for Supabase Auth MFA configuration steps if required.
