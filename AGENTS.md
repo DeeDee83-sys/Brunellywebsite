@@ -105,6 +105,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Status**: In Progress — branch `bug/5-stored-xss-vulnerability-via-innerhtml`.
 - **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `brunelly-features-hub.html` and `brunelly-pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved.
 - **Step 2 (Complete)**: Introduced reusable `renderSafeFaqItem(list, faq)` helper inside each affected page's IIFE. This ensures future FAQ fields cannot be accidentally added with `innerHTML`; both visible text and `data-faq-id` attributes are handled safely through the single consistent helper pattern.
+- **Step 3 (Complete)**: Added `stripHtml()` helper to `brunelly-admin.html` and applied it in `saveFaq()` to sanitize question and answer inputs before persistence. This provides defense in depth: even if safe rendering on public pages were bypassed, the database cannot contain executable HTML/JS payloads. Content editors can still author plain text FAQs normally.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
