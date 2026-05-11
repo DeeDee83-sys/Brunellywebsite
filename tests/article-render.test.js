@@ -9,7 +9,7 @@ const { isSafeUrl } = require('./lib/helpers');
 // ════════════════════════════════════════════════════════════════
 
 function mockElement(tag) {
-  return {
+  var el = {
     tagName: tag,
     nodeType: 1,
     _attrs: {},
@@ -34,6 +34,11 @@ function mockElement(tag) {
       this._children.push(c);
     }
   };
+  Object.defineProperty(el, 'innerHTML', {
+    get: function() { return this._innerHtmlValue; },
+    set: function(val) { this._innerHtmlSet = true; this._innerHtmlValue = val; }
+  });
+  return el;
 }
 
 function mockTextNode(text) {
