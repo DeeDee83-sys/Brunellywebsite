@@ -53,7 +53,7 @@ code/
 Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors and brittle patterns:
 
 - **Step 1 (Complete)**: Stored XSS remediation. Added `escapeHtml()` helper to `brunelly-admin.html` and applied explicit HTML-escaping to all user-controlled values in `renderArticles`, `renderVideos`, `renderUseCases`, `renderFaqs`, `renderLeads`, `renderImages`, and `renderHeroImages`.
-- **Step 2 (Pending)**: Remove fragile inline `onclick` handlers (including `JSON.stringify(...)` embedded in HTML attributes) and replace with event delegation using stable `data-*` identifiers.
+- **Step 2 (Complete)**: Removed all dynamic inline `onclick`/`onchange` handlers from `brunelly-admin.html` and replaced them with event delegation. Buttons and inputs now use stable `data-*` attributes (`data-action`, `data-type`, `data-index`, `data-table`, `data-id`, `data-page`). `editItem()` and `editFaqById()` now look up items from global caches instead of parsing JSON blobs embedded in HTML attributes.
 - **Step 3 (Pending)**: Fix FAQ edit-button injection issue — eliminate broken single-quote escaping and ensure FAQ values are never interpolated into executable JS contexts.
 - **Step 4 (Pending)**: Add explicit `.catch()` handling to all previously unhandled promise chains (`toggleUC`, `saveFeatImage`, `clearFeatImage`, `saveHeroImage`, `clearHeroImage`, `saveFaq`, `deleteFaqById`, seed routines).
 - **Step 5 (Pending)**: Standardise leads deletion in `brunelly-admin.html` — refactor `clearLeads()` to use a shared deletion helper with consistent error handling / toast behaviour.
