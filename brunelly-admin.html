@@ -663,7 +663,8 @@ function renderUseCases() {
 
 function toggleUC(id, val) {
   sbUpdate('use_cases', id, {published: val, updated_at: new Date().toISOString()})
-    .then(function(){ renderUseCases(); showToast(val ? 'Use case published' : 'Use case hidden', 'success'); });
+    .then(function(){ renderUseCases(); showToast(val ? 'Use case published' : 'Use case hidden', 'success'); })
+    .catch(function(err){ showToast('Error updating use case: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function render() {
@@ -733,7 +734,8 @@ function editItem(type, idx) {
 
 function deleteItem(table, id) {
   if (!confirm('Delete this item? This cannot be undone.')) return;
-  sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); });
+  sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); })
+    .catch(function(err){ showToast('Error deleting item: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function saveItem() {
@@ -852,12 +854,14 @@ function saveFeatImage(input) {
   var id = input.getAttribute('data-slot');
   var url = input.value.trim();
   sbUpdate('feature_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
-    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); });
+    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); })
+    .catch(function(err){ showToast('Error saving image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function clearFeatImage(id) {
   sbUpdate('feature_images', id, { image_url: null, updated_at: new Date().toISOString() })
-    .then(function(){ renderImages(); showToast('Image cleared', 'success'); });
+    .then(function(){ renderImages(); showToast('Image cleared', 'success'); })
+    .catch(function(err){ showToast('Error clearing image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── Hero Images ───────────────────────────────────────────────────
@@ -889,12 +893,14 @@ function saveHeroImage(input) {
   var id = input.getAttribute('data-hero');
   var url = input.value.trim();
   sbUpdate('hero_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
-    .then(function(){ renderHeroImages(); showToast(url ? 'Hero image saved' : 'Hero image cleared', 'success'); });
+    .then(function(){ renderHeroImages(); showToast(url ? 'Hero image saved' : 'Hero image cleared', 'success'); })
+    .catch(function(err){ showToast('Error saving hero image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function clearHeroImage(id) {
   sbUpdate('hero_images', id, { image_url: null, updated_at: new Date().toISOString() })
-    .then(function(){ renderHeroImages(); showToast('Hero image cleared', 'success'); });
+    .then(function(){ renderHeroImages(); showToast('Hero image cleared', 'success'); })
+    .catch(function(err){ showToast('Error clearing hero image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── FAQs ──────────────────────────────────────────────────────────
@@ -968,12 +974,15 @@ function saveFaq() {
   sbUpsert('faqs', item).then(function(){
     showToast('FAQ saved — live immediately','success');
     cancelFaqForm();
+  }).catch(function(err){
+    showToast('Error saving FAQ: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
 function deleteFaqById(id) {
   if (!confirm('Delete this FAQ?')) return;
-  sbDelete('faqs', id).then(function(){ renderFaqs(); showToast('FAQ deleted','success'); });
+  sbDelete('faqs', id).then(function(){ renderFaqs(); showToast('FAQ deleted','success'); })
+    .catch(function(err){ showToast('Error deleting FAQ: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── Leads ─────────────────────────────────────────────────────────
@@ -1084,31 +1093,35 @@ function seedIfEmpty() {
       console.log('Seeding articles...');
       var seed = window.ARTICLES_SEED || [];
       if (seed.length > 0) {
-        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); });
+        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); })
+          .catch(function(err){ console.error('Error seeding articles:', err); });
       }
     }
-  });
+  }).catch(function(err){ console.error('Error checking articles seed:', err); });
 
   sbGet('videos','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.VIDEOS_SEED || [];
-      if (seed.length > 0) sbUpsert('videos', seed).then(function(){ console.log('Videos seeded'); });
+      if (seed.length > 0) sbUpsert('videos', seed).then(function(){ console.log('Videos seeded'); })
+        .catch(function(err){ console.error('Error seeding videos:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking videos seed:', err); });
 
   sbGet('use_cases','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.UC_SEED || [];
-      if (seed.length > 0) sbUpsert('use_cases', seed).then(function(){ console.log('Use cases seeded'); });
+      if (seed.length > 0) sbUpsert('use_cases', seed).then(function(){ console.log('Use cases seeded'); })
+        .catch(function(err){ console.error('Error seeding use cases:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking use cases seed:', err); });
 
   sbGet('faqs','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.FAQS_SEED || [];
-      if (seed.length > 0) sbUpsert('faqs', seed).then(function(){ console.log('FAQs seeded'); });
+      if (seed.length > 0) sbUpsert('faqs', seed).then(function(){ console.log('FAQs seeded'); })
+        .catch(function(err){ console.error('Error seeding FAQs:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking FAQs seed:', err); });
 }
 
 // ── Event delegation ──────────────────────────────────────────────
