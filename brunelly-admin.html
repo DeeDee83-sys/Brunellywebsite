@@ -534,11 +534,33 @@ function sbUpdate(table, id, data) {
   });
 }
 
-function sbDelete(table, id) {
-  return supabaseClient.from(table).delete().eq('id', id).then(function(res) {
+function sbDelete(table, id, filter) {
+  var query = supabaseClient.from(table).delete();
+  if (filter && filter.op === 'gt') {
+    query = query.gt(filter.col, filter.val);
+  } else {
+    query = query.eq('id', id);
+  }
+  return query.then(function(res) {
     if (res.error) throw res.error;
     return res.data;
   });
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isSafeUrl(str) {
+  if (str == null) return false;
+  var s = String(str).trim().toLowerCase();
+  return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────
@@ -591,16 +613,17 @@ var CBG = {'AI':'rgba(167,139,250,.12)','Agile':'rgba(96,165,250,.1)','ChatGPT &
 function renderArticles() {
   sbGet('articles').then(function(arts) {
     if (!Array.isArray(arts)) { arts = []; }
+    window._cmsArticles = arts;
     document.getElementById('art-count').textContent = '(' + arts.length + ')';
     var tbody = document.getElementById('articles-tbody');
     tbody.innerHTML = arts.length
       ? arts.map(function(a,i) {
           return '<tr>'
-            + '<td>' + (a.image ? '<img src="'+a.image+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
-            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + (a.category||'') + '</span></td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'articles\',' + i + ',' + JSON.stringify(arts).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'articles\',\'' + a.id + '\')">Delete</button></td>'
+            + '<td>' + (a.image ? '<img src="'+escapeHtml(a.image)+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
+            + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br>' + (isSafeUrl(a.url) ? '<a href="'+escapeHtml(a.url)+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a>' : '<span style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);">'+escapeHtml(a.url||'—')+'</span>') + '</td>'
+            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + escapeHtml(a.category||'') + '</span></td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + escapeHtml(a.date||'—') + '</td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="articles" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="articles" data-id="' + escapeHtml(a.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
@@ -611,17 +634,18 @@ function renderArticles() {
 function renderVideos() {
   sbGet('videos').then(function(vids) {
     if (!Array.isArray(vids)) vids = [];
+    window._cmsVideos = vids;
     document.getElementById('vid-count').textContent = '(' + vids.length + ')';
     var tbody = document.getElementById('videos-tbody');
     tbody.innerHTML = vids.length
       ? vids.map(function(v,i) {
-          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+v.youtube_id+'/default.jpg' : '';
+          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+escapeHtml(v.youtube_id)+'/default.jpg' : '';
           return '<tr>'
             + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
-            + '<td class="td-title">' + v.title + '</td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
+            + '<td class="td-title">' + escapeHtml(v.title) + '</td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'videos\',' + i + ',' + JSON.stringify(vids).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'videos\',\'' + v.id + '\')">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + escapeHtml(v.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
@@ -632,15 +656,16 @@ function renderVideos() {
 function renderUseCases() {
   sbGet('use_cases','order=sort_order.asc').then(function(ucs) {
     if (!Array.isArray(ucs)) ucs = [];
+    window._cmsUseCases = ucs;
     var tbody = document.getElementById('uc-tbody');
     tbody.innerHTML = ucs.length
       ? ucs.map(function(uc,i) {
           return '<tr>'
-            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+(uc.icon_bg||'var(--accent-dim)')+';color:'+(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+(uc.icon||'◈')+'</div></td>'
-            + '<td class="td-title" style="max-width:340px;">' + uc.title + '</td>'
+            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+escapeHtml(uc.icon_bg||'var(--accent-dim)')+';color:'+escapeHtml(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+escapeHtml(uc.icon||'◈')+'</div></td>'
+            + '<td class="td-title" style="max-width:340px;">' + escapeHtml(uc.title) + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
-            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(\'' + uc.id + '\',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'usecases\',' + i + ',' + JSON.stringify(ucs).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'use_cases\',\'' + uc.id + '\')">Delete</button></td>'
+            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' data-id="' + escapeHtml(uc.id) + '"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + escapeHtml(uc.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
@@ -650,7 +675,8 @@ function renderUseCases() {
 
 function toggleUC(id, val) {
   sbUpdate('use_cases', id, {published: val, updated_at: new Date().toISOString()})
-    .then(function(){ renderUseCases(); showToast(val ? 'Use case published' : 'Use case hidden', 'success'); });
+    .then(function(){ renderUseCases(); showToast(val ? 'Use case published' : 'Use case hidden', 'success'); })
+    .catch(function(err){ showToast('Error updating use case: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function render() {
@@ -664,6 +690,11 @@ function render() {
 
 // ── Form ──────────────────────────────────────────────────────────
 var _currentItems = [];
+window._cmsArticles = [];
+window._cmsVideos = [];
+window._cmsUseCases = [];
+window._cmsFaqsHub = [];
+window._cmsFaqsPricing = [];
 
 function showAdd() {
   document.getElementById('form-idx').value = '';
@@ -674,8 +705,13 @@ function showAdd() {
   showFormView();
 }
 
-function editItem(type, idx, itemsJson) {
-  var items = typeof itemsJson === 'string' ? JSON.parse(itemsJson.replace(/&quot;/g,'"')) : itemsJson;
+function editItem(type, idx) {
+  var items;
+  if (type === 'articles') items = window._cmsArticles;
+  else if (type === 'videos') items = window._cmsVideos;
+  else if (type === 'usecases') items = window._cmsUseCases;
+  else return;
+  if (!Array.isArray(items) || idx < 0 || idx >= items.length) return;
   _currentItems = items;
   var item = items[idx];
   var t = type==='usecases'?'uc':type==='videos'?'video':'article';
@@ -710,7 +746,8 @@ function editItem(type, idx, itemsJson) {
 
 function deleteItem(table, id) {
   if (!confirm('Delete this item? This cannot be undone.')) return;
-  sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); });
+  sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); })
+    .catch(function(err){ showToast('Error deleting item: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function saveItem() {
@@ -805,19 +842,19 @@ function renderImages() {
     slots.forEach(function(s) {
       if (s.page !== currentPage) {
         currentPage = s.page;
-        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
+        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+escapeHtml(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
       }
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearFeatImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button data-action="clear-feat" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+'</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-slot="'+s.id+'" onchange="saveFeatImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+'</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-slot="'+escapeHtml(s.id)+'" data-action="save-feat" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No feature image slots found.</div>';
@@ -829,12 +866,14 @@ function saveFeatImage(input) {
   var id = input.getAttribute('data-slot');
   var url = input.value.trim();
   sbUpdate('feature_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
-    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); });
+    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); })
+    .catch(function(err){ showToast('Error saving image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function clearFeatImage(id) {
   sbUpdate('feature_images', id, { image_url: null, updated_at: new Date().toISOString() })
-    .then(function(){ renderImages(); showToast('Image cleared', 'success'); });
+    .then(function(){ renderImages(); showToast('Image cleared', 'success'); })
+    .catch(function(err){ showToast('Error clearing image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── Hero Images ───────────────────────────────────────────────────
@@ -846,16 +885,16 @@ function renderHeroImages() {
     var html = '';
     slots.forEach(function(s) {
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearHeroImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button data-action="clear-hero" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+' tab</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-hero="'+s.id+'" onchange="saveHeroImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+' tab</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-hero="'+escapeHtml(s.id)+'" data-action="save-hero" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No hero image slots found.</div>';
@@ -866,12 +905,14 @@ function saveHeroImage(input) {
   var id = input.getAttribute('data-hero');
   var url = input.value.trim();
   sbUpdate('hero_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
-    .then(function(){ renderHeroImages(); showToast(url ? 'Hero image saved' : 'Hero image cleared', 'success'); });
+    .then(function(){ renderHeroImages(); showToast(url ? 'Hero image saved' : 'Hero image cleared', 'success'); })
+    .catch(function(err){ showToast('Error saving hero image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 function clearHeroImage(id) {
   sbUpdate('hero_images', id, { image_url: null, updated_at: new Date().toISOString() })
-    .then(function(){ renderHeroImages(); showToast('Hero image cleared', 'success'); });
+    .then(function(){ renderHeroImages(); showToast('Hero image cleared', 'success'); })
+    .catch(function(err){ showToast('Error clearing hero image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── FAQs ──────────────────────────────────────────────────────────
@@ -882,6 +923,8 @@ function renderFaqs() {
   ]).then(function(results) {
     var hubFaqs = Array.isArray(results[0]) ? results[0] : [];
     var priceFaqs = Array.isArray(results[1]) ? results[1] : [];
+    window._cmsFaqsHub = hubFaqs;
+    window._cmsFaqsPricing = priceFaqs;
     ['hub','pricing'].forEach(function(page) {
       var faqs = page==='hub' ? hubFaqs : priceFaqs;
       var tbody = document.getElementById(page+'-faq-tbody');
@@ -890,10 +933,10 @@ function renderFaqs() {
         ? faqs.map(function(f,i) {
             return '<tr>'
               + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
-              + '<td class="td-title" style="max-width:500px;">'+f.question+'</td>'
+              + '<td class="td-title" style="max-width:500px;">'+escapeHtml(f.question)+'</td>'
               + '<td class="td-actions">'
-              + '<button class="btn btn-ghost" onclick="editFaqById(\'' + page + '\',\'' + f.id + '\',\'' + f.question.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\',\'' + f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\')">Edit</button>'
-              + '<button class="btn btn-danger" onclick="deleteFaqById(\'' + f.id + '\')">Delete</button>'
+              + '<button class="btn btn-ghost" data-action="edit-faq" data-page="' + escapeHtml(page) + '" data-id="' + escapeHtml(f.id) + '">Edit</button>'
+              + '<button class="btn btn-danger" data-action="delete-faq" data-id="' + escapeHtml(f.id) + '">Delete</button>'
               + '</td></tr>';
           }).join('')
         : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
@@ -911,13 +954,17 @@ function showFaqForm(page) {
   document.getElementById('faq-form-heading').textContent = 'Add FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
 }
 
-function editFaqById(page, id, q, a) {
+function editFaqById(page, id) {
+  var faqs = page === 'hub' ? window._cmsFaqsHub : window._cmsFaqsPricing;
+  if (!Array.isArray(faqs)) return;
+  var f = faqs.find(function(x){ return x.id === id; });
+  if (!f) return;
   document.getElementById('view-faqs').style.display='none';
   document.getElementById('view-faq-form').style.display='block';
   document.getElementById('faq-form-page').value = page;
   document.getElementById('faq-form-idx').value = id;
-  document.getElementById('ff-q').value = q;
-  document.getElementById('ff-a').value = a;
+  document.getElementById('ff-q').value = f.question || '';
+  document.getElementById('ff-a').value = f.answer || '';
   document.getElementById('faq-form-heading').textContent = 'Edit FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
 }
 
@@ -939,12 +986,15 @@ function saveFaq() {
   sbUpsert('faqs', item).then(function(){
     showToast('FAQ saved — live immediately','success');
     cancelFaqForm();
+  }).catch(function(err){
+    showToast('Error saving FAQ: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
 function deleteFaqById(id) {
   if (!confirm('Delete this FAQ?')) return;
-  sbDelete('faqs', id).then(function(){ renderFaqs(); showToast('FAQ deleted','success'); });
+  sbDelete('faqs', id).then(function(){ renderFaqs(); showToast('FAQ deleted','success'); })
+    .catch(function(err){ showToast('Error deleting FAQ: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
 // ── Leads ─────────────────────────────────────────────────────────
@@ -964,9 +1014,9 @@ function renderLeads() {
         ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-mid);color:var(--accent);">Chatbot</span>'
         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;">Contact Form</span>';
       return '<tr>'
-        + '<td style="color:var(--white);">' + (l.name||'—') + '</td>'
-        + '<td><a href="mailto:'+l.email+'" style="color:var(--accent);text-decoration:none;">'+l.email+'</a></td>'
-        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+l.company+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
+        + '<td style="color:var(--white);">' + escapeHtml(l.name||'—') + '</td>'
+        + '<td style="color:var(--accent);">'+escapeHtml(l.email)+'</td>'
+        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+escapeHtml(l.company)+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
         + '<td>' + sourceBadge + '</td>'
         + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);">' + d + '</td>'
         + '</tr>';
@@ -989,20 +1039,22 @@ function exportLeads() {
     a.download = 'brunelly-leads-'+new Date().toISOString().slice(0,10)+'.csv';
     a.click();
     showToast('Exported '+leads.length+' leads','success');
+  }).catch(function(err){
+    showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
-  supabaseClient.from('leads').delete().gt('id', 0).then(function(res) {
-    if (res.error) {
-      showToast('Error clearing leads: ' + (res.error.message || ''), 'error');
-      return;
-    }
-    try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
-    renderLeads();
-    showToast('All leads cleared', 'success');
-  });
+  sbDelete('leads', null, {op:'gt', col:'id', val:0})
+    .then(function(){
+      try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
+      renderLeads();
+      showToast('All leads cleared', 'success');
+    })
+    .catch(function(err){
+      showToast('Error clearing leads: ' + (err && err.message ? err.message : ''), 'error');
+    });
 }
 
 // ── Export/Import ─────────────────────────────────────────────────
@@ -1016,6 +1068,8 @@ function exportData(type) {
     a.download = 'brunelly-'+type+'-'+new Date().toISOString().slice(0,10)+'.json';
     a.click();
     showToast('Exported','success');
+  }).catch(function(err){
+    showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -1030,6 +1084,8 @@ function importData(event, type) {
       sbUpsert(table, data).then(function(){
         render();
         showToast('Imported '+data.length+' items','success');
+      }).catch(function(err){
+        showToast('Import failed: ' + (err && err.message ? err.message : ''), 'error');
       });
     } catch(err) { showToast('Invalid JSON file','error'); }
   };
@@ -1055,31 +1111,83 @@ function seedIfEmpty() {
       console.log('Seeding articles...');
       var seed = window.ARTICLES_SEED || [];
       if (seed.length > 0) {
-        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); });
+        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); })
+          .catch(function(err){ console.error('Error seeding articles:', err); });
       }
     }
-  });
+  }).catch(function(err){ console.error('Error checking articles seed:', err); });
 
   sbGet('videos','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.VIDEOS_SEED || [];
-      if (seed.length > 0) sbUpsert('videos', seed).then(function(){ console.log('Videos seeded'); });
+      if (seed.length > 0) sbUpsert('videos', seed).then(function(){ console.log('Videos seeded'); })
+        .catch(function(err){ console.error('Error seeding videos:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking videos seed:', err); });
 
   sbGet('use_cases','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.UC_SEED || [];
-      if (seed.length > 0) sbUpsert('use_cases', seed).then(function(){ console.log('Use cases seeded'); });
+      if (seed.length > 0) sbUpsert('use_cases', seed).then(function(){ console.log('Use cases seeded'); })
+        .catch(function(err){ console.error('Error seeding use cases:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking use cases seed:', err); });
 
   sbGet('faqs','select=id&limit=1').then(function(rows) {
     if (Array.isArray(rows) && rows.length === 0) {
       var seed = window.FAQS_SEED || [];
-      if (seed.length > 0) sbUpsert('faqs', seed).then(function(){ console.log('FAQs seeded'); });
+      if (seed.length > 0) sbUpsert('faqs', seed).then(function(){ console.log('FAQs seeded'); })
+        .catch(function(err){ console.error('Error seeding FAQs:', err); });
     }
-  });
+  }).catch(function(err){ console.error('Error checking FAQs seed:', err); });
+}
+
+// ── Event delegation ──────────────────────────────────────────────
+function handleTableClick(e) {
+  var btn = e.target.closest('button');
+  if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  if (action === 'edit') {
+    editItem(btn.getAttribute('data-type'), parseInt(btn.getAttribute('data-index'), 10));
+  } else if (action === 'delete') {
+    deleteItem(btn.getAttribute('data-table'), btn.getAttribute('data-id'));
+  }
+}
+
+function handleToggleChange(e) {
+  var cb = e.target.closest('input[type="checkbox"]');
+  if (!cb) return;
+  var id = cb.getAttribute('data-id');
+  if (id) toggleUC(id, cb.checked);
+}
+
+function handleImageClick(e) {
+  var btn = e.target.closest('button');
+  if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  var id = btn.getAttribute('data-id');
+  if (action === 'clear-feat') clearFeatImage(id);
+  else if (action === 'clear-hero') clearHeroImage(id);
+}
+
+function handleImageChange(e) {
+  var input = e.target.closest('input[type="url"]');
+  if (!input) return;
+  var action = input.getAttribute('data-action');
+  if (action === 'save-feat') saveFeatImage(input);
+  else if (action === 'save-hero') saveHeroImage(input);
+}
+
+function handleFaqClick(e) {
+  var btn = e.target.closest('button');
+  if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  var id = btn.getAttribute('data-id');
+  if (action === 'edit-faq') {
+    editFaqById(btn.getAttribute('data-page'), id);
+  } else if (action === 'delete-faq') {
+    deleteFaqById(id);
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────
@@ -1087,6 +1195,18 @@ function init() {
   seedIfEmpty();
   render();
   updateStats();
+  document.getElementById('articles-tbody').addEventListener('click', handleTableClick);
+  document.getElementById('videos-tbody').addEventListener('click', handleTableClick);
+  document.getElementById('uc-tbody').addEventListener('click', handleTableClick);
+  document.getElementById('uc-tbody').addEventListener('change', handleToggleChange);
+  document.getElementById('feat-images-grid').addEventListener('click', handleImageClick);
+  document.getElementById('feat-images-grid').addEventListener('change', handleImageChange);
+  document.getElementById('hero-images-grid').addEventListener('click', handleImageClick);
+  document.getElementById('hero-images-grid').addEventListener('change', handleImageChange);
+  var hubFaqTbody = document.getElementById('hub-faq-tbody');
+  var pricingFaqTbody = document.getElementById('pricing-faq-tbody');
+  if (hubFaqTbody) hubFaqTbody.addEventListener('click', handleFaqClick);
+  if (pricingFaqTbody) pricingFaqTbody.addEventListener('click', handleFaqClick);
 }
 
 // init() is called by requireAuthAndRole() after successful session + role check

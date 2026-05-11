@@ -134,7 +134,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
       <a href="brunelly-resources.html" target="_blank" class="btn-sm btn-ghost-sm" style="text-decoration:none;">View site →</a>
       <a href="brunelly-admin.html" target="_blank" class="btn-sm btn-ghost-sm" style="text-decoration:none;">CMS →</a>
       <button class="btn-sm btn-ghost-sm" onclick="exportCSV()">Export CSV</button>
-      <button class="btn-sm btn-danger-sm" onclick="clearData()">Clear data</button>
+      <button class="btn-sm btn-danger-sm" id="clear-btn" onclick="clearData()">Clear data</button>
       <button class="btn-sm btn-ghost-sm" onclick="logout()">Sign out</button>
     </div>
   </div>
@@ -721,14 +721,30 @@ function exportCSV(){
 
 function clearData(){
   if(!confirm('Clear all analytics data? This cannot be undone.'))return;
-  localStorage.removeItem('brunelly_analytics');
-  renderAll();
-  showToast('Data cleared');
+  supabaseClient.from('analytics_events').delete().gt('id',0).then(function(){
+    localStorage.removeItem('brunelly_analytics');
+    _eventsCache = null;
+    _eventsCacheTime = 0;
+    renderAll();
+    showToast('All analytics data cleared');
+  }).catch(function(err){
+    showToast('Error clearing analytics data: ' + (err && err.message ? err.message : ''), 'error');
+  });
 }
 
-function showToast(msg){
+function showToast(msg, type){
   const t=document.getElementById('toast');
-  t.textContent='✓ '+msg; t.style.display='flex';
+  t.textContent=(type==='error'?'✗ ':'✓ ')+msg;
+  if(type==='error'){
+    t.style.background='var(--red-dim)';
+    t.style.borderColor='rgba(248,113,113,.3)';
+    t.style.color='var(--red)';
+  } else {
+    t.style.background='var(--green-dim)';
+    t.style.borderColor='var(--green-mid)';
+    t.style.color='var(--green)';
+  }
+  t.style.display='flex';
   setTimeout(()=>t.style.display='none',2500);
 }
 
@@ -765,6 +781,8 @@ function renderAll(){
 }
 
 function init(){
+  var clearBtn = document.getElementById('clear-btn');
+  if (clearBtn) clearBtn.style.display = (window.currentRole === 'admin') ? 'inline-block' : 'none';
   seedDemoData();
   renderAll();
   setInterval(()=>{const a=getEvents();renderKPIs(filterByRange(a),prevPeriod(a));renderEvents();},60000);

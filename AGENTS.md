@@ -31,17 +31,40 @@ code/
 - Do not introduce new inline `var SUPA_URL` / `var SUPA_KEY` declarations in HTML files.
 - Prefer `window.SUPA_URL` and `window.SUPA_KEY` globals loaded from `supabase-config.js`.
 - Validate HTML and check JavaScript syntax before committing.
+- Escape all user-controlled values before inserting them into HTML via `innerHTML`. Use the shared `escapeHtml()` helper (or safe DOM construction) rather than raw string concatenation.
 
 ## Security
 
-### Current Work
-Bug 1: Critical security vulnerability — hardcoded Supabase API key with public write access.
+### Completed Work
+
+**Bug 1: Hardcoded Supabase API key with public write access**
 - **Step 1 (Complete)**: Exposed key rotated in code; centralised config created; inline declarations removed.
 - **Step 2 (Complete)**: Replaced password gates with Supabase Auth (email/password). Role checking via `profiles` table. Dashboards gate `init()` behind authenticated session + role check.
 - **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
 - **Step 4 (Complete)**: Refactored admin and analytics dashboards to use `supabaseClient.from()` for all reads/writes. Removed raw `fetch()` helpers and `sbHeaders()`. Public pages continue to use the anon-key global for minimum required reads.
 - **Step 5 (Complete)**: Fixed `sbGet` and `sbFetchAna` query-string filter parsing to support PostgREST operator syntax (e.g., `page=eq.hub`, `ts=gte.12345`).
 - **Step 6 (Complete)**: Fixed pre-existing JavaScript syntax errors in `brunelly-admin.html` inline script block (unescaped single quotes inside single-quoted string literals).
+
+**Bug 2: Hardcoded admin password in client-side JavaScript / sessionStorage auth bypass**
+- **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
+- Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
+
+### Defensive Security Hardening (In Progress)
+Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors and brittle patterns:
+
+- **Step 1 (Complete)**: Stored XSS remediation. Added `escapeHtml()` helper to `brunelly-admin.html` and applied explicit HTML-escaping to all user-controlled values in `renderArticles`, `renderVideos`, `renderUseCases`, `renderFaqs`, `renderLeads`, `renderImages`, and `renderHeroImages`.
+- **Step 2 (Complete)**: Removed all dynamic inline `onclick`/`onchange` handlers from `brunelly-admin.html` and replaced them with event delegation. Buttons and inputs now use stable `data-*` attributes (`data-action`, `data-type`, `data-index`, `data-table`, `data-id`, `data-page`). `editItem()` and `editFaqById()` now look up items from global caches instead of parsing JSON blobs embedded in HTML attributes.
+- **Step 3 (Complete)**: FAQ edit-button injection issue resolved during Step 2. Broken single-quote escaping removed; FAQ question/answer values are no longer interpolated into executable JS contexts. `editFaqById()` now looks up FAQ data from global cache by stable `data-id`.
+- **Step 4 (Complete)**: Added `.catch()` to all previously unhandled promise chains in `brunelly-admin.html`. User-facing operations (`toggleUC`, `saveFeatImage`, `clearFeatImage`, `saveHeroImage`, `clearHeroImage`, `saveFaq`, `deleteFaqById`, `deleteItem`) now surface errors via `showToast`. Background `seedIfEmpty` seeding routines log errors via `console.error`.
+- **Step 5 (Complete)**: Extended `sbDelete()` with an optional `filter` parameter and refactored `clearLeads()` to use it instead of a raw `supabaseClient.from(...).delete()` call. Added `.catch()` with `showToast` error handling so failures are visible to the user.
+- **Step 6 (Complete)**: Updated `clearData()` in `brunelly-analytics.html` to actually delete `analytics_events` records from Supabase (via `.delete().gt('id',0)`) before clearing local cache. Added admin-only DELETE RLS policy. Extended `showToast()` to support error styling so failures are visible.
+- **Step 7 (Complete)**: Added `.catch()` to `exportLeads()`, `exportData()`, and `importData()` in `brunelly-admin.html` to ensure Supabase failures during import/export operations surface user-visible toast errors instead of failing silently.
+- **Step 8 (Complete)**: Hardened XSS/injection defenses in `brunelly-admin.html` rendering. Added `isSafeUrl()` helper that permits only `http://` and `https://` schemes. Article URLs are now rendered as plain text when unsafe, and lead email `mailto:` links were removed in favour of plain text.
+- **Step 9 (Complete)**: Applied defense-in-depth escaping to all dynamically generated `data-*` attribute values (`data-id`, `data-index`, `data-page`) in `brunelly-admin.html` using `escapeHtml()`. This prevents attribute-breakout injection even if future IDs contain quote characters.
+- **Step 10 (Complete)**: Improved analytics UX alignment with authorization in `brunelly-analytics.html`. The **Clear data** button now has `id="clear-btn"` and `init()` conditionally shows it only when `window.currentRole === 'admin'`, matching the RLS policy that restricts `analytics_events` DELETE to admins.
+- **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
+- **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
+- **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
@@ -61,6 +84,15 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 - RLS policies must deny anonymous `UPDATE` and `DELETE` on all tables.
 - `user_has_role(ARRAY['admin','content_editor'])` is the centralised role-check helper used in all content-table policies.
 
+## Multi-Factor Authentication (MFA)
+
+- Supabase Auth supports optional MFA (TOTP via authenticator apps).
+- MFA is **not currently enforced** for any role. To enable it:
+  1. Enable MFA in the Supabase Auth dashboard (Authentication → Providers → Phone/OTP or Authenticator App).
+  2. Update the login flow in `brunelly-admin.html` and `brunelly-analytics.html` to challenge for a TOTP code after successful password verification.
+  3. Store the `aal` (Authenticator Assurance Level) requirement per role in the `profiles` table if granular enforcement is needed.
+- For now, single-factor auth is sufficient. Document any future MFA mandate as a separate security initiative.
+
 ## Database
 
 - Schema and seed data are defined in `brunelly-supabase-setup.sql`.
@@ -74,8 +106,8 @@ Bug 1: Critical security vulnerability — hardcoded Supabase API key with publi
 
 ## Git Workflow
 
-- Branch: `bug/1-critical-security-vulnerability-hardcoded-supabase`
-- Commit messages: `security(step-N): brief description`
+- Branch: `bug/2-critical-security-vulnerability-hardcoded-admin`
+- Commit messages: `security(step-N): brief description` or `docs(bug-2): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
 
 ## Deployment Notes

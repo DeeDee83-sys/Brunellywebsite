@@ -202,12 +202,16 @@ CREATE POLICY "Admin/editor manage hero_images"
     auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
   );
 
--- ── analytics_events: public insert, authenticated select only ─────
+-- ── analytics_events: public insert, authenticated select only, admin delete ─────
 CREATE POLICY "Public insert analytics"
   ON analytics_events FOR INSERT WITH CHECK (true);
 CREATE POLICY "Admin/viewer read analytics"
   ON analytics_events FOR SELECT USING (
     auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','analytics_viewer'])
+  );
+CREATE POLICY "Admin delete analytics"
+  ON analytics_events FOR DELETE USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin'])
   );
 
 -- ── leads: public insert, admin read/delete only ──────────────────
