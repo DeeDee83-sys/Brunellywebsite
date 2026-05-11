@@ -101,6 +101,10 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Idempotency**: Server-side unique constraint on `event_id` guarantees exactly one row per pageview even if load and unload requests race.
 - **Interaction tracking**: Article clicks, video clicks, and newsletter signups continue to use standard `fetch` inserts via `trackInteraction()`.
 
+**Bug 5: Stored XSS Vulnerability via innerHTML in FAQ Rendering on Public Pages**
+- **Status**: In Progress — branch `bug/5-stored-xss-vulnerability-via-innerhtml`.
+- **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `brunelly-features-hub.html` and `brunelly-pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -142,7 +146,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
