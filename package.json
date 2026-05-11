@@ -1,0 +1,11 @@
+{
+  "name": "brunelly-site-tests",
+  "version": "1.0.0",
+  "description": "Automated test coverage for BrunellySite security-critical flows",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
