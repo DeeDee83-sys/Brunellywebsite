@@ -574,7 +574,7 @@ footer {
         <h2>See Brunelly in action</h2>
         <p>Step-by-step product walkthroughs demonstrating real Brunelly functionality. More videos coming soon.</p>
       </div>
-      <a href="https://www.youtube.com/@Brunelly" target="_blank" class="view-all-link">YouTube channel &#8594;</a>
+      <a href="https://www.youtube.com/@Brunelly" target="_blank" rel="noopener noreferrer" class="view-all-link">YouTube channel &#8594;</a>
     </div>
     <div class="videos-grid reveal" id="videos-grid"></div>
   </div>
@@ -622,18 +622,18 @@ footer {
     </div>
     <div class="footer-col">
       <h4>Community</h4>
-      <a href="https://www.linkedin.com/company/brunelly/" target="_blank">LinkedIn</a>
-      <a href="https://x.com/BrunellyAI" target="_blank">X / Twitter</a>
-      <a href="https://www.reddit.com/r/Brunelly/" target="_blank">Reddit</a>
-      <a href="https://discord.gg/cWfNSXzQjr" target="_blank">Discord</a>
+      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://x.com/BrunellyAI" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" rel="noopener noreferrer">Reddit</a>
+      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" rel="noopener noreferrer">Discord</a>
     </div>
   </div>
   <div class="footer-right">
     <div class="footer-socials">
-      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" class="social-btn" title="LinkedIn">in</a>
-      <a href="https://x.com/BrunellyAI" target="_blank" class="social-btn" title="X / Twitter">&#120143;</a>
-      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" class="social-btn" title="Reddit">r/</a>
-      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" class="social-btn" title="Discord">DC</a>
+      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn">in</a>
+      <a href="https://x.com/BrunellyAI" target="_blank" rel="noopener noreferrer" class="social-btn" title="X / Twitter">&#120143;</a>
+      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" rel="noopener noreferrer" class="social-btn" title="Reddit">r/</a>
+      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" rel="noopener noreferrer" class="social-btn" title="Discord">DC</a>
     </div>
     <div class="footer-policy">
       <a href="brunelly-privacy.html">Privacy</a>
@@ -665,7 +665,10 @@ function sbFetch(table, params) {
       'Authorization': 'Bearer ' + SUPA_KEY,
       'Content-Type': 'application/json'
     }
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
 }
 
 function sbInsert(table, data) {
@@ -679,6 +682,32 @@ function sbInsert(table, data) {
     },
     body: JSON.stringify(data)
   });
+}
+
+// ── Security helpers ──────────────────────────────────────────────
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isSafeUrl(str) {
+  if (str == null) return false;
+  var s = String(str).trim().toLowerCase();
+  return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
+}
+
+function isSafeCssValue(str) {
+  if (str == null) return false;
+  var s = String(str).toLowerCase();
+  if (/javascript:/.test(s)) return false;
+  if (/expression\s*\(/.test(s)) return false;
+  if (/url\s*\(\s*["']?javascript:/.test(s)) return false;
+  return true;
 }
 
 // ── Seed data (fallback if Supabase unavailable) ──────────────────
@@ -729,79 +758,176 @@ function renderArticles() {
   var grid = document.getElementById('articles-grid');
   grid.innerHTML = '<div class="no-results" style="padding:3rem;text-align:center;color:var(--muted);font-family:DM Mono,monospace;font-size:.75rem;">Loading articles...</div>';
   getArticles(function(all) {
-  var filtered = currentCat === 'all' ? all : all.filter(function(a) { return a.category === currentCat; });
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="no-results">No articles in this category yet.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < filtered.length; i++) {
-    var a = filtered[i];
-    var cc = CAT_COLOR[a.category]  || '#a78bfa';
-    var cb = CAT_BORDER[a.category] || 'rgba(167,139,250,.4)';
-    var cbg= CAT_BG[a.category]     || 'rgba(167,139,250,.12)';
-    var imgHtml = a.image
-      ? '<img src="' + a.image + '" alt="" class="article-img" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<div class="article-img-ph">No image</div>';
-    html += '<a href="' + a.url + '" target="_blank" class="article-card" data-id="' + a.id + '">'
-          + imgHtml
-          + '<div class="article-body">'
-          + '<span class="article-tag" style="color:' + cc + ';border-color:' + cb + ';background:' + cbg + ';">' + a.category + '</span>'
-          + '<h3>' + a.title + '</h3>'
-          + '<p>' + a.excerpt + '</p>'
-          + '<div class="article-meta"><span>' + (a.date || '') + '</span><span class="article-arrow">&#8594;</span></div>'
-          + '</div>'
-          + '</a>';
-  }
-  grid.innerHTML = html;
-  }); // end getArticles callback
+    var filtered = currentCat === 'all' ? all : all.filter(function(a) { return a.category === currentCat; });
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="no-results">No articles in this category yet.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    for (var i = 0; i < filtered.length; i++) {
+      var a = filtered[i];
+      var cc = CAT_COLOR[a.category] || '#a78bfa';
+      var cb = CAT_BORDER[a.category] || 'rgba(167,139,250,.4)';
+      var cbg = CAT_BG[a.category] || 'rgba(167,139,250,.12)';
+
+      var card = document.createElement('a');
+      card.className = 'article-card';
+      card.setAttribute('data-id', escapeHtml(a.id));
+      if (isSafeUrl(a.url)) {
+        card.href = a.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      } else {
+        card.href = '#';
+        card.style.cursor = 'default';
+      }
+
+      if (a.image && isSafeUrl(a.image)) {
+        var img = document.createElement('img');
+        img.src = a.image;
+        img.alt = '';
+        img.className = 'article-img';
+        img.loading = 'lazy';
+        img.onerror = function() { this.style.display = 'none'; };
+        card.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.className = 'article-img-ph';
+        ph.textContent = 'No image';
+        card.appendChild(ph);
+      }
+
+      var body = document.createElement('div');
+      body.className = 'article-body';
+
+      var tag = document.createElement('span');
+      tag.className = 'article-tag';
+      tag.style.color = cc;
+      tag.style.borderColor = cb;
+      tag.style.background = cbg;
+      tag.textContent = a.category || '';
+      body.appendChild(tag);
+
+      var h3 = document.createElement('h3');
+      h3.textContent = a.title || '';
+      body.appendChild(h3);
+
+      var p = document.createElement('p');
+      p.textContent = a.excerpt || '';
+      body.appendChild(p);
+
+      var meta = document.createElement('div');
+      meta.className = 'article-meta';
+      var dateSpan = document.createElement('span');
+      dateSpan.textContent = a.date || '';
+      meta.appendChild(dateSpan);
+      var arrow = document.createElement('span');
+      arrow.className = 'article-arrow';
+      arrow.innerHTML = '&#8594;';
+      meta.appendChild(arrow);
+      body.appendChild(meta);
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    }
+  });
 }
 
 // ── Videos ────────────────────────────────────────────────────────
 function renderVideos() {
   var grid = document.getElementById('videos-grid');
   getVideos(function(all) {
-  if (!all.length) {
-    grid.innerHTML = '<div class="no-results">No videos yet.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < all.length; i++) {
-    var v = all[i];
-    var hasVideo = !!(v.youtubeUrl && v.youtubeId);
-    var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg' : '';
-    var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
-    var cardOpen = hasVideo
-      ? '<a href="' + v.youtubeUrl + '" target="_blank" class="' + cardClass + '">'
-      : '<div class="' + cardClass + '">';
-    var cardClose = hasVideo ? '</a>' : '</div>';
-
-    var thumbContent = '';
-    if (thumb) {
-      thumbContent += '<img src="' + thumb + '" alt="" onerror="this.style.display=\'none\'">';
+    if (!all.length) {
+      grid.innerHTML = '<div class="no-results">No videos yet.</div>';
+      return;
     }
-    thumbContent += '<div class="video-thumb-ph" style="' + (thumb ? 'display:none;' : '') + '">'
-                  + '<div class="video-play-btn">' + (hasVideo ? '&#9654;' : '&#8987;') + '</div>'
-                  + (hasVideo ? '' : '<div class="video-coming-txt">Coming soon</div>')
-                  + '</div>';
-    if (hasVideo)  thumbContent += '<div class="video-watch-badge">&#9654; Watch</div>';
-    if (!hasVideo) thumbContent += '<div class="video-soon-badge">Coming soon</div>';
+    grid.innerHTML = '';
+    for (var i = 0; i < all.length; i++) {
+      var v = all[i];
+      var hasVideo = !!(v.youtubeUrl && v.youtubeId);
+      var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + escapeHtml(v.youtubeId) + '/mqdefault.jpg' : '';
+      var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
 
-    var footerHtml = hasVideo
-      ? '<div class="video-footer" style="color:var(--accent);">Watch on YouTube &#8594;</div>'
-      : '<div class="video-footer" style="color:var(--muted);">Coming soon</div>';
+      var card;
+      if (hasVideo && isSafeUrl(v.youtubeUrl)) {
+        card = document.createElement('a');
+        card.href = v.youtubeUrl;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      } else {
+        card = document.createElement('div');
+      }
+      card.className = cardClass;
 
-    html += cardOpen
-          + '<div class="video-thumb">' + thumbContent + '</div>'
-          + '<div class="video-info">'
-          + '<h3>' + v.title + '</h3>'
-          + '<p>' + v.description + '</p>'
-          + footerHtml
-          + '</div>'
-          + cardClose;
-  }
-  grid.innerHTML = html;
-  }); // end getVideos callback
+      var thumbWrap = document.createElement('div');
+      thumbWrap.className = 'video-thumb';
+
+      if (thumb) {
+        var img = document.createElement('img');
+        img.src = thumb;
+        img.alt = '';
+        img.onerror = function() { this.style.display = 'none'; };
+        thumbWrap.appendChild(img);
+      }
+
+      var ph = document.createElement('div');
+      ph.className = 'video-thumb-ph';
+      ph.style.display = thumb ? 'none' : '';
+
+      var playBtn = document.createElement('div');
+      playBtn.className = 'video-play-btn';
+      playBtn.innerHTML = hasVideo ? '&#9654;' : '&#8987;';
+      ph.appendChild(playBtn);
+
+      if (!hasVideo) {
+        var comingTxt = document.createElement('div');
+        comingTxt.className = 'video-coming-txt';
+        comingTxt.textContent = 'Coming soon';
+        ph.appendChild(comingTxt);
+      }
+
+      thumbWrap.appendChild(ph);
+
+      if (hasVideo) {
+        var badge = document.createElement('div');
+        badge.className = 'video-watch-badge';
+        badge.innerHTML = '&#9654; Watch';
+        thumbWrap.appendChild(badge);
+      } else {
+        var soonBadge = document.createElement('div');
+        soonBadge.className = 'video-soon-badge';
+        soonBadge.textContent = 'Coming soon';
+        thumbWrap.appendChild(soonBadge);
+      }
+
+      card.appendChild(thumbWrap);
+
+      var info = document.createElement('div');
+      info.className = 'video-info';
+
+      var h3 = document.createElement('h3');
+      h3.textContent = v.title || '';
+      info.appendChild(h3);
+
+      var p = document.createElement('p');
+      p.textContent = v.description || '';
+      info.appendChild(p);
+
+      var footer = document.createElement('div');
+      footer.className = 'video-footer';
+      if (hasVideo) {
+        footer.style.color = 'var(--accent)';
+        footer.innerHTML = 'Watch on YouTube &#8594;';
+      } else {
+        footer.style.color = 'var(--muted)';
+        footer.textContent = 'Coming soon';
+      }
+      info.appendChild(footer);
+
+      card.appendChild(info);
+      grid.appendChild(card);
+    }
+  });
 }
 
 // ── Use Cases ─────────────────────────────────────────────────────

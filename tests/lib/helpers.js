@@ -22,6 +22,15 @@ function isSafeUrl(str) {
   return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
 }
 
+function isSafeCssValue(str) {
+  if (str == null) return false;
+  var s = String(str).toLowerCase();
+  if (/javascript:/.test(s)) return false;
+  if (/expression\s*\(/.test(s)) return false;
+  if (/url\s*\(\s*["']?javascript:/.test(s)) return false;
+  return true;
+}
+
 function sbGet(table, params) {
   var select = '*';
   var orders = [];
@@ -129,6 +138,7 @@ function sbDelete(table, id, filter) {
 module.exports = {
   escapeHtml,
   isSafeUrl,
+  isSafeCssValue,
   sbGet,
   sbUpsert,
   sbUpdate,
