@@ -718,6 +718,8 @@ function renderArticles() {
       }
     }
     updateStats();
+  }).catch(function(err) {
+    showToast('Error loading articles: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
