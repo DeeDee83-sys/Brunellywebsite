@@ -942,15 +942,33 @@ function renderUseCases() {
     }
     section.style.display = 'block';
     if (navBtn) navBtn.style.display = 'inline-block';
-    var html = '';
+    var grid = document.getElementById('use-cases-grid');
+    grid.innerHTML = '';
     for (var i = 0; i < published.length; i++) {
       var uc = published[i];
-      html += '<div class="use-case">'
-            + '<div class="use-case-icon" style="background:' + (uc.icon_bg || uc.iconBg || 'var(--accent-dim)') + ';color:' + (uc.icon_color || uc.iconColor || 'var(--accent)') + ';">' + (uc.icon || '◈') + '</div>'
-            + '<div><h3>' + uc.title + '</h3><p>' + uc.body + '</p></div>'
-            + '</div>';
+      var card = document.createElement('div');
+      card.className = 'use-case';
+
+      var icon = document.createElement('div');
+      icon.className = 'use-case-icon';
+      var bg = uc.icon_bg || uc.iconBg || 'var(--accent-dim)';
+      var color = uc.icon_color || uc.iconColor || 'var(--accent)';
+      icon.style.background = isSafeCssValue(bg) ? bg : 'var(--accent-dim)';
+      icon.style.color = isSafeCssValue(color) ? color : 'var(--accent)';
+      icon.textContent = uc.icon || '◈';
+      card.appendChild(icon);
+
+      var content = document.createElement('div');
+      var h3 = document.createElement('h3');
+      h3.textContent = uc.title || '';
+      content.appendChild(h3);
+      var p = document.createElement('p');
+      p.textContent = uc.body || '';
+      content.appendChild(p);
+      card.appendChild(content);
+
+      grid.appendChild(card);
     }
-    document.getElementById('use-cases-grid').innerHTML = html;
   });
 }
 
