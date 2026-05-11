@@ -1121,13 +1121,13 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
     fetch(url, opts).catch(function(){});
   }
 
-  function supportsKeepalive() {
+  var keepaliveSupported = (function() {
     try {
       return 'keepalive' in new Request('about:blank');
     } catch (e) {
       return false;
     }
-  }
+  })();
 
   function sendReliably(payload) {
     var headers = {
@@ -1137,7 +1137,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
       'Prefer': 'return=minimal, resolution=merge-duplicates'
     };
 
-    if (supportsKeepalive()) {
+    if (keepaliveSupported) {
       sendJson(UPSERT_URL, payload, headers, true);
       return;
     }
