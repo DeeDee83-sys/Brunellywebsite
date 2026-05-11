@@ -1130,35 +1130,43 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   })();
 
   function sendReliably(payload) {
-    var headers = {
-      'Content-Type': JSON_TYPE,
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Prefer': 'return=minimal, resolution=merge-duplicates'
-    };
+    var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
+    var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
 
+    // Primary: navigator.sendBeacon — fire-and-forget, survives page death.
+    // The browser guarantees delivery attempt even during navigation away,
+    // tab close, or mobile backgrounding. Supabase Cloud accepts apikey
+    // as a query parameter, so custom headers are not required.
+    if (navigator.sendBeacon) {
+      try {
+        if (navigator.sendBeacon(url, blob)) {
+          return;
+        }
+      } catch (e) {}
+    }
+
+    // Fallback 1: fetch with keepalive (supports full upsert headers).
     if (keepaliveSupported) {
+      var headers = {
+        'Content-Type': JSON_TYPE,
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal, resolution=merge-duplicates'
+      };
       sendJson(UPSERT_URL, payload, headers, true);
       return;
     }
 
-    if (navigator.sendBeacon) {
-      var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
-      var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
-      try {
-        navigator.sendBeacon(url, blob);
-      } catch (e) {}
-    } else {
-      try {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', UPSERT_URL, false);
-        xhr.setRequestHeader('Content-Type', JSON_TYPE);
-        xhr.setRequestHeader('apikey', SUPA_KEY);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + SUPA_KEY);
-        xhr.setRequestHeader('Prefer', 'return=minimal, resolution=merge-duplicates');
-        xhr.send(JSON.stringify(payload));
-      } catch (e) {}
-    }
+    // Fallback 2: synchronous XHR for very old browsers.
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', UPSERT_URL, false);
+      xhr.setRequestHeader('Content-Type', JSON_TYPE);
+      xhr.setRequestHeader('apikey', SUPA_KEY);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + SUPA_KEY);
+      xhr.setRequestHeader('Prefer', 'return=minimal, resolution=merge-duplicates');
+      xhr.send(JSON.stringify(payload));
+    } catch (e) {}
   }
 
   function trackPageview(isUnload) {
