@@ -164,28 +164,7 @@ describe('Analytics Tracking', function() {
   });
 
   describe('sendReliably transport selection', function() {
-    test('prefers navigator.sendBeacon when available and successful', function() {
-      var beaconCalled = false;
-      var beaconUrl = null;
-      var mockNavigator = {
-        sendBeacon: function(url, data) {
-          beaconCalled = true;
-          beaconUrl = url;
-          assert.ok(data instanceof Blob);
-          return true;
-        }
-      };
-      var result = sendReliably(
-        { type: 'pageview', event_id: 'ev-1' },
-        { navigator: mockNavigator, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
-      );
-      assert.strictEqual(beaconCalled, true);
-      assert.ok(beaconUrl.indexOf('apikey=') !== -1);
-      assert.ok(beaconUrl.indexOf('on_conflict=event_id') !== -1);
-      assert.strictEqual(result, 'beacon');
-    });
-
-    test('falls back to fetch(keepalive) when sendBeacon is unavailable', function() {
+    test('prefers fetch(keepalive) when available', function() {
       var fetchCalled = false;
       var fetchOpts = null;
       var mockFetch = function(url, opts) {
@@ -197,14 +176,35 @@ describe('Analytics Tracking', function() {
         return Promise.resolve({ ok: true });
       };
       var result = sendReliably(
-        { type: 'pageview', event_id: 'ev-2' },
-        { navigator: {}, fetch: mockFetch, keepaliveSupported: true, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
+        { type: 'pageview', event_id: 'ev-1' },
+        { navigator: { sendBeacon: function() { return true; } }, fetch: mockFetch, keepaliveSupported: true, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
       );
       assert.strictEqual(fetchCalled, true);
       assert.strictEqual(result, 'fetch-keepalive');
     });
 
-    test('falls back to XMLHttpRequest when sendBeacon and fetch are unavailable', function() {
+    test('falls back to navigator.sendBeacon when keepalive fetch is unavailable', function() {
+      var beaconCalled = false;
+      var beaconUrl = null;
+      var mockNavigator = {
+        sendBeacon: function(url, data) {
+          beaconCalled = true;
+          beaconUrl = url;
+          assert.ok(data instanceof Blob);
+          return true;
+        }
+      };
+      var result = sendReliably(
+        { type: 'pageview', event_id: 'ev-2' },
+        { navigator: mockNavigator, keepaliveSupported: false, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
+      );
+      assert.strictEqual(beaconCalled, true);
+      assert.ok(beaconUrl.indexOf('apikey=') !== -1);
+      assert.ok(beaconUrl.indexOf('on_conflict=event_id') !== -1);
+      assert.strictEqual(result, 'beacon');
+    });
+
+    test('falls back to XMLHttpRequest when keepalive fetch and sendBeacon are unavailable', function() {
       var openCalled = false;
       var sendCalled = false;
       var headers = {};
@@ -231,20 +231,20 @@ describe('Analytics Tracking', function() {
       assert.strictEqual(result, 'xhr-sync');
     });
 
-    test('falls back to fetch when sendBeacon returns false', function() {
-      var beaconCalled = false;
+    test('falls back to navigator.sendBeacon when fetch throws synchronously', function() {
       var fetchCalled = false;
+      var beaconCalled = false;
+      var mockFetch = function() { fetchCalled = true; throw new Error('fetch error'); };
       var mockNavigator = {
-        sendBeacon: function() { beaconCalled = true; return false; }
+        sendBeacon: function() { beaconCalled = true; return true; }
       };
-      var mockFetch = function() { fetchCalled = true; return Promise.resolve({ ok: true }); };
       var result = sendReliably(
         { type: 'pageview', event_id: 'ev-4' },
         { navigator: mockNavigator, fetch: mockFetch, keepaliveSupported: true, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
       );
-      assert.strictEqual(beaconCalled, true);
       assert.strictEqual(fetchCalled, true);
-      assert.strictEqual(result, 'fetch-keepalive');
+      assert.strictEqual(beaconCalled, true);
+      assert.strictEqual(result, 'beacon');
     });
 
     test('returns none when no transport is available', function() {
@@ -255,18 +255,31 @@ describe('Analytics Tracking', function() {
       assert.strictEqual(result, 'none');
     });
 
-    test('handles sendBeacon exceptions gracefully', function() {
-      var fetchCalled = false;
+    test('falls back to XMLHttpRequest when fetch and sendBeacon both throw', function() {
+      var openCalled = false;
+      var sendCalled = false;
+      function MockXHR() {}
+      MockXHR.prototype.open = function(method, url, async) {
+        openCalled = true;
+        assert.strictEqual(method, 'POST');
+        assert.strictEqual(async, false);
+      };
+      MockXHR.prototype.setRequestHeader = function() {};
+      MockXHR.prototype.send = function(body) {
+        sendCalled = true;
+        assert.ok(body);
+      };
+      var mockFetch = function() { throw new Error('fetch error'); };
       var mockNavigator = {
         sendBeacon: function() { throw new Error('beacon error'); }
       };
-      var mockFetch = function() { fetchCalled = true; return Promise.resolve({ ok: true }); };
       var result = sendReliably(
         { type: 'pageview', event_id: 'ev-6' },
-        { navigator: mockNavigator, fetch: mockFetch, keepaliveSupported: true, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
+        { navigator: mockNavigator, fetch: mockFetch, keepaliveSupported: true, XMLHttpRequest: MockXHR, SUPA_KEY: 'test-key', UPSERT_URL: 'http://test/rest/v1/analytics_events?on_conflict=event_id' }
       );
-      assert.strictEqual(fetchCalled, true);
-      assert.strictEqual(result, 'fetch-keepalive');
+      assert.strictEqual(openCalled, true);
+      assert.strictEqual(sendCalled, true);
+      assert.strictEqual(result, 'xhr-sync');
     });
   });
 });

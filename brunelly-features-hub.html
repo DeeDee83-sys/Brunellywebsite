@@ -1130,31 +1130,33 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   })();
 
   function sendReliably(payload) {
-    var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
-    var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
+    // Primary: fetch with keepalive (supports full upsert headers).
+    // Ensures Prefer: resolution=merge-duplicates and on_conflict=event_id
+    // are always sent for reliable unload deduplication.
+    if (keepaliveSupported) {
+      try {
+        var headers = {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        };
+        sendJson(UPSERT_URL, payload, headers, true);
+        return;
+      } catch (e) {}
+    }
 
-    // Primary: navigator.sendBeacon — fire-and-forget, survives page death.
-    // The browser guarantees delivery attempt even during navigation away,
-    // tab close, or mobile backgrounding. Supabase Cloud accepts apikey
-    // as a query parameter, so custom headers are not required.
+    // Fallback: navigator.sendBeacon — fire-and-forget, survives page death.
+    // Used when keepalive fetch is unavailable. Supabase Cloud accepts apikey
+    // as a query parameter because custom headers are not supported by Beacon.
     if (navigator.sendBeacon) {
+      var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
+      var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
       try {
         if (navigator.sendBeacon(url, blob)) {
           return;
         }
       } catch (e) {}
-    }
-
-    // Fallback 1: fetch with keepalive (supports full upsert headers).
-    if (keepaliveSupported) {
-      var headers = {
-        'Content-Type': JSON_TYPE,
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal, resolution=merge-duplicates'
-      };
-      sendJson(UPSERT_URL, payload, headers, true);
-      return;
     }
 
     // Fallback 2: synchronous XHR for very old browsers.

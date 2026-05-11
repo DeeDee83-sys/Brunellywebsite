@@ -73,32 +73,33 @@ function sendReliably(payload, env) {
   var UPSERT_URL = env.UPSERT_URL || '';
   var JSON_TYPE = env.JSON_TYPE || 'application/json';
 
-  var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
-  var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
+  // Primary: fetch with keepalive (supports full upsert headers).
+  if (keepaliveSupported && fetchImpl) {
+    try {
+      fetchImpl(UPSERT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(function(){});
+      return 'fetch-keepalive';
+    } catch (e) {}
+  }
 
-  // Primary: navigator.sendBeacon — fire-and-forget, survives page death.
+  // Fallback: navigator.sendBeacon — fire-and-forget, survives page death.
   if (navigator && navigator.sendBeacon) {
     try {
+      var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
+      var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
       if (navigator.sendBeacon(url, blob)) {
         return 'beacon';
       }
     } catch (e) {}
-  }
-
-  // Fallback 1: fetch with keepalive (supports full upsert headers).
-  if (keepaliveSupported && fetchImpl) {
-    fetchImpl(UPSERT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': JSON_TYPE,
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal, resolution=merge-duplicates'
-      },
-      body: JSON.stringify(payload),
-      keepalive: true
-    }).catch(function(){});
-    return 'fetch-keepalive';
   }
 
   // Fallback 2: synchronous XHR for very old browsers.
