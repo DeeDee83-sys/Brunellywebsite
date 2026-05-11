@@ -1033,6 +1033,8 @@ function exportLeads() {
     a.download = 'brunelly-leads-'+new Date().toISOString().slice(0,10)+'.csv';
     a.click();
     showToast('Exported '+leads.length+' leads','success');
+  }).catch(function(err){
+    showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -1060,6 +1062,8 @@ function exportData(type) {
     a.download = 'brunelly-'+type+'-'+new Date().toISOString().slice(0,10)+'.json';
     a.click();
     showToast('Exported','success');
+  }).catch(function(err){
+    showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -1074,6 +1078,8 @@ function importData(event, type) {
       sbUpsert(table, data).then(function(){
         render();
         showToast('Imported '+data.length+' items','success');
+      }).catch(function(err){
+        showToast('Import failed: ' + (err && err.message ? err.message : ''), 'error');
       });
     } catch(err) { showToast('Invalid JSON file','error'); }
   };
