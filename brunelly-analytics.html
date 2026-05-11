@@ -721,14 +721,28 @@ function exportCSV(){
 
 function clearData(){
   if(!confirm('Clear all analytics data? This cannot be undone.'))return;
-  localStorage.removeItem('brunelly_analytics');
-  renderAll();
-  showToast('Data cleared');
+  supabaseClient.from('analytics_events').delete().gt('id',0).then(function(){
+    localStorage.removeItem('brunelly_analytics');
+    renderAll();
+    showToast('All analytics data cleared');
+  }).catch(function(err){
+    showToast('Error clearing analytics data: ' + (err && err.message ? err.message : ''), 'error');
+  });
 }
 
-function showToast(msg){
+function showToast(msg, type){
   const t=document.getElementById('toast');
-  t.textContent='✓ '+msg; t.style.display='flex';
+  t.textContent=(type==='error'?'✗ ':'✓ ')+msg;
+  if(type==='error'){
+    t.style.background='var(--red-dim)';
+    t.style.borderColor='rgba(248,113,113,.3)';
+    t.style.color='var(--red)';
+  } else {
+    t.style.background='var(--green-dim)';
+    t.style.borderColor='var(--green-mid)';
+    t.style.color='var(--green)';
+  }
+  t.style.display='flex';
   setTimeout(()=>t.style.display='none',2500);
 }
 
