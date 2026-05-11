@@ -557,6 +557,12 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+function isSafeUrl(str) {
+  if (str == null) return false;
+  var s = String(str).trim().toLowerCase();
+  return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────
 var currentTab = 'articles';
 function switchTab(t) {
@@ -614,7 +620,7 @@ function renderArticles() {
       ? arts.map(function(a,i) {
           return '<tr>'
             + '<td>' + (a.image ? '<img src="'+escapeHtml(a.image)+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br><a href="'+escapeHtml(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
+            + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br>' + (isSafeUrl(a.url) ? '<a href="'+escapeHtml(a.url)+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a>' : '<span style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);">'+escapeHtml(a.url||'—')+'</span>') + '</td>'
             + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + escapeHtml(a.category||'') + '</span></td>'
             + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + escapeHtml(a.date||'—') + '</td>'
             + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="articles" data-index="' + i + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="articles" data-id="' + a.id + '">Delete</button></td>'
@@ -1009,7 +1015,7 @@ function renderLeads() {
         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;">Contact Form</span>';
       return '<tr>'
         + '<td style="color:var(--white);">' + escapeHtml(l.name||'—') + '</td>'
-        + '<td><a href="mailto:'+escapeHtml(l.email)+'" style="color:var(--accent);text-decoration:none;">'+escapeHtml(l.email)+'</a></td>'
+        + '<td style="color:var(--accent);">'+escapeHtml(l.email)+'</td>'
         + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+escapeHtml(l.company)+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
         + '<td>' + sourceBadge + '</td>'
         + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);">' + d + '</td>'
