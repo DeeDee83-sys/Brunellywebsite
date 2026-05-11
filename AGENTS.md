@@ -12,6 +12,7 @@ code/
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
+├── tests/              # Automated regression tests (node --test)
 └── AGENTS.md           # This file
 ```
 
@@ -32,6 +33,9 @@ code/
 - Prefer `window.SUPA_URL` and `window.SUPA_KEY` globals loaded from `supabase-config.js`.
 - Validate HTML and check JavaScript syntax before committing.
 - Escape all user-controlled values before inserting them into HTML via `innerHTML`. Use the shared `escapeHtml()` helper (or safe DOM construction) rather than raw string concatenation.
+- Validate all URLs assigned to `href` or `src` with `isSafeUrl()` (allows `http://` and `https://` only).
+- Sanitize CSS values assigned to `style` attributes with `isSafeCssValue()` before assignment.
+- Add `rel="noopener noreferrer"` to all `target="_blank"` links.
 
 ## Security
 
@@ -48,6 +52,7 @@ code/
 **Bug 2: Hardcoded admin password in client-side JavaScript / sessionStorage auth bypass**
 - **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
 - Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
+- **Defensive hardening (Steps 1–13, Complete)**: Eliminated residual injection vectors and brittle patterns across both dashboards. This includes XSS remediation via `escapeHtml()` and `isSafeUrl()`, event delegation replacing inline handlers, comprehensive `.catch()` error handling, `sbDelete()` filter support, analytics cache correctness, and automated test coverage with `node --test`. See `BUG2_PR_DESCRIPTION.md` for full details.
 
 ### Defensive Security Hardening (Complete)
 All hardening steps on the Bug 2 branch are complete. Residual injection vectors and brittle patterns have been eliminated.
@@ -65,6 +70,15 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 - **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
 - **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
 - **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
+
+**Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
+- **Status (Complete)**: Remediated on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
+- `brunelly-resources.html` `renderArticles()`, `renderVideos()`, and `renderUseCases()` were refactored from unsafe string-concatenation `innerHTML` to safe DOM construction (`createElement`, `textContent`, `setAttribute`).
+- Added `escapeHtml()`, `isSafeUrl()`, and `isSafeCssValue()` helpers to the page. All `href`/`src` URLs are validated before assignment; unsafe URLs fall back to plain text. CSS values (`icon_bg`, `icon_color`) are sanitized before `style` assignment.
+- Added `rel="noopener noreferrer"` to all `target="_blank"` links.
+- Hardened `sbFetch()` to validate HTTP status (`r.ok`) before parsing JSON.
+- Added `article_submissions` table to `brunelly-supabase-setup.sql` with restricted public INSERT: anonymous users can submit `suggested_url`, `submitter_email`, and `notes`, but cannot write directly to content tables. Admins review submissions and promote valid entries to `articles`.
+- Added `isSafeCssValue` unit tests and updated RLS policy tests.
 
 ### Story 21: Reliable Pageview Tracking (Complete)
 Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with a robust, consent-gated lifecycle:
@@ -106,19 +120,20 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 ## Database
 
 - Schema and seed data are defined in `brunelly-supabase-setup.sql`.
-- Tables: `articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`, `analytics_events`, `leads`, `profiles`.
+- Tables: `articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`, `analytics_events`, `leads`, `article_submissions`, `profiles`.
 - `profiles` table: `id` (UUID, references `auth.users`), `role` (`admin` | `content_editor` | `analytics_viewer`).
 - RLS policies are now restrictive:
   - **Content tables** (`articles`, `videos`, `use_cases`, `faqs`, `feature_images`, `hero_images`): public `SELECT` only (published filter for `videos`/`use_cases`); authenticated `admin`/`content_editor` can write.
-  - **analytics_events**: public `INSERT` only; `admin`/`analytics_viewer` can `SELECT`.
+  - **analytics_events**: public `INSERT` only; `admin`/`analytics_viewer` can `SELECT`; `admin` can `DELETE`.
   - **leads**: public `INSERT` only; `admin` can `SELECT` and `DELETE`.
+  - **article_submissions**: public `INSERT` only (restricted to safe fields); `admin`/`content_editor` can `SELECT`; `admin` can `DELETE`.
   - **profiles**: users read own; admins manage all.
 
 ## Git Workflow
 
-- Active branch: `feature/21-improve-pageview-tracking-to-avoid`
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4).
 - Commit message conventions:
-  - Security work: `security(step-N): brief description` or `docs(bug-2): brief description`
+  - Security work: `security(step-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
 
