@@ -74,7 +74,8 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 **Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
 - **Status (In Progress)**: Active work on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
 - `renderUseCases()` was refactored from unsafe string-concatenation `innerHTML` to safe DOM construction (`createElement`, `textContent`, `setAttribute`) with `isSafeCssValue()` guards for `icon_bg` and `icon_color` style values.
-- `renderArticles()` and `renderVideos()` were previously refactored to safe DOM construction but still apply `escapeHtml()` to non-HTML contexts (`data-id` attribute and YouTube thumbnail URL) — pending correction.
+- `renderArticles()` was refactored to safe DOM construction; the unnecessary `escapeHtml()` on `data-id` via `setAttribute()` has been removed.
+- `renderVideos()` still applies `escapeHtml()` to the YouTube thumbnail URL construction — pending correction.
 - Added `escapeHtml()`, `isSafeUrl()`, and `isSafeCssValue()` helpers to the page. All `href`/`src` URLs are validated before assignment; unsafe URLs fall back to plain text.
 - Added `rel="noopener noreferrer"` to all `target="_blank"` links.
 - Hardened `sbFetch()` to validate HTTP status (`r.ok`) before parsing JSON.
