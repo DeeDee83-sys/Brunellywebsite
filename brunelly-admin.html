@@ -541,6 +541,16 @@ function sbDelete(table, id) {
   });
 }
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────
 var currentTab = 'articles';
 function switchTab(t) {
@@ -596,10 +606,10 @@ function renderArticles() {
     tbody.innerHTML = arts.length
       ? arts.map(function(a,i) {
           return '<tr>'
-            + '<td>' + (a.image ? '<img src="'+a.image+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
-            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + (a.category||'') + '</span></td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
+            + '<td>' + (a.image ? '<img src="'+escapeHtml(a.image)+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
+            + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br><a href="'+escapeHtml(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
+            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + escapeHtml(a.category||'') + '</span></td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + escapeHtml(a.date||'—') + '</td>'
             + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'articles\',' + i + ',' + JSON.stringify(arts).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'articles\',\'' + a.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
@@ -615,11 +625,11 @@ function renderVideos() {
     var tbody = document.getElementById('videos-tbody');
     tbody.innerHTML = vids.length
       ? vids.map(function(v,i) {
-          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+v.youtube_id+'/default.jpg' : '';
+          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+escapeHtml(v.youtube_id)+'/default.jpg' : '';
           return '<tr>'
             + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
-            + '<td class="td-title">' + v.title + '</td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
+            + '<td class="td-title">' + escapeHtml(v.title) + '</td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
             + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'videos\',' + i + ',' + JSON.stringify(vids).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'videos\',\'' + v.id + '\')">Delete</button></td>'
             + '</tr>';
@@ -636,8 +646,8 @@ function renderUseCases() {
     tbody.innerHTML = ucs.length
       ? ucs.map(function(uc,i) {
           return '<tr>'
-            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+(uc.icon_bg||'var(--accent-dim)')+';color:'+(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+(uc.icon||'◈')+'</div></td>'
-            + '<td class="td-title" style="max-width:340px;">' + uc.title + '</td>'
+            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+escapeHtml(uc.icon_bg||'var(--accent-dim)')+';color:'+escapeHtml(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+escapeHtml(uc.icon||'◈')+'</div></td>'
+            + '<td class="td-title" style="max-width:340px;">' + escapeHtml(uc.title) + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
             + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(\'' + uc.id + '\',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
             + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'usecases\',' + i + ',' + JSON.stringify(ucs).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'use_cases\',\'' + uc.id + '\')">Delete</button></td>'
@@ -805,19 +815,19 @@ function renderImages() {
     slots.forEach(function(s) {
       if (s.page !== currentPage) {
         currentPage = s.page;
-        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
+        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+escapeHtml(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
       }
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
       var clearBtn = stored ? '<button onclick="clearFeatImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+'</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-slot="'+s.id+'" onchange="saveFeatImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+'</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-slot="'+escapeHtml(s.id)+'" onchange="saveFeatImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No feature image slots found.</div>';
@@ -846,16 +856,16 @@ function renderHeroImages() {
     var html = '';
     slots.forEach(function(s) {
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+stored+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
+      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
       var clearBtn = stored ? '<button onclick="clearHeroImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+' tab</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+stored.replace(/"/g,'&quot;')+'" data-hero="'+s.id+'" onchange="saveHeroImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
+            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+' tab</span>'+badge+'</div>'
+            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
+            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-hero="'+escapeHtml(s.id)+'" onchange="saveHeroImage(this)" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
             + '</div>' + clearBtn + '</div>';
     });
     grid.innerHTML = html || '<div class="empty-state">No hero image slots found.</div>';
@@ -890,7 +900,7 @@ function renderFaqs() {
         ? faqs.map(function(f,i) {
             return '<tr>'
               + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
-              + '<td class="td-title" style="max-width:500px;">'+f.question+'</td>'
+              + '<td class="td-title" style="max-width:500px;">'+escapeHtml(f.question)+'</td>'
               + '<td class="td-actions">'
               + '<button class="btn btn-ghost" onclick="editFaqById(\'' + page + '\',\'' + f.id + '\',\'' + f.question.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\',\'' + f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\')">Edit</button>'
               + '<button class="btn btn-danger" onclick="deleteFaqById(\'' + f.id + '\')">Delete</button>'
@@ -964,9 +974,9 @@ function renderLeads() {
         ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-mid);color:var(--accent);">Chatbot</span>'
         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;">Contact Form</span>';
       return '<tr>'
-        + '<td style="color:var(--white);">' + (l.name||'—') + '</td>'
-        + '<td><a href="mailto:'+l.email+'" style="color:var(--accent);text-decoration:none;">'+l.email+'</a></td>'
-        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+l.company+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
+        + '<td style="color:var(--white);">' + escapeHtml(l.name||'—') + '</td>'
+        + '<td><a href="mailto:'+escapeHtml(l.email)+'" style="color:var(--accent);text-decoration:none;">'+escapeHtml(l.email)+'</a></td>'
+        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+escapeHtml(l.company)+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
         + '<td>' + sourceBadge + '</td>'
         + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);">' + d + '</td>'
         + '</tr>';
