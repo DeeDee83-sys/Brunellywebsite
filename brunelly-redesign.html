@@ -2048,6 +2048,7 @@ footer {
   }
 
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -3560,12 +3561,12 @@ document.addEventListener('keydown', function(e) {
 });
 
 function saveLead(name, email) {
-  fetch('https://frznrjgbbkfvjrxjcaho.supabase.co/rest/v1/leads', {
+  fetch(SUPA_URL + '/rest/v1/leads', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD',
-      'Authorization': 'Bearer sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
       'Prefer': 'return=minimal'
     },
     body: JSON.stringify({
@@ -3594,8 +3595,6 @@ setTimeout(function() {
 
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   fetch(SUPA_URL + '/rest/v1/hero_images?select=id,image_url', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
@@ -3616,8 +3615,6 @@ setTimeout(function() {
 </script>
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   function fireEvent(evt) {
     fetch(SUPA_URL + '/rest/v1/analytics_events', {

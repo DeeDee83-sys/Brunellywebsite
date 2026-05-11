@@ -92,6 +92,9 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
     th, td { padding: 0.5rem; }
   }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-auth.js"></script>
 </head>
 <body>
 
@@ -99,9 +102,10 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
   <div class="login-box">
     <div class="login-logo">Brunelly <span style="color:var(--accent)">CMS</span></div>
     <div class="login-sub">Content Manager</div>
-    <input type="password" id="pw-input" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="email" id="email-input" class="login-input" placeholder="Email" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="password" id="pw-input" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
-    <div class="login-err" id="login-err">Incorrect password</div>
+    <div class="login-err" id="login-err" style="display:none;"></div>
   </div>
 </div>
 
@@ -357,65 +361,183 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 // BRUNELLY CMS — Supabase Backend
 // ════════════════════════════════════════════════════════════════
 
-var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
 // ── Auth ──────────────────────────────────────────────────────────
-var PASS = 'brunelly2026';
 function doLogin() {
-  if (document.getElementById('pw-input').value === PASS) {
-    sessionStorage.setItem('cms_auth','1');
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    init();
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('pw-input').value='';
+  var email = document.getElementById('email-input').value.trim();
+  var password = document.getElementById('pw-input').value;
+  var errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter email and password.';
+    errEl.style.display = 'block';
+    return;
   }
-}
-function logout() { sessionStorage.removeItem('cms_auth'); location.reload(); }
-if (sessionStorage.getItem('cms_auth')==='1') {
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
+
+  signIn(email, password).then(function(response) {
+    if (response.error) {
+      errEl.textContent = response.error.message || 'Sign in failed.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    window.currentSession = response.data.session;
+    window.currentUser = response.data.user;
+
+    return getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (!role) {
+        errEl.textContent = 'Account not authorised. No role assigned.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      if (role !== 'admin' && role !== 'content_editor') {
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    });
+  }).catch(function(e) {
+    errEl.textContent = 'Sign in error: ' + (e.message || 'Unknown error');
+    errEl.style.display = 'block';
+  });
 }
 
-// ── Supabase helpers ──────────────────────────────────────────────
-function sbHeaders(extra) {
-  var h = {
-    'Content-Type': 'application/json',
-    'apikey': SUPA_KEY,
-    'Authorization': 'Bearer ' + SUPA_KEY,
-  };
-  if (extra) Object.assign(h, extra);
-  return h;
+function logout() {
+  signOut().then(function() {
+    window.currentSession = null;
+    window.currentUser = null;
+    window.currentRole = null;
+    location.reload();
+  });
 }
 
+function requireAuthAndRole() {
+  getCurrentSession().then(function(result) {
+    var session = result.data.session;
+    if (!session) return;
+    window.currentSession = session;
+    window.currentUser = session.user;
+    getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (role === 'admin' || role === 'content_editor') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        init();
+      } else {
+        var errEl = document.getElementById('login-err');
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+      }
+    });
+  });
+}
+requireAuthAndRole();
+
+// ── Supabase helpers (use authenticated client) ───────────────────
 function sbGet(table, params) {
-  var url = SUPA_URL + '/rest/v1/' + table + '?order=created_at.asc';
-  if (params) url += '&' + params;
-  return fetch(url, { method:'GET', headers: sbHeaders() }).then(function(r){ return r.json(); });
+  var select = '*';
+  var orders = [];
+  var limit = null;
+  var filters = [];
+  var hasExplicitOrder = false;
+
+  if (params) {
+    var parts = params.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var eqIdx = part.indexOf('=');
+      if (eqIdx === -1) continue;
+      var key = decodeURIComponent(part.substring(0, eqIdx));
+      var val = decodeURIComponent(part.substring(eqIdx + 1));
+
+      if (key === 'select') {
+        select = val;
+      } else if (key === 'order') {
+        hasExplicitOrder = true;
+        var orderParts = val.split(',');
+        for (var j = 0; j < orderParts.length; j++) {
+          var op = orderParts[j].split('.');
+          orders.push({ col: op[0], asc: op[1] === 'asc' });
+        }
+      } else if (key === 'limit') {
+        limit = parseInt(val, 10);
+      } else {
+        var dotIdx = val.indexOf('.');
+        if (dotIdx !== -1) {
+          var op = val.substring(0, dotIdx);
+          var operand = val.substring(dotIdx + 1);
+          if (['eq','neq','gt','gte','lt','lte','like','ilike','is'].indexOf(op) !== -1) {
+            filters.push({ col: key, op: op, val: operand });
+            continue;
+          }
+        }
+        if (key.indexOf('.eq') !== -1) {
+          filters.push({ col: key.replace('.eq', ''), op: 'eq', val: val });
+        }
+      }
+    }
+  }
+
+  var query = supabaseClient.from(table).select(select);
+
+  if (!hasExplicitOrder && !params) {
+    query = query.order('created_at', {ascending: true});
+  }
+
+  for (var k = 0; k < orders.length; k++) {
+    query = query.order(orders[k].col, {ascending: orders[k].asc});
+  }
+
+  for (var m = 0; m < filters.length; m++) {
+    var f = filters[m];
+    if (f.op === 'eq') query = query.eq(f.col, f.val);
+    else if (f.op === 'neq') query = query.neq(f.col, f.val);
+    else if (f.op === 'gt') query = query.gt(f.col, f.val);
+    else if (f.op === 'gte') query = query.gte(f.col, f.val);
+    else if (f.op === 'lt') query = query.lt(f.col, f.val);
+    else if (f.op === 'lte') query = query.lte(f.col, f.val);
+    else if (f.op === 'like') query = query.like(f.col, f.val);
+    else if (f.op === 'ilike') query = query.ilike(f.col, f.val);
+    else if (f.op === 'is') query = query.is(f.col, f.val);
+  }
+
+  if (limit !== null) {
+    query = query.limit(limit);
+  }
+
+  return query.then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbUpsert(table, data) {
-  return fetch(SUPA_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
-    body: JSON.stringify(data)
-  }).then(function(r){ return r.json(); });
+  return supabaseClient.from(table).upsert(data).select().then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbUpdate(table, id, data) {
-  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
-    method: 'PATCH',
-    headers: sbHeaders({'Prefer':'return=representation'}),
-    body: JSON.stringify(data)
-  }).then(function(r){ return r.json(); });
+  return supabaseClient.from(table).update(data).eq('id', id).select().then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 function sbDelete(table, id) {
-  return fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), {
-    method: 'DELETE',
-    headers: sbHeaders()
+  return supabaseClient.from(table).delete().eq('id', id).then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
   });
 }
 
@@ -475,10 +597,10 @@ function renderArticles() {
       ? arts.map(function(a,i) {
           return '<tr>'
             + '<td>' + (a.image ? '<img src="'+a.image+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
+            + '<td class="td-title" style="max-width:260px;">' + a.title + '<br><a href="'+(a.url||'#')+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a></td>'
             + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + (a.category||'') + '</span></td>'
-            + '<td style="font-family:'DM Mono',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('articles','+i+','+JSON.stringify(arts).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('articles',''+a.id+'')">Delete</button></td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + (a.date||'—') + '</td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'articles\',' + i + ',' + JSON.stringify(arts).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'articles\',\'' + a.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
@@ -497,9 +619,9 @@ function renderVideos() {
           return '<tr>'
             + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
             + '<td class="td-title">' + v.title + '</td>'
-            + '<td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
+            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('videos','+i+','+JSON.stringify(vids).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('videos',''+v.id+'')">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'videos\',' + i + ',' + JSON.stringify(vids).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'videos\',\'' + v.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
@@ -517,8 +639,8 @@ function renderUseCases() {
             + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+(uc.icon_bg||'var(--accent-dim)')+';color:'+(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+(uc.icon||'◈')+'</div></td>'
             + '<td class="td-title" style="max-width:340px;">' + uc.title + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
-            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(''+uc.id+'',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem('usecases','+i+','+JSON.stringify(ucs).replace(/"/g,'&quot;')+')">Edit</button><button class="btn btn-danger" onclick="deleteItem('use_cases',''+uc.id+'')">Delete</button></td>'
+            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' onchange="toggleUC(\'' + uc.id + '\',this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" onclick="editItem(\'usecases\',' + i + ',' + JSON.stringify(ucs).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-danger" onclick="deleteItem(\'use_cases\',\'' + uc.id + '\')">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
@@ -690,7 +812,7 @@ function renderImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearFeatImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button onclick="clearFeatImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+'</span>'+badge+'</div>'
@@ -728,7 +850,7 @@ function renderHeroImages() {
                          : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
       var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
                          : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button onclick="clearHeroImage(''+s.id+'')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
+      var clearBtn = stored ? '<button onclick="clearHeroImage(\'' + s.id + '\')" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
       html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
             + thumb + '<div style="flex:1;min-width:0;">'
             + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+s.label+' tab</span>'+badge+'</div>'
@@ -770,8 +892,8 @@ function renderFaqs() {
               + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
               + '<td class="td-title" style="max-width:500px;">'+f.question+'</td>'
               + '<td class="td-actions">'
-              + '<button class="btn btn-ghost" onclick="editFaqById(''+page+'',''+f.id+'',''+f.question.replace(/'/g,"\'").replace(/"/g,'&quot;')+'',''+f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;')+''">Edit</button>'
-              + '<button class="btn btn-danger" onclick="deleteFaqById(''+f.id+'')">Delete</button>'
+              + '<button class="btn btn-ghost" onclick="editFaqById(\'' + page + '\',\'' + f.id + '\',\'' + f.question.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\',\'' + f.answer.replace(/'/g,"\'").replace(/"/g,'&quot;') + '\')">Edit</button>'
+              + '<button class="btn btn-danger" onclick="deleteFaqById(\'' + f.id + '\')">Delete</button>'
               + '</td></tr>';
           }).join('')
         : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
@@ -872,17 +994,15 @@ function exportLeads() {
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
-  fetch('https://frznrjgbbkfvjrxjcaho.supabase.co/rest/v1/leads?id=gt.0', {
-    method: 'DELETE',
-    headers: { 'apikey': 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD', 'Authorization': 'Bearer sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD' }
-  }).then(function(){ renderLeads(); showToast('All leads cleared','success'); });
-}
-
-function clearLeads() {
-  if (!confirm('Clear all leads?')) return;
-  localStorage.removeItem('brunelly_leads');
-  renderLeads();
-  showToast('Leads cleared','success');
+  supabaseClient.from('leads').delete().gt('id', 0).then(function(res) {
+    if (res.error) {
+      showToast('Error clearing leads: ' + (res.error.message || ''), 'error');
+      return;
+    }
+    try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
+    renderLeads();
+    showToast('All leads cleared', 'success');
+  });
 }
 
 // ── Export/Import ─────────────────────────────────────────────────
@@ -969,7 +1089,7 @@ function init() {
   updateStats();
 }
 
-if (sessionStorage.getItem('cms_auth')==='1') init();
+// init() is called by requireAuthAndRole() after successful session + role check
 </script>
 </body>
 </html>

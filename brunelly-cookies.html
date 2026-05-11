@@ -473,6 +473,7 @@ footer {
 }
 
 </style>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 <nav>
@@ -585,8 +586,6 @@ reveals.forEach(el=>io.observe(el));
 
 <script>
 (function() {
-  var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-  var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
   function fireEvent(evt) {
     fetch(SUPA_URL + '/rest/v1/analytics_events', {

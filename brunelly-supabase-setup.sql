@@ -97,7 +97,23 @@ CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(type);
 CREATE INDEX IF NOT EXISTS idx_analytics_ts   ON analytics_events(ts);
 CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
 
--- ── Row Level Security — allow public reads and inserts ───
+-- ── Leads ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS leads (
+  id          BIGSERIAL PRIMARY KEY,
+  name        TEXT,
+  email       TEXT NOT NULL,
+  source      TEXT,           -- 'chatbot' or 'contact-form'
+  page        TEXT,           -- page URL they came from
+  message     TEXT,           -- contact form message if applicable
+  company     TEXT,           -- contact form company if applicable
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
+CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
+
+-- ── Row Level Security — lock down policies ───────────────────────
 ALTER TABLE articles        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE videos          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE use_cases       ENABLE ROW LEVEL SECURITY;
@@ -105,27 +121,106 @@ ALTER TABLE faqs            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_images  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hero_images     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads            ENABLE ROW LEVEL SECURITY;
 
--- Allow anyone to read content tables
-CREATE POLICY "Public read articles"        ON articles        FOR SELECT USING (true);
-CREATE POLICY "Public read videos"          ON videos          FOR SELECT USING (true);
-CREATE POLICY "Public read use_cases"       ON use_cases       FOR SELECT USING (true);
-CREATE POLICY "Public read faqs"            ON faqs            FOR SELECT USING (true);
-CREATE POLICY "Public read feature_images"  ON feature_images  FOR SELECT USING (true);
-CREATE POLICY "Public read hero_images"     ON hero_images     FOR SELECT USING (true);
+-- Drop old permissive policies
+DROP POLICY IF EXISTS "Public read articles"        ON articles;
+DROP POLICY IF EXISTS "Public write articles"       ON articles;
+DROP POLICY IF EXISTS "Public read videos"          ON videos;
+DROP POLICY IF EXISTS "Public write videos"         ON videos;
+DROP POLICY IF EXISTS "Public read use_cases"       ON use_cases;
+DROP POLICY IF EXISTS "Public write use_cases"      ON use_cases;
+DROP POLICY IF EXISTS "Public read faqs"            ON faqs;
+DROP POLICY IF EXISTS "Public write faqs"           ON faqs;
+DROP POLICY IF EXISTS "Public read feature_images"  ON feature_images;
+DROP POLICY IF EXISTS "Public write feature_images" ON feature_images;
+DROP POLICY IF EXISTS "Public read hero_images"     ON hero_images;
+DROP POLICY IF EXISTS "Public write hero_images"    ON hero_images;
+DROP POLICY IF EXISTS "Public insert analytics"     ON analytics_events;
+DROP POLICY IF EXISTS "Public read analytics"       ON analytics_events;
+DROP POLICY IF EXISTS "Public insert leads"         ON leads;
+DROP POLICY IF EXISTS "Public read leads"           ON leads;
 
--- Allow anyone to write content (CMS uses same anon key)
-CREATE POLICY "Public write articles"       ON articles        FOR ALL USING (true);
-CREATE POLICY "Public write videos"         ON videos          FOR ALL USING (true);
-CREATE POLICY "Public write use_cases"      ON use_cases       FOR ALL USING (true);
-CREATE POLICY "Public write faqs"           ON faqs            FOR ALL USING (true);
-CREATE POLICY "Public write feature_images" ON feature_images  FOR ALL USING (true);
-CREATE POLICY "Public write hero_images"    ON hero_images     FOR ALL USING (true);
+-- Helper: check if current auth user has one of the required roles
+CREATE OR REPLACE FUNCTION public.user_has_role(required_roles TEXT[])
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = ANY(required_roles)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY INVOKER;
 
--- Allow anyone to insert analytics (visitors fire events)
-CREATE POLICY "Public insert analytics"     ON analytics_events FOR INSERT WITH CHECK (true);
--- Only allow reading analytics with service key (dashboard uses anon key so we allow select too)
-CREATE POLICY "Public read analytics"       ON analytics_events FOR SELECT USING (true);
+-- ── Content tables: public read-only, admin/editor write ──────────
+
+-- articles
+CREATE POLICY "Public read articles"
+  ON articles FOR SELECT USING (true);
+CREATE POLICY "Admin/editor manage articles"
+  ON articles FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- videos (public sees only published)
+CREATE POLICY "Public read published videos"
+  ON videos FOR SELECT USING (published = true);
+CREATE POLICY "Admin/editor manage videos"
+  ON videos FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- use_cases (public sees only published)
+CREATE POLICY "Public read published use_cases"
+  ON use_cases FOR SELECT USING (published = true);
+CREATE POLICY "Admin/editor manage use_cases"
+  ON use_cases FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- faqs
+CREATE POLICY "Public read faqs"
+  ON faqs FOR SELECT USING (true);
+CREATE POLICY "Admin/editor manage faqs"
+  ON faqs FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- feature_images
+CREATE POLICY "Public read feature_images"
+  ON feature_images FOR SELECT USING (true);
+CREATE POLICY "Admin/editor manage feature_images"
+  ON feature_images FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- hero_images
+CREATE POLICY "Public read hero_images"
+  ON hero_images FOR SELECT USING (true);
+CREATE POLICY "Admin/editor manage hero_images"
+  ON hero_images FOR ALL USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+
+-- ── analytics_events: public insert, authenticated select only ─────
+CREATE POLICY "Public insert analytics"
+  ON analytics_events FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin/viewer read analytics"
+  ON analytics_events FOR SELECT USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','analytics_viewer'])
+  );
+
+-- ── leads: public insert, admin read/delete only ──────────────────
+CREATE POLICY "Public insert leads"
+  ON leads FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin read leads"
+  ON leads FOR SELECT USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin'])
+  );
+CREATE POLICY "Admin delete leads"
+  ON leads FOR DELETE USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin'])
+  );
 
 -- ── Seed hero image slots ─────────────────────────────────
 INSERT INTO hero_images (id, label, hint) VALUES
@@ -157,28 +252,27 @@ INSERT INTO feature_images (id, page, label, hint) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 
--- ── Leads ─────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS leads (
-  id          BIGSERIAL PRIMARY KEY,
-  name        TEXT,
-  email       TEXT NOT NULL,
-  source      TEXT,           -- 'chatbot' or 'contact-form'
-  page        TEXT,           -- page URL they came from
-  message     TEXT,           -- contact form message if applicable
-  company     TEXT,           -- contact form company if applicable
-  created_at  TIMESTAMPTZ DEFAULT NOW()
+-- ── Profiles (role-based access control) ──────────────────────────
+CREATE TABLE IF NOT EXISTS profiles (
+  id          UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role        TEXT NOT NULL CHECK (role IN ('admin', 'content_editor', 'analytics_viewer')),
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
-CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
-CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+-- Users can read their own profile (required for login role check)
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT USING (auth.uid() = id);
 
--- Anyone can insert a lead (chatbot/contact form visitors)
-CREATE POLICY "Public insert leads" ON leads FOR INSERT WITH CHECK (true);
--- Only authenticated reads (admin uses anon key so we allow select)
-CREATE POLICY "Public read leads"   ON leads FOR SELECT USING (true);
+-- Admins can manage all profiles
+CREATE POLICY "Admins can manage profiles"
+  ON profiles FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
 
 -- Done!
 SELECT 'Schema created successfully' as status;

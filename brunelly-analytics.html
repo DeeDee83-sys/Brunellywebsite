@@ -101,6 +101,9 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.row-2,.row-half{grid-template-columns:1fr;}.row-3{grid-template-columns:1fr 1fr;}}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.row-3{grid-template-columns:1fr;}.header-right .btn-sm:not(:last-child){display:none;}}
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-auth.js"></script>
 </head>
 <body>
 
@@ -109,9 +112,10 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
     <div class="login-logo">Brunelly <span>Analytics</span></div>
     <div class="login-sub">Marketing Dashboard</div>
     <p class="login-note">Tracks page views, article clicks, referral sources, scroll depth, devices and newsletter conversions — from your live site. No third-party tools required.</p>
-    <input type="password" id="pw-input" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="email" id="email-input" class="login-input" placeholder="Email" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="password" id="pw-input" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
     <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
-    <div class="login-err" id="login-err">Incorrect password</div>
+    <div class="login-err" id="login-err" style="display:none;"></div>
   </div>
 </div>
 
@@ -228,16 +232,59 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 
-var SUPA_URL = 'https://frznrjgbbkfvjrxjcaho.supabase.co';
-var SUPA_KEY = 'sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD';
 
 function sbFetchAna(params) {
-  var url = SUPA_URL + '/rest/v1/analytics_events';
-  if (params) url += '?' + params;
-  return fetch(url, {
-    method: 'GET',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'count=exact' }
-  }).then(function(r) { return r.json(); });
+  var query = supabaseClient.from('analytics_events').select('*');
+  var filters = [];
+
+  if (params) {
+    var parts = params.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var eqIdx = part.indexOf('=');
+      if (eqIdx === -1) continue;
+      var key = decodeURIComponent(part.substring(0, eqIdx));
+      var val = decodeURIComponent(part.substring(eqIdx + 1));
+
+      if (key === 'order') {
+        var op = val.split('.');
+        query = query.order(op[0], {ascending: op[1] === 'asc'});
+      } else if (key === 'limit') {
+        query = query.limit(parseInt(val, 10));
+      } else {
+        var dotIdx = val.indexOf('.');
+        if (dotIdx !== -1) {
+          var op = val.substring(0, dotIdx);
+          var operand = val.substring(dotIdx + 1);
+          if (['eq','neq','gt','gte','lt','lte','like','ilike','is'].indexOf(op) !== -1) {
+            filters.push({ col: key, op: op, val: operand });
+            continue;
+          }
+        }
+        if (key.indexOf('.gte') !== -1) {
+          filters.push({ col: key.replace('.gte', ''), op: 'gte', val: val });
+        }
+      }
+    }
+  }
+
+  for (var m = 0; m < filters.length; m++) {
+    var f = filters[m];
+    if (f.op === 'eq') query = query.eq(f.col, f.val);
+    else if (f.op === 'neq') query = query.neq(f.col, f.val);
+    else if (f.op === 'gt') query = query.gt(f.col, f.val);
+    else if (f.op === 'gte') query = query.gte(f.col, f.val);
+    else if (f.op === 'lt') query = query.lt(f.col, f.val);
+    else if (f.op === 'lte') query = query.lte(f.col, f.val);
+    else if (f.op === 'like') query = query.like(f.col, f.val);
+    else if (f.op === 'ilike') query = query.ilike(f.col, f.val);
+    else if (f.op === 'is') query = query.is(f.col, f.val);
+  }
+
+  return query.then(function(res) {
+    if (res.error) throw res.error;
+    return res.data;
+  });
 }
 
 // Convert Supabase row format to analytics event format
@@ -250,25 +297,86 @@ function normaliseEvent(row) {
   };
 }
 
-const PASS='brunelly2026';
 let RANGE_DAYS=7, viewsChart=null, catChart=null;
 
 function doLogin(){
-  if(document.getElementById('pw-input').value===PASS){
-    sessionStorage.setItem('analytics_auth','1');
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    init();
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('pw-input').value='';
+  var email = document.getElementById('email-input').value.trim();
+  var password = document.getElementById('pw-input').value;
+  var errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter email and password.';
+    errEl.style.display = 'block';
+    return;
   }
+
+  signIn(email, password).then(function(response) {
+    if (response.error) {
+      errEl.textContent = response.error.message || 'Sign in failed.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    window.currentSession = response.data.session;
+    window.currentUser = response.data.user;
+
+    return getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (!role) {
+        errEl.textContent = 'Account not authorised. No role assigned.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      if (role !== 'admin' && role !== 'analytics_viewer') {
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+        return;
+      }
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    });
+  }).catch(function(e) {
+    errEl.textContent = 'Sign in error: ' + (e.message || 'Unknown error');
+    errEl.style.display = 'block';
+  });
 }
-function logout(){sessionStorage.removeItem('analytics_auth');location.reload();}
-if(sessionStorage.getItem('analytics_auth')==='1'){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
+
+function logout() {
+  signOut().then(function() {
+    window.currentSession = null;
+    window.currentUser = null;
+    window.currentRole = null;
+    location.reload();
+  });
 }
+
+function requireAuthAndRole() {
+  getCurrentSession().then(function(result) {
+    var session = result.data.session;
+    if (!session) return;
+    window.currentSession = session;
+    window.currentUser = session.user;
+    getUserRole().then(function(role) {
+      window.currentRole = role;
+      if (role === 'admin' || role === 'analytics_viewer') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        init();
+      } else {
+        var errEl = document.getElementById('login-err');
+        errEl.textContent = 'Access denied. Insufficient privileges.';
+        errEl.style.display = 'block';
+        signOut();
+      }
+    });
+  });
+}
+requireAuthAndRole();
 
 function setRange(d,btn){
   RANGE_DAYS=d;
@@ -662,8 +770,7 @@ function init(){
   setInterval(()=>{const a=getEvents();renderKPIs(filterByRange(a),prevPeriod(a));renderEvents();},60000);
 }
 
-if(sessionStorage.getItem('analytics_auth')==='1')init();
-
+// init() is called by requireAuthAndRole() after successful session + role check
 </script>
 </body>
 </html>
