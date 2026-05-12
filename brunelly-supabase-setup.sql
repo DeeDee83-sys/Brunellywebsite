@@ -96,6 +96,8 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(type);
 CREATE INDEX IF NOT EXISTS idx_analytics_ts   ON analytics_events(ts);
 CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
+ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS event_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_analytics_event_id ON analytics_events(event_id);
 
 -- ── Leads ─────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS leads (

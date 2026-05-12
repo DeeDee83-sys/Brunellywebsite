@@ -49,8 +49,8 @@ code/
 - **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
 - Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
 
-### Defensive Security Hardening (In Progress)
-Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors and brittle patterns:
+### Defensive Security Hardening (Complete)
+All hardening steps on the Bug 2 branch are complete. Residual injection vectors and brittle patterns have been eliminated.
 
 - **Step 1 (Complete)**: Stored XSS remediation. Added `escapeHtml()` helper to `brunelly-admin.html` and applied explicit HTML-escaping to all user-controlled values in `renderArticles`, `renderVideos`, `renderUseCases`, `renderFaqs`, `renderLeads`, `renderImages`, and `renderHeroImages`.
 - **Step 2 (Complete)**: Removed all dynamic inline `onclick`/`onchange` handlers from `brunelly-admin.html` and replaced them with event delegation. Buttons and inputs now use stable `data-*` attributes (`data-action`, `data-type`, `data-index`, `data-table`, `data-id`, `data-page`). `editItem()` and `editFaqById()` now look up items from global caches instead of parsing JSON blobs embedded in HTML attributes.
@@ -65,6 +65,16 @@ Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors an
 - **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
 - **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
 - **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
+
+### Story 21: Reliable Pageview Tracking (Complete)
+Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with a robust, consent-gated lifecycle:
+- **Schema**: Added `event_id TEXT` column with unique index (`idx_analytics_event_id`) to `analytics_events` to enable PostgREST upsert deduplication.
+- **Consent gate**: Tracking initializes only when `localStorage.getItem('brunelly_cookie_consent') === 'all'`.
+- **Per-page ID**: `pageViewId` is generated once per page load (`crypto.randomUUID` or `Date.now()` fallback). No shared mutable `fired` boolean.
+- **Immediate fire**: `trackPageview(false)` sends on load so short bounces (< 30 s) are never lost.
+- **Reliable unload**: `trackPageview(true)` is wired to `visibilitychange` (hidden) and `pagehide`. It uses `fetch(keepalive: true)` with upsert headers (`Prefer: resolution=merge-duplicates`, `?on_conflict=event_id`) as the primary transport, falling back to `navigator.sendBeacon` (with `?apikey=` query param for Supabase Cloud auth) and finally synchronous `XMLHttpRequest` for very old browsers.
+- **Idempotency**: Server-side unique constraint on `event_id` guarantees exactly one row per pageview even if load and unload requests race.
+- **Interaction tracking**: Article clicks, video clicks, and newsletter signups continue to use standard `fetch` inserts via `trackInteraction()`.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
@@ -106,8 +116,10 @@ Ongoing hardening on the Bug 2 branch to eliminate residual injection vectors an
 
 ## Git Workflow
 
-- Branch: `bug/2-critical-security-vulnerability-hardcoded-admin`
-- Commit messages: `security(step-N): brief description` or `docs(bug-2): brief description`
+- Active branch: `feature/21-improve-pageview-tracking-to-avoid`
+- Commit message conventions:
+  - Security work: `security(step-N): brief description` or `docs(bug-2): brief description`
+  - Analytics work: `analytics(story-21): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
 
 ## Deployment Notes
