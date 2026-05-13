@@ -702,6 +702,207 @@ function buildArticleRow(a, i) {
   return tr;
 }
 
+function buildVideoRow(v, i) {
+  var tr = document.createElement('tr');
+
+  // Thumbnail cell
+  var tdThumb = document.createElement('td');
+  if (v.youtube_id) {
+    var img = document.createElement('img');
+    img.src = 'https://img.youtube.com/vi/' + v.youtube_id + '/default.jpg';
+    img.className = 'preview-thumb';
+    tdThumb.appendChild(img);
+  } else {
+    var ph = document.createElement('div');
+    ph.className = 'preview-ph';
+    ph.textContent = 'No YT';
+    tdThumb.appendChild(ph);
+  }
+  tr.appendChild(tdThumb);
+
+  // Title cell
+  var tdTitle = document.createElement('td');
+  tdTitle.className = 'td-title';
+  tdTitle.textContent = v.title || '';
+  tr.appendChild(tdTitle);
+
+  // URL cell
+  var tdUrl = document.createElement('td');
+  tdUrl.style.fontFamily = "'DM Mono',monospace";
+  tdUrl.style.fontSize = '.65rem';
+  tdUrl.style.color = 'var(--muted)';
+  tdUrl.style.maxWidth = '200px';
+  tdUrl.style.overflow = 'hidden';
+  tdUrl.style.textOverflow = 'ellipsis';
+  tdUrl.style.whiteSpace = 'nowrap';
+  tdUrl.textContent = v.youtube_url || '\u2014';
+  tr.appendChild(tdUrl);
+
+  // Published cell
+  var tdPub = document.createElement('td');
+  var spanPub = document.createElement('span');
+  spanPub.className = 'published-badge ' + (v.published && v.youtube_id ? 'pub-yes' : 'pub-no');
+  spanPub.textContent = v.published && v.youtube_id ? '\u25CF Live' : '\u25CB Coming soon';
+  tdPub.appendChild(spanPub);
+  tr.appendChild(tdPub);
+
+  // Actions cell
+  var tdActions = document.createElement('td');
+  tdActions.className = 'td-actions';
+  var btnEdit = document.createElement('button');
+  btnEdit.className = 'btn btn-ghost';
+  btnEdit.setAttribute('data-action', 'edit');
+  btnEdit.setAttribute('data-type', 'videos');
+  btnEdit.setAttribute('data-index', String(i));
+  btnEdit.setAttribute('data-id', String(v.id));
+  btnEdit.textContent = 'Edit';
+  var btnDelete = document.createElement('button');
+  btnDelete.className = 'btn btn-danger';
+  btnDelete.setAttribute('data-action', 'delete');
+  btnDelete.setAttribute('data-table', 'videos');
+  btnDelete.setAttribute('data-id', String(v.id));
+  btnDelete.textContent = 'Delete';
+  tdActions.appendChild(btnEdit);
+  tdActions.appendChild(btnDelete);
+  tr.appendChild(tdActions);
+
+  return tr;
+}
+
+function buildUseCaseRow(uc, i) {
+  var tr = document.createElement('tr');
+
+  // Icon cell
+  var tdIcon = document.createElement('td');
+  var divIcon = document.createElement('div');
+  divIcon.style.width = '36px';
+  divIcon.style.height = '36px';
+  divIcon.style.borderRadius = '8px';
+  divIcon.style.display = 'flex';
+  divIcon.style.alignItems = 'center';
+  divIcon.style.justifyContent = 'center';
+  divIcon.style.fontSize = '1.1rem';
+  divIcon.style.background = uc.icon_bg || 'var(--accent-dim)';
+  divIcon.style.color = uc.icon_color || 'var(--accent)';
+  divIcon.style.border = '1px solid var(--border)';
+  divIcon.textContent = uc.icon || '\u25C8';
+  tdIcon.appendChild(divIcon);
+  tr.appendChild(tdIcon);
+
+  // Title cell
+  var tdTitle = document.createElement('td');
+  tdTitle.className = 'td-title';
+  tdTitle.style.maxWidth = '340px';
+  tdTitle.textContent = uc.title || '';
+  tr.appendChild(tdTitle);
+
+  // Published cell with toggle
+  var tdPub = document.createElement('td');
+  var spanPub = document.createElement('span');
+  spanPub.className = 'published-badge ' + (uc.published ? 'pub-yes' : 'pub-no');
+  spanPub.textContent = uc.published ? '\u25CF Published' : '\u25CB Hidden';
+  tdPub.appendChild(spanPub);
+
+  var label = document.createElement('label');
+  label.className = 'toggle';
+  label.style.marginLeft = '.8rem';
+  label.style.verticalAlign = 'middle';
+  var cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !!uc.published;
+  cb.setAttribute('data-id', String(uc.id));
+  var track = document.createElement('div');
+  track.className = 'toggle-track';
+  var thumb = document.createElement('div');
+  thumb.className = 'toggle-thumb';
+  label.appendChild(cb);
+  label.appendChild(track);
+  label.appendChild(thumb);
+  tdPub.appendChild(label);
+  tr.appendChild(tdPub);
+
+  // Actions cell
+  var tdActions = document.createElement('td');
+  tdActions.className = 'td-actions';
+  var btnEdit = document.createElement('button');
+  btnEdit.className = 'btn btn-ghost';
+  btnEdit.setAttribute('data-action', 'edit');
+  btnEdit.setAttribute('data-type', 'usecases');
+  btnEdit.setAttribute('data-index', String(i));
+  btnEdit.setAttribute('data-id', String(uc.id));
+  btnEdit.textContent = 'Edit';
+  var btnDelete = document.createElement('button');
+  btnDelete.className = 'btn btn-danger';
+  btnDelete.setAttribute('data-action', 'delete');
+  btnDelete.setAttribute('data-table', 'use_cases');
+  btnDelete.setAttribute('data-id', String(uc.id));
+  btnDelete.textContent = 'Delete';
+  tdActions.appendChild(btnEdit);
+  tdActions.appendChild(btnDelete);
+  tr.appendChild(tdActions);
+
+  return tr;
+}
+
+function buildLeadRow(l) {
+  var tr = document.createElement('tr');
+
+  var tdName = document.createElement('td');
+  tdName.style.color = 'var(--white)';
+  tdName.textContent = l.name || '\u2014';
+  tr.appendChild(tdName);
+
+  var tdEmail = document.createElement('td');
+  tdEmail.style.color = 'var(--accent)';
+  tdEmail.textContent = l.email || '';
+  tr.appendChild(tdEmail);
+
+  var tdCompany = document.createElement('td');
+  if (l.company) {
+    var spanCompany = document.createElement('span');
+    spanCompany.style.fontSize = '.82rem';
+    spanCompany.style.color = 'var(--light)';
+    spanCompany.textContent = l.company;
+    tdCompany.appendChild(spanCompany);
+  } else {
+    var spanDash = document.createElement('span');
+    spanDash.style.color = 'var(--muted)';
+    spanDash.textContent = '\u2014';
+    tdCompany.appendChild(spanDash);
+  }
+  tr.appendChild(tdCompany);
+
+  var tdSource = document.createElement('td');
+  var spanSource = document.createElement('span');
+  spanSource.style.fontFamily = 'DM Mono,monospace';
+  spanSource.style.fontSize = '.6rem';
+  spanSource.style.padding = '.18rem .5rem';
+  spanSource.style.borderRadius = '4px';
+  if (l.source === 'chatbot') {
+    spanSource.style.background = 'var(--accent-dim)';
+    spanSource.style.border = '1px solid var(--accent-mid)';
+    spanSource.style.color = 'var(--accent)';
+    spanSource.textContent = 'Chatbot';
+  } else {
+    spanSource.style.background = 'rgba(96,165,250,.1)';
+    spanSource.style.border = '1px solid rgba(96,165,250,.3)';
+    spanSource.style.color = '#60a5fa';
+    spanSource.textContent = 'Contact Form';
+  }
+  tdSource.appendChild(spanSource);
+  tr.appendChild(tdSource);
+
+  var tdDate = document.createElement('td');
+  tdDate.style.fontFamily = 'DM Mono,monospace';
+  tdDate.style.fontSize = '.7rem';
+  tdDate.style.color = 'var(--muted)';
+  var d = new Date(l.created_at).toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  tdDate.textContent = d;
+  tr.appendChild(tdDate);
+
+  return tr;
+}
+
 // ── Render tables ─────────────────────────────────────────────────
 function renderArticles() {
   sbGet('articles').then(function(arts) {
@@ -735,19 +936,23 @@ function renderVideos() {
     window._cmsVideos = vids;
     document.getElementById('vid-count').textContent = '(' + vids.length + ')';
     var tbody = document.getElementById('videos-tbody');
-    tbody.innerHTML = vids.length
-      ? vids.map(function(v,i) {
-          var thumb = v.youtube_id ? 'https://img.youtube.com/vi/'+escapeHtml(v.youtube_id)+'/default.jpg' : '';
-          return '<tr>'
-            + '<td>' + (thumb ? '<img src="'+thumb+'" class="preview-thumb">' : '<div class="preview-ph">No YT</div>') + '</td>'
-            + '<td class="td-title">' + escapeHtml(v.title) + '</td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(v.youtube_url||'—') + '</td>'
-            + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + escapeHtml(i) + '" data-id="' + escapeHtml(v.id) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + escapeHtml(v.id) + '">Delete</button></td>'
-            + '</tr>';
-        }).join('')
-      : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    if (vids.length === 0) {
+      var trEmpty = document.createElement('tr');
+      var tdEmpty = document.createElement('td');
+      tdEmpty.colSpan = 5;
+      tdEmpty.className = 'empty-state';
+      tdEmpty.textContent = 'No videos yet.';
+      trEmpty.appendChild(tdEmpty);
+      tbody.appendChild(trEmpty);
+    } else {
+      for (var i = 0; i < vids.length; i++) {
+        tbody.appendChild(buildVideoRow(vids[i], i));
+      }
+    }
     updateStats();
+  }).catch(function(err) {
+    showToast('Error loading videos: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -756,18 +961,23 @@ function renderUseCases() {
     if (!Array.isArray(ucs)) ucs = [];
     window._cmsUseCases = ucs;
     var tbody = document.getElementById('uc-tbody');
-    tbody.innerHTML = ucs.length
-      ? ucs.map(function(uc,i) {
-          return '<tr>'
-            + '<td><div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:'+escapeHtml(uc.icon_bg||'var(--accent-dim)')+';color:'+escapeHtml(uc.icon_color||'var(--accent)')+';border:1px solid var(--border);">'+escapeHtml(uc.icon||'◈')+'</div></td>'
-            + '<td class="td-title" style="max-width:340px;">' + escapeHtml(uc.title) + '</td>'
-            + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
-            + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' data-id="' + escapeHtml(uc.id) + '"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + escapeHtml(i) + '" data-id="' + escapeHtml(uc.id) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + escapeHtml(uc.id) + '">Delete</button></td>'
-            + '</tr>';
-        }).join('')
-      : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    if (ucs.length === 0) {
+      var trEmpty = document.createElement('tr');
+      var tdEmpty = document.createElement('td');
+      tdEmpty.colSpan = 4;
+      tdEmpty.className = 'empty-state';
+      tdEmpty.textContent = 'No use cases yet.';
+      trEmpty.appendChild(tdEmpty);
+      tbody.appendChild(trEmpty);
+    } else {
+      for (var i = 0; i < ucs.length; i++) {
+        tbody.appendChild(buildUseCaseRow(ucs[i], i));
+      }
+    }
     updateStats();
+  }).catch(function(err) {
+    showToast('Error loading use cases: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -932,6 +1142,7 @@ function renderImages() {
     if (!Array.isArray(slots)) slots = [];
     var grid = document.getElementById('feat-images-grid');
     if (!grid) return;
+    while (grid.firstChild) { grid.removeChild(grid.firstChild); }
     var PAGE_LABELS = {
       'brunelly-features-understand.html':'Understand',
       'brunelly-features-plan.html':'Plan',
@@ -939,27 +1150,142 @@ function renderImages() {
       'brunelly-features-quality.html':'Quality',
       'brunelly-features-collaborate.html':'Collaborate'
     };
-    var html = '', currentPage = '';
+    var currentPage = '';
+    if (!slots.length) {
+      var emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty-state';
+      emptyDiv.textContent = 'No feature image slots found.';
+      grid.appendChild(emptyDiv);
+      updateStats();
+      return;
+    }
     slots.forEach(function(s) {
       if (s.page !== currentPage) {
         currentPage = s.page;
-        html += '<div style="grid-column:1/-1;background:var(--surface);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);"><span style="font-family:DM Mono,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">'+escapeHtml(PAGE_LABELS[s.page]||s.page)+' — Feature Page</span></div>';
+        var headerDiv = document.createElement('div');
+        headerDiv.style.gridColumn = '1 / -1';
+        headerDiv.style.background = 'var(--surface)';
+        headerDiv.style.padding = '.8rem 1.2rem';
+        headerDiv.style.borderBottom = '1px solid var(--border)';
+        var headerSpan = document.createElement('span');
+        headerSpan.style.fontFamily = 'DM Mono,monospace';
+        headerSpan.style.fontSize = '.62rem';
+        headerSpan.style.letterSpacing = '.1em';
+        headerSpan.style.textTransform = 'uppercase';
+        headerSpan.style.color = 'var(--accent)';
+        headerSpan.textContent = (PAGE_LABELS[s.page] || s.page) + ' — Feature Page';
+        headerDiv.appendChild(headerSpan);
+        grid.appendChild(headerDiv);
       }
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
-                         : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
-      var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
-                         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button data-action="clear-feat" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
-      html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
-            + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+'</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-slot="'+escapeHtml(s.id)+'" data-action="save-feat" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
-            + '</div>' + clearBtn + '</div>';
+      var rowDiv = document.createElement('div');
+      rowDiv.style.background = 'var(--off-black)';
+      rowDiv.style.padding = '1rem 1.2rem';
+      rowDiv.style.display = 'flex';
+      rowDiv.style.alignItems = 'center';
+      rowDiv.style.gap = '1rem';
+      rowDiv.style.borderBottom = '1px solid var(--border)';
+
+      if (stored) {
+        var img = document.createElement('img');
+        img.src = stored;
+        img.style.width = '72px';
+        img.style.height = '48px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '5px';
+        img.style.border = '1px solid var(--border)';
+        img.style.flexShrink = '0';
+        img.onerror = function() { this.style.opacity = '0.3'; };
+        rowDiv.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.style.width = '72px';
+        ph.style.height = '48px';
+        ph.style.borderRadius = '5px';
+        ph.style.border = '2px dashed var(--border)';
+        ph.style.display = 'flex';
+        ph.style.alignItems = 'center';
+        ph.style.justifyContent = 'center';
+        ph.style.fontSize = '.6rem';
+        ph.style.color = 'var(--muted)';
+        ph.style.flexShrink = '0';
+        ph.style.textAlign = 'center';
+        ph.style.lineHeight = '1.4';
+        ph.textContent = 'No image';
+        rowDiv.appendChild(ph);
+      }
+
+      var contentDiv = document.createElement('div');
+      contentDiv.style.flex = '1';
+      contentDiv.style.minWidth = '0';
+
+      var labelLine = document.createElement('div');
+      labelLine.style.display = 'flex';
+      labelLine.style.alignItems = 'center';
+      labelLine.style.gap = '.6rem';
+      labelLine.style.marginBottom = '.3rem';
+      var labelSpan = document.createElement('span');
+      labelSpan.style.fontSize = '.88rem';
+      labelSpan.style.color = 'var(--white)';
+      labelSpan.textContent = s.label || '';
+      labelLine.appendChild(labelSpan);
+      var badge = document.createElement('span');
+      badge.style.fontFamily = 'DM Mono,monospace';
+      badge.style.fontSize = '.6rem';
+      badge.style.padding = '.18rem .5rem';
+      badge.style.borderRadius = '4px';
+      if (stored) {
+        badge.style.background = 'var(--green-dim)';
+        badge.style.border = '1px solid rgba(74,222,128,.3)';
+        badge.style.color = 'var(--green)';
+        badge.textContent = '✓ Live';
+      } else {
+        badge.style.background = 'rgba(113,113,122,.08)';
+        badge.style.border = '1px solid var(--border)';
+        badge.style.color = 'var(--muted)';
+        badge.textContent = 'Empty';
+      }
+      labelLine.appendChild(badge);
+      contentDiv.appendChild(labelLine);
+
+      var hintDiv = document.createElement('div');
+      hintDiv.style.fontSize = '.74rem';
+      hintDiv.style.color = 'var(--muted)';
+      hintDiv.style.marginBottom = '.5rem';
+      hintDiv.textContent = s.hint || '';
+      contentDiv.appendChild(hintDiv);
+
+      var input = document.createElement('input');
+      input.type = 'url';
+      input.placeholder = 'Paste image URL (https://...)';
+      input.value = stored;
+      input.setAttribute('data-slot', String(s.id));
+      input.setAttribute('data-action', 'save-feat');
+      input.setAttribute('data-id', String(s.id));
+      input.className = 'form-input';
+      input.style.fontSize = '.78rem';
+      input.style.padding = '.4rem .7rem';
+      contentDiv.appendChild(input);
+
+      rowDiv.appendChild(contentDiv);
+
+      if (stored) {
+        var clearBtn = document.createElement('button');
+        clearBtn.className = 'btn btn-danger';
+        clearBtn.setAttribute('data-action', 'clear-feat');
+        clearBtn.setAttribute('data-id', String(s.id));
+        clearBtn.style.fontSize = '.62rem';
+        clearBtn.style.padding = '.3rem .6rem';
+        clearBtn.style.flexShrink = '0';
+        clearBtn.textContent = 'Clear';
+        rowDiv.appendChild(clearBtn);
+      }
+
+      grid.appendChild(rowDiv);
     });
-    grid.innerHTML = html || '<div class="empty-state">No feature image slots found.</div>';
     updateStats();
+  }).catch(function(err) {
+    showToast('Error loading feature images: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -983,22 +1309,123 @@ function renderHeroImages() {
     if (!Array.isArray(slots)) slots = [];
     var grid = document.getElementById('hero-images-grid');
     if (!grid) return;
-    var html = '';
+    while (grid.firstChild) { grid.removeChild(grid.firstChild); }
+    if (!slots.length) {
+      var emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty-state';
+      emptyDiv.textContent = 'No hero image slots found.';
+      grid.appendChild(emptyDiv);
+      return;
+    }
     slots.forEach(function(s) {
       var stored = s.image_url || '';
-      var thumb = stored ? '<img src="'+escapeHtml(stored)+'" style="width:72px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.opacity=0.3">'
-                         : '<div style="width:72px;height:48px;border-radius:5px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);flex-shrink:0;text-align:center;line-height:1.4;">No<br>image</div>';
-      var badge = stored ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);">&#10003; Live</span>'
-                         : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(113,113,122,.08);border:1px solid var(--border);color:var(--muted);">Empty</span>';
-      var clearBtn = stored ? '<button data-action="clear-hero" data-id="' + escapeHtml(s.id) + '" class="btn btn-danger" style="font-size:.62rem;padding:.3rem .6rem;flex-shrink:0;">Clear</button>' : '';
-      html += '<div style="background:var(--off-black);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border);">'
-            + thumb + '<div style="flex:1;min-width:0;">'
-            + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem;"><span style="font-size:.88rem;color:var(--white);">'+escapeHtml(s.label)+' tab</span>'+badge+'</div>'
-            + '<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem;">'+escapeHtml(s.hint||'')+'</div>'
-            + '<input type="url" placeholder="Paste image URL (https://...)" value="'+escapeHtml(stored)+'" data-hero="'+escapeHtml(s.id)+'" data-action="save-hero" data-id="' + escapeHtml(s.id) + '" class="form-input" style="font-size:.78rem;padding:.4rem .7rem;" />'
-            + '</div>' + clearBtn + '</div>';
+      var rowDiv = document.createElement('div');
+      rowDiv.style.background = 'var(--off-black)';
+      rowDiv.style.padding = '1rem 1.2rem';
+      rowDiv.style.display = 'flex';
+      rowDiv.style.alignItems = 'center';
+      rowDiv.style.gap = '1rem';
+      rowDiv.style.borderBottom = '1px solid var(--border)';
+
+      if (stored) {
+        var img = document.createElement('img');
+        img.src = stored;
+        img.style.width = '72px';
+        img.style.height = '48px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '5px';
+        img.style.border = '1px solid var(--border)';
+        img.style.flexShrink = '0';
+        img.onerror = function() { this.style.opacity = '0.3'; };
+        rowDiv.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.style.width = '72px';
+        ph.style.height = '48px';
+        ph.style.borderRadius = '5px';
+        ph.style.border = '2px dashed var(--border)';
+        ph.style.display = 'flex';
+        ph.style.alignItems = 'center';
+        ph.style.justifyContent = 'center';
+        ph.style.fontSize = '.6rem';
+        ph.style.color = 'var(--muted)';
+        ph.style.flexShrink = '0';
+        ph.style.textAlign = 'center';
+        ph.style.lineHeight = '1.4';
+        ph.textContent = 'No image';
+        rowDiv.appendChild(ph);
+      }
+
+      var contentDiv = document.createElement('div');
+      contentDiv.style.flex = '1';
+      contentDiv.style.minWidth = '0';
+
+      var labelLine = document.createElement('div');
+      labelLine.style.display = 'flex';
+      labelLine.style.alignItems = 'center';
+      labelLine.style.gap = '.6rem';
+      labelLine.style.marginBottom = '.3rem';
+      var labelSpan = document.createElement('span');
+      labelSpan.style.fontSize = '.88rem';
+      labelSpan.style.color = 'var(--white)';
+      labelSpan.textContent = (s.label || '') + ' tab';
+      labelLine.appendChild(labelSpan);
+      var badge = document.createElement('span');
+      badge.style.fontFamily = 'DM Mono,monospace';
+      badge.style.fontSize = '.6rem';
+      badge.style.padding = '.18rem .5rem';
+      badge.style.borderRadius = '4px';
+      if (stored) {
+        badge.style.background = 'var(--green-dim)';
+        badge.style.border = '1px solid rgba(74,222,128,.3)';
+        badge.style.color = 'var(--green)';
+        badge.textContent = '✓ Live';
+      } else {
+        badge.style.background = 'rgba(113,113,122,.08)';
+        badge.style.border = '1px solid var(--border)';
+        badge.style.color = 'var(--muted)';
+        badge.textContent = 'Empty';
+      }
+      labelLine.appendChild(badge);
+      contentDiv.appendChild(labelLine);
+
+      var hintDiv = document.createElement('div');
+      hintDiv.style.fontSize = '.74rem';
+      hintDiv.style.color = 'var(--muted)';
+      hintDiv.style.marginBottom = '.5rem';
+      hintDiv.textContent = s.hint || '';
+      contentDiv.appendChild(hintDiv);
+
+      var input = document.createElement('input');
+      input.type = 'url';
+      input.placeholder = 'Paste image URL (https://...)';
+      input.value = stored;
+      input.setAttribute('data-hero', String(s.id));
+      input.setAttribute('data-action', 'save-hero');
+      input.setAttribute('data-id', String(s.id));
+      input.className = 'form-input';
+      input.style.fontSize = '.78rem';
+      input.style.padding = '.4rem .7rem';
+      contentDiv.appendChild(input);
+
+      rowDiv.appendChild(contentDiv);
+
+      if (stored) {
+        var clearBtn = document.createElement('button');
+        clearBtn.className = 'btn btn-danger';
+        clearBtn.setAttribute('data-action', 'clear-hero');
+        clearBtn.setAttribute('data-id', String(s.id));
+        clearBtn.style.fontSize = '.62rem';
+        clearBtn.style.padding = '.3rem .6rem';
+        clearBtn.style.flexShrink = '0';
+        clearBtn.textContent = 'Clear';
+        rowDiv.appendChild(clearBtn);
+      }
+
+      grid.appendChild(rowDiv);
     });
-    grid.innerHTML = html || '<div class="empty-state">No hero image slots found.</div>';
+  }).catch(function(err) {
+    showToast('Error loading hero images: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -1145,25 +1572,31 @@ function renderLeads() {
     if (!Array.isArray(leads)) leads = [];
     document.getElementById('leads-count').textContent = '(' + leads.length + ')';
     var tbody = document.getElementById('leads-tbody');
-    if (!leads.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No leads yet. Leads from the chatbot and contact form will appear here.</td></tr>';
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    if (leads.length === 0) {
+      var trEmpty = document.createElement('tr');
+      var tdEmpty = document.createElement('td');
+      tdEmpty.colSpan = 5;
+      tdEmpty.className = 'empty-state';
+      tdEmpty.textContent = 'No leads yet. Leads from the chatbot and contact form will appear here.';
+      trEmpty.appendChild(tdEmpty);
+      tbody.appendChild(trEmpty);
       return;
     }
-    tbody.innerHTML = leads.map(function(l) {
-      var d = new Date(l.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      var sourceBadge = l.source === 'chatbot'
-        ? '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-mid);color:var(--accent);">Chatbot</span>'
-        : '<span style="font-family:DM Mono,monospace;font-size:.6rem;padding:.18rem .5rem;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;">Contact Form</span>';
-      return '<tr>'
-        + '<td style="color:var(--white);">' + escapeHtml(l.name||'—') + '</td>'
-        + '<td style="color:var(--accent);">'+escapeHtml(l.email)+'</td>'
-        + '<td>' + (l.company ? '<span style="font-size:.82rem;color:var(--light);">'+escapeHtml(l.company)+'</span>' : '<span style="color:var(--muted);">—</span>') + '</td>'
-        + '<td>' + sourceBadge + '</td>'
-        + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);">' + d + '</td>'
-        + '</tr>';
-    }).join('');
-  }).catch(function() {
-    document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="5" class="empty-state">Error loading leads. Check Supabase connection.</td></tr>';
+    for (var i = 0; i < leads.length; i++) {
+      tbody.appendChild(buildLeadRow(leads[i]));
+    }
+  }).catch(function(err) {
+    showToast('Error loading leads: ' + (err && err.message ? err.message : ''), 'error');
+    var tbody = document.getElementById('leads-tbody');
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    var trEmpty = document.createElement('tr');
+    var tdEmpty = document.createElement('td');
+    tdEmpty.colSpan = 5;
+    tdEmpty.className = 'empty-state';
+    tdEmpty.textContent = 'Error loading leads. Check Supabase connection.';
+    trEmpty.appendChild(tdEmpty);
+    tbody.appendChild(trEmpty);
   });
 }
 
