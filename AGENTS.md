@@ -9,6 +9,7 @@ code/
 ├── *.html              # Static pages (public site, articles, features, CMS, analytics)
 ├── supabase-config.js  # Centralised Supabase client configuration (URL + anon key)
 ├── supabase-auth.js    # Shared Supabase Auth client + role helpers
+├── faq-renderer.js     # Shared safe FAQ accordion renderer (createElement + textContent)
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
@@ -101,6 +102,14 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Idempotency**: Server-side unique constraint on `event_id` guarantees exactly one row per pageview even if load and unload requests race.
 - **Interaction tracking**: Article clicks, video clicks, and newsletter signups continue to use standard `fetch` inserts via `trackInteraction()`.
 
+**Bug 5: Stored XSS Vulnerability via innerHTML in FAQ Rendering on Public Pages**
+- **Status**: Complete — branch `bug/5-stored-xss-vulnerability-via-innerhtml`.
+- **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `brunelly-features-hub.html` and `brunelly-pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved. Added `id="pricing-faq-list"` to the pricing page FAQ container so the dynamic loader correctly replaces static fallback markup instead of silently failing.
+- **Step 2 (Complete)**: Extracted `renderSafeFaqItem(list, faq)` into a shared `faq-renderer.js` module loaded by both public pages. This eliminates duplication and ensures future FAQ fields cannot be accidentally added with `innerHTML`; both visible text and `data-faq-id` attributes are handled safely through the single centralised helper.
+- **Step 3 (Complete)**: Hardened the CMS/admin FAQ create/update flow with defense in depth. Added `stripHtml()` helper to `brunelly-admin.html` and applied it in `saveFaq()` to sanitize question and answer inputs before persistence. Added length validation (question ≤ 500 chars, answer ≤ 5,000 chars) with user-visible toast errors. Refactored `renderFaqs()` to build the admin FAQ table using safe DOM construction (`createElement` + `textContent` + `setAttribute`), eliminating `innerHTML` entirely for untrusted content.
+- **Step 4 (Complete)**: Verified `brunelly-supabase-setup.sql` RLS policies for the `faqs` table. Public `SELECT` is enabled for public page display. `INSERT`/`UPDATE`/`DELETE` are restricted to authenticated `admin`/`content_editor` roles via `user_has_role()`. No public/anon write policy exists.
+- **Step 5 (Complete)**: Added `tests/faq-render.test.js` with mock-DOM XSS regression tests that exercise the actual production `faq-renderer.js` helper. Tests assert malicious question/answer payloads (`<script>`, `<img onerror>`) render as inert text with zero `innerHTML` usage, and that dangerous `data-faq-id` values are stored literally via `setAttribute`. Existing `tests/rls-policies.test.js` already validates `faqs` denies anonymous writes.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -142,7 +151,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`

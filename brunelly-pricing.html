@@ -617,6 +617,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="faq-renderer.js"></script>
 </head>
 <body>
 
@@ -816,7 +817,7 @@ footer {
     <div class="faq-header reveal">
       <h2>Common questions</h2>
     </div>
-    <div class="faq-list reveal">
+    <div class="faq-list reveal" id="pricing-faq-list">
 
       <div class="faq-item">
         <div class="faq-q">What happens if I run out of credits?<span class="faq-q-icon">+</span></div>
@@ -1087,7 +1088,6 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-
   fetch(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
@@ -1096,14 +1096,8 @@ function setCookieConsent(level){
     if (!Array.isArray(data) || data.length === 0) return;
     var list = document.getElementById('pricing-faq-list');
     if (!list) return;
-    var html = '';
-    data.forEach(function(f) {
-      html += '<div class="faq-item" data-faq-id="' + f.id + '">'
-            + '<button class="faq-q">' + f.question + '<span class="faq-q-icon">+</span></button>'
-            + '<div class="faq-a">' + f.answer + '</div>'
-            + '</div>';
-    });
-    list.innerHTML = html;
+    list.innerHTML = '';
+    data.forEach(function(f) { renderSafeFaqItem(list, f); });
     // Re-attach accordion
     list.querySelectorAll('.faq-q').forEach(function(q) {
       q.addEventListener('click', function() {

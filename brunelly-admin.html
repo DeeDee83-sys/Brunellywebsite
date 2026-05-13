@@ -563,6 +563,11 @@ function isSafeUrl(str) {
   return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
 }
 
+function stripHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/<[^>]*>/g, '');
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────
 var currentTab = 'articles';
 function switchTab(t) {
@@ -1021,17 +1026,55 @@ function renderFaqs() {
       var faqs = page==='hub' ? hubFaqs : priceFaqs;
       var tbody = document.getElementById(page+'-faq-tbody');
       if (!tbody) return;
-      tbody.innerHTML = faqs.length
-        ? faqs.map(function(f,i) {
-            return '<tr>'
-              + '<td style="font-family:DM Mono,monospace;font-size:.7rem;color:var(--muted);width:32px;">'+(i+1)+'</td>'
-              + '<td class="td-title" style="max-width:500px;">'+escapeHtml(f.question)+'</td>'
-              + '<td class="td-actions">'
-              + '<button class="btn btn-ghost" data-action="edit-faq" data-page="' + escapeHtml(page) + '" data-id="' + escapeHtml(f.id) + '">Edit</button>'
-              + '<button class="btn btn-danger" data-action="delete-faq" data-id="' + escapeHtml(f.id) + '">Delete</button>'
-              + '</td></tr>';
-          }).join('')
-        : '<tr><td colspan="3" class="empty-state">No FAQs yet.</td></tr>';
+      tbody.innerHTML = '';
+      if (!faqs.length) {
+        var emptyRow = document.createElement('tr');
+        var emptyCell = document.createElement('td');
+        emptyCell.colSpan = 3;
+        emptyCell.className = 'empty-state';
+        emptyCell.textContent = 'No FAQs yet.';
+        emptyRow.appendChild(emptyCell);
+        tbody.appendChild(emptyRow);
+        return;
+      }
+      faqs.forEach(function(f, i) {
+        var row = document.createElement('tr');
+
+        var idxCell = document.createElement('td');
+        idxCell.style.fontFamily = 'DM Mono, monospace';
+        idxCell.style.fontSize = '.7rem';
+        idxCell.style.color = 'var(--muted)';
+        idxCell.style.width = '32px';
+        idxCell.textContent = String(i + 1);
+        row.appendChild(idxCell);
+
+        var qCell = document.createElement('td');
+        qCell.className = 'td-title';
+        qCell.style.maxWidth = '500px';
+        qCell.textContent = f.question;
+        row.appendChild(qCell);
+
+        var actionsCell = document.createElement('td');
+        actionsCell.className = 'td-actions';
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-ghost';
+        editBtn.setAttribute('data-action', 'edit-faq');
+        editBtn.setAttribute('data-page', page);
+        editBtn.setAttribute('data-id', f.id);
+        editBtn.textContent = 'Edit';
+        actionsCell.appendChild(editBtn);
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-danger';
+        delBtn.setAttribute('data-action', 'delete-faq');
+        delBtn.setAttribute('data-id', f.id);
+        delBtn.textContent = 'Delete';
+        actionsCell.appendChild(delBtn);
+
+        row.appendChild(actionsCell);
+        tbody.appendChild(row);
+      });
     });
   });
 }
@@ -1069,9 +1112,11 @@ function cancelFaqForm() {
 function saveFaq() {
   var page = document.getElementById('faq-form-page').value;
   var id   = document.getElementById('faq-form-idx').value;
-  var q    = document.getElementById('ff-q').value.trim();
-  var a    = document.getElementById('ff-a').value.trim();
+  var q    = stripHtml(document.getElementById('ff-q').value.trim());
+  var a    = stripHtml(document.getElementById('ff-a').value.trim());
   if (!q||!a) { showToast('Question and answer are both required','error'); return; }
+  if (q.length > 500) { showToast('Question must be 500 characters or fewer','error'); return; }
+  if (a.length > 5000) { showToast('Answer must be 5000 characters or fewer','error'); return; }
   var now = new Date().toISOString();
   var item = { id: id||'faq-'+Date.now(), page:page, question:q, answer:a, updated_at:now };
   if (!id) item.created_at = now;

@@ -788,6 +788,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="faq-renderer.js"></script>
 </head>
 <body>
 <nav>
@@ -1264,7 +1265,6 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
 
 <script>
 (function() {
-
   fetch(SUPA_URL + '/rest/v1/faqs?page=eq.hub&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
@@ -1273,14 +1273,8 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
     if (!Array.isArray(data) || data.length === 0) return;
     var list = document.getElementById('hub-faq-list');
     if (!list) return;
-    var html = '';
-    data.forEach(function(f) {
-      html += '<div class="faq-item" data-faq-id="' + f.id + '">'
-            + '<button class="faq-q">' + f.question + '<span class="faq-q-icon">+</span></button>'
-            + '<div class="faq-a">' + f.answer + '</div>'
-            + '</div>';
-    });
-    list.innerHTML = html;
+    list.innerHTML = '';
+    data.forEach(function(f) { renderSafeFaqItem(list, f); });
     // Re-attach accordion
     list.querySelectorAll('.faq-q').forEach(function(q) {
       q.addEventListener('click', function() {

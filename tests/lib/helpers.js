@@ -135,10 +135,16 @@ function sbDelete(table, id, filter) {
   });
 }
 
+function stripHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/<[^>]*>/g, '');
+}
+
 module.exports = {
   escapeHtml,
   isSafeUrl,
   isSafeCssValue,
+  stripHtml,
   sbGet,
   sbUpsert,
   sbUpdate,
