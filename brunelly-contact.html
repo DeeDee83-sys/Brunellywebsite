@@ -77,7 +77,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100;200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 
-  :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,0.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,0.12);--accent-mid:rgba(167,139,250,0.4);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--orange:#fb923c;}
+  :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,0.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,0.12);--accent-mid:rgba(167,139,250,0.4);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.1);--orange:#fb923c;}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;font-weight: 400;line-height:1.6;overflow-x:hidden;}
@@ -149,6 +149,10 @@
   .form-textarea{resize:vertical;min-height:120px;}
   .form-submit{width:100%;font-family:"DM Mono",monospace;font-size:.8rem;letter-spacing:.06em;padding:.9rem;background:var(--accent);border:none;border-radius:8px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;margin-top:.5rem;}
   .form-submit:hover{background:#c4b5fd;box-shadow:0 0 24px rgba(167,139,250,.4);}
+  .form-submit:disabled{opacity:.6;cursor:not-allowed;}
+  .toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.9rem 1.5rem;border-radius:8px;font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.06em;display:none;align-items:center;gap:.6rem;}
+  .toast.success{background:var(--green-dim);border:1px solid var(--green);color:var(--green);}
+  .toast.error{background:var(--red-dim);border:1px solid var(--red);color:var(--red);}
   .form-note{font-size:.75rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.6;}
   .calendly-section{padding:5rem 3rem;background:var(--off-black);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
   .calendly-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
@@ -556,48 +560,50 @@ footer {
     </div>
 
     <div class="contact-form-wrap reveal">
-      <div class="form-row">
-        <div class="form-group">
-          <label>First name</label>
-          <input type="text" class="form-input" placeholder="Jane" />
+      <form id="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first-name">First name</label>
+            <input type="text" id="first-name" name="first_name" class="form-input" placeholder="Jane" autocomplete="given-name" required />
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" name="last_name" class="form-input" placeholder="Smith" autocomplete="family-name" required />
+          </div>
         </div>
         <div class="form-group">
-          <label>Last name</label>
-          <input type="text" class="form-input" placeholder="Smith" />
+          <label for="work-email">Work email</label>
+          <input type="email" id="work-email" name="email" class="form-input" placeholder="jane@company.com" autocomplete="email" required />
         </div>
-      </div>
-      <div class="form-group">
-        <label>Work email</label>
-        <input type="email" class="form-input" placeholder="jane@company.com" />
-      </div>
-      <div class="form-group">
-        <label>Company / team size</label>
-        <select class="form-select">
-          <option value="">Select team size</option>
-          <option>Solo developer</option>
-          <option>2–10 people</option>
-          <option>11–50 people</option>
-          <option>51–200 people</option>
-          <option>200+ people</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>What are you building?</label>
-        <select class="form-select">
-          <option value="">Select one</option>
-          <option>Greenfield project</option>
-          <option>Modernising existing system (brownfield)</option>
-          <option>Scaling an existing product</option>
-          <option>Enterprise software</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Message (optional)</label>
-        <textarea class="form-textarea" placeholder="Tell us a bit about your project or what you'd like to know..."></textarea>
-      </div>
-      <button class="form-submit">Send message →</button>
-      <p class="form-note">We reply within 1 business day. No spam, ever.</p>
+        <div class="form-group">
+          <label for="company-size">Company / team size</label>
+          <select id="company-size" name="company_size" class="form-select" autocomplete="organization">
+            <option value="">Select team size</option>
+            <option>Solo developer</option>
+            <option>2–10 people</option>
+            <option>11–50 people</option>
+            <option>51–200 people</option>
+            <option>200+ people</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="project-type">What are you building?</label>
+          <select id="project-type" name="project_type" class="form-select">
+            <option value="">Select one</option>
+            <option>Greenfield project</option>
+            <option>Modernising existing system (brownfield)</option>
+            <option>Scaling an existing product</option>
+            <option>Enterprise software</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Message (optional)</label>
+          <textarea id="message" name="message" class="form-textarea" placeholder="Tell us a bit about your project or what you'd like to know..." autocomplete="off"></textarea>
+        </div>
+        <button type="submit" class="form-submit" id="contact-submit-btn">Send message →</button>
+        <p class="form-note">We reply within 1 business day. No spam, ever.</p>
+      </form>
     </div>
   </div>
 </section>
@@ -673,6 +679,8 @@ footer {
     <div class="footer-copy">&#169; 2026 Brunelly. All Rights Reserved.</div>
   </div>
 </footer>
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
 <!-- COOKIE BANNER -->
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:1.2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
   <div style="flex:1;min-width:260px;">
@@ -792,6 +800,119 @@ reveals.forEach(el=>io.observe(el));
       }
     });
   }
+})();
+</script>
+<script>
+(function() {
+  'use strict';
+
+  function showToast(msg, type) {
+    type = type || 'success';
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = (type === 'success' ? '\u2713 ' : '\u2715 ') + msg;
+    el.className = 'toast ' + type;
+    el.style.display = 'flex';
+    setTimeout(function() { el.style.display = 'none'; }, 3000);
+  }
+
+  var form = document.getElementById('contact-form');
+  var submitBtn = document.getElementById('contact-submit-btn');
+  if (!form || !submitBtn) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var firstName = (document.getElementById('first-name').value || '').trim();
+    var lastName  = (document.getElementById('last-name').value || '').trim();
+    var email     = (document.getElementById('work-email').value || '').trim();
+    var company   = (document.getElementById('company-size').value || '').trim();
+    var project   = (document.getElementById('project-type').value || '').trim();
+    var message   = (document.getElementById('message').value || '').trim();
+
+    if (!firstName) {
+      showToast('Please enter your first name.', 'error');
+      return;
+    }
+    if (firstName.length > 100) {
+      showToast('First name must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (!lastName) {
+      showToast('Please enter your last name.', 'error');
+      return;
+    }
+    if (lastName.length > 100) {
+      showToast('Last name must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (!email) {
+      showToast('Please enter your email address.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    if (email.length > 255) {
+      showToast('Email must be 255 characters or fewer.', 'error');
+      return;
+    }
+    if (company.length > 100) {
+      showToast('Company / team size must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (project.length > 100) {
+      showToast('Project type must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (message.length > 5000) {
+      showToast('Message must be 5,000 characters or fewer.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending\u2026';
+
+    var fullMessage = message;
+    if (project) {
+      fullMessage = (fullMessage ? fullMessage + '\n\n' : '') + 'Project type: ' + project;
+    }
+
+    var payload = {
+      name: firstName + ' ' + lastName,
+      email: email,
+      company: company || null,
+      message: fullMessage || null,
+      source: 'contact-form',
+      page: window.location.pathname
+    };
+
+    fetch(window.SUPA_URL + '/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': window.SUPA_KEY,
+        'Authorization': 'Bearer ' + window.SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r) {
+        if (!r.ok) {
+          throw new Error('Server returned ' + r.status);
+        }
+        showToast('Message sent successfully. We\'ll be in touch soon.', 'success');
+        form.reset();
+      })
+      .catch(function(err) {
+        showToast('Error sending message: ' + (err && err.message ? err.message : 'Please try again.'), 'error');
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message \u2192';
+      });
+  });
 })();
 </script>
 </body>
