@@ -874,14 +874,44 @@ reveals.forEach(el=>io.observe(el));
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending\u2026';
 
-    // TODO: Step 3 will wire the actual Supabase POST here.
-    // For now, simulate the async flow to demonstrate UX patterns.
-    setTimeout(function() {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send message \u2192';
-      showToast('Message sent successfully. We\'ll be in touch soon.', 'success');
-      form.reset();
-    }, 600);
+    var fullMessage = message;
+    if (project) {
+      fullMessage = (fullMessage ? fullMessage + '\n\n' : '') + 'Project type: ' + project;
+    }
+
+    var payload = {
+      name: firstName + ' ' + lastName,
+      email: email,
+      company: company || null,
+      message: fullMessage || null,
+      source: 'contact-form',
+      page: window.location.pathname
+    };
+
+    fetch(window.SUPA_URL + '/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': window.SUPA_KEY,
+        'Authorization': 'Bearer ' + window.SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r) {
+        if (!r.ok) {
+          throw new Error('Server returned ' + r.status);
+        }
+        showToast('Message sent successfully. We\'ll be in touch soon.', 'success');
+        form.reset();
+      })
+      .catch(function(err) {
+        showToast('Error sending message: ' + (err && err.message ? err.message : 'Please try again.'), 'error');
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message \u2192';
+      });
   });
 })();
 </script>
