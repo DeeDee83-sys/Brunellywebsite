@@ -556,48 +556,50 @@ footer {
     </div>
 
     <div class="contact-form-wrap reveal">
-      <div class="form-row">
-        <div class="form-group">
-          <label>First name</label>
-          <input type="text" class="form-input" placeholder="Jane" />
+      <form id="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first-name">First name</label>
+            <input type="text" id="first-name" name="first_name" class="form-input" placeholder="Jane" autocomplete="given-name" required />
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" name="last_name" class="form-input" placeholder="Smith" autocomplete="family-name" required />
+          </div>
         </div>
         <div class="form-group">
-          <label>Last name</label>
-          <input type="text" class="form-input" placeholder="Smith" />
+          <label for="work-email">Work email</label>
+          <input type="email" id="work-email" name="email" class="form-input" placeholder="jane@company.com" autocomplete="email" required />
         </div>
-      </div>
-      <div class="form-group">
-        <label>Work email</label>
-        <input type="email" class="form-input" placeholder="jane@company.com" />
-      </div>
-      <div class="form-group">
-        <label>Company / team size</label>
-        <select class="form-select">
-          <option value="">Select team size</option>
-          <option>Solo developer</option>
-          <option>2–10 people</option>
-          <option>11–50 people</option>
-          <option>51–200 people</option>
-          <option>200+ people</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>What are you building?</label>
-        <select class="form-select">
-          <option value="">Select one</option>
-          <option>Greenfield project</option>
-          <option>Modernising existing system (brownfield)</option>
-          <option>Scaling an existing product</option>
-          <option>Enterprise software</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Message (optional)</label>
-        <textarea class="form-textarea" placeholder="Tell us a bit about your project or what you'd like to know..."></textarea>
-      </div>
-      <button class="form-submit">Send message →</button>
-      <p class="form-note">We reply within 1 business day. No spam, ever.</p>
+        <div class="form-group">
+          <label for="company-size">Company / team size</label>
+          <select id="company-size" name="company_size" class="form-select" autocomplete="organization">
+            <option value="">Select team size</option>
+            <option>Solo developer</option>
+            <option>2–10 people</option>
+            <option>11–50 people</option>
+            <option>51–200 people</option>
+            <option>200+ people</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="project-type">What are you building?</label>
+          <select id="project-type" name="project_type" class="form-select">
+            <option value="">Select one</option>
+            <option>Greenfield project</option>
+            <option>Modernising existing system (brownfield)</option>
+            <option>Scaling an existing product</option>
+            <option>Enterprise software</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Message (optional)</label>
+          <textarea id="message" name="message" class="form-textarea" placeholder="Tell us a bit about your project or what you'd like to know..." autocomplete="off"></textarea>
+        </div>
+        <button type="submit" class="form-submit" id="contact-submit-btn">Send message →</button>
+        <p class="form-note">We reply within 1 business day. No spam, ever.</p>
+      </form>
     </div>
   </div>
 </section>
