@@ -123,6 +123,11 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Step 2 (Complete)**: Added `.finally()` to the `sbDelete('leads')` promise chain to re-enable the button (`disabled = false`) regardless of success or failure, ensuring the UI is never left in a permanently disabled state.
 - The existing confirmation prompt, Supabase-first deletion, localStorage cleanup only on success, success/error toasts, and `.catch()` error handling were already in place from prior hardening and remain unchanged.
 
+**Bug 8: Contact form non-functional due to missing form structure and submit handling**
+- **Status**: In progress on branch `bug/8-contact-form-non-functional-due-to`.
+- **Step 1 (Complete)**: Converted the contact form UI shell in `brunelly-contact.html` into a real HTML form. Added `<form id="contact-form">`, stable `id`/`name` attributes, associated labels with `for`, accessibility attributes (`autocomplete`, `required`), and `type="submit"` on the button.
+- **Step 2 (Complete)**: Implemented client-side submission handling. Added `showToast` helper consistent with `brunelly-admin.html`, submit event listener with validation (required fields, email regex, length limits), button disable/enable during request, and success/error toast feedback.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
