@@ -217,7 +217,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
         <h2>Chat Leads <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="leads-count"></span></h2>
         <div style="display:flex;gap:.7rem;">
           <button class="btn btn-ghost" onclick="exportLeads()">Export CSV</button>
-          <button class="btn btn-danger" onclick="clearLeads()">Clear all</button>
+          <button id="clear-leads-btn" class="btn btn-danger" onclick="clearLeads()">Clear all</button>
         </div>
       </div>
       <div style="font-size:.83rem;color:var(--muted);margin-bottom:1.5rem;">
@@ -1620,6 +1620,8 @@ function exportLeads() {
 
 function clearLeads() {
   if (!confirm('This will delete all leads from Supabase. This cannot be undone.')) return;
+  var btn = document.getElementById('clear-leads-btn');
+  if (btn) btn.disabled = true;
   sbDelete('leads', null, {op:'gt', col:'id', val:0})
     .then(function(){
       try { localStorage.removeItem('brunelly_leads'); } catch(e) {}
@@ -1628,6 +1630,9 @@ function clearLeads() {
     })
     .catch(function(err){
       showToast('Error clearing leads: ' + (err && err.message ? err.message : ''), 'error');
+    })
+    .finally(function(){
+      if (btn) btn.disabled = false;
     });
 }
 
