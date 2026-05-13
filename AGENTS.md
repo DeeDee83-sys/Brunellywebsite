@@ -110,6 +110,12 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Step 4 (Complete)**: Verified `brunelly-supabase-setup.sql` RLS policies for the `faqs` table. Public `SELECT` is enabled for public page display. `INSERT`/`UPDATE`/`DELETE` are restricted to authenticated `admin`/`content_editor` roles via `user_has_role()`. No public/anon write policy exists.
 - **Step 5 (Complete)**: Added `tests/faq-render.test.js` with mock-DOM XSS regression tests that exercise the actual production `faq-renderer.js` helper. Tests assert malicious question/answer payloads (`<script>`, `<img onerror>`) render as inert text with zero `innerHTML` usage, and that dangerous `data-faq-id` values are stored literally via `setAttribute`. Existing `tests/rls-policies.test.js` already validates `faqs` denies anonymous writes.
 
+**Bug 6: Stored XSS Vulnerability via Unescaped Single Quotes in Admin Edit Button onclick Handler**
+- **Status**: Resolved on branch `bug/6-stored-xss-vulnerability-via-unescaped`.
+- **Step 1 (Complete)**: Verified that the vulnerable JSON-in-onclick pattern was already eliminated in earlier bug-fix work. `buildArticleRow()` and all other table row builders pass only safe identifiers (`data-action`, `data-type`, `data-index`, `data-id`) via `setAttribute`; event delegation in `handleTableClick()` invokes `editItem()` without embedding any user-controlled data or JSON blobs in HTML attributes.
+- **Step 2 (Complete)**: Refactored `editItem()` to fetch fresh data from Supabase by ID on every edit click. The function now accepts `type` and `id`, queries the relevant table via `sbGet(table, 'id=eq.' + id)`, and populates the edit form from the returned record. The client-side caches (`window._cmsArticles`, `window._cmsVideos`, `window._cmsUseCases`) are no longer used for edit form data, ensuring stale or poisoned cache entries cannot affect the edit flow. Added `data-id` to Edit buttons in `buildArticleRow()`, `renderVideos()`, and `renderUseCases()`. Removed the unused `_currentItems` variable. Added `.catch()` error handling with `showToast` so Supabase fetch failures are visible to the user.
+- **Step 3 (Complete)**: Hardened all remaining admin tables that built rows with `innerHTML` string concatenation. Introduced `buildVideoRow()`, `buildUseCaseRow()`, and `buildLeadRow()` helpers that construct every table cell with `document.createElement`, `textContent`, and `setAttribute`. Refactored `renderVideos()`, `renderUseCases()`, and `renderLeads()` to append rows via safe DOM builders instead of `innerHTML`. Refactored `renderImages()` and `renderHeroImages()` from `innerHTML` string building to safe DOM construction for all thumbnails, labels, badges, hints, inputs, and buttons. Added `.catch()` error handling with `showToast` to all refactored renderers. No user-controlled values in `brunelly-admin.html` now pass through `innerHTML`.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -151,7 +157,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
