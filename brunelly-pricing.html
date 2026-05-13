@@ -617,6 +617,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="faq-renderer.js"></script>
 </head>
 <body>
 
@@ -1087,26 +1088,6 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-
-  function renderSafeFaqItem(list, faq) {
-    var item = document.createElement('div');
-    item.className = 'faq-item';
-    item.setAttribute('data-faq-id', faq.id);
-    var qBtn = document.createElement('button');
-    qBtn.className = 'faq-q';
-    qBtn.textContent = faq.question;
-    var icon = document.createElement('span');
-    icon.className = 'faq-q-icon';
-    icon.textContent = '+';
-    qBtn.appendChild(icon);
-    var aDiv = document.createElement('div');
-    aDiv.className = 'faq-a';
-    aDiv.textContent = faq.answer;
-    item.appendChild(qBtn);
-    item.appendChild(aDiv);
-    list.appendChild(item);
-  }
-
   fetch(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
