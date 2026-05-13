@@ -130,6 +130,13 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Step 3 (Complete)**: Wired the form submission to the Supabase `leads` table via `fetch` POST to `window.SUPA_URL + '/rest/v1/leads'` using the established header pattern (`apikey`, `Authorization`, `Prefer: return=minimal`). Payload includes `name`, `email`, `company`, `message`, `source: 'contact-form'`, and `page: window.location.pathname`. Project type is appended to the message when provided. Non-2xx responses and network failures surface user-visible error toasts; the button is re-enabled via `.finally()`.
 - **Step 4 (Complete)**: Added automated regression coverage in `tests/contact-form.test.js`. Tests assert the HTML contains a proper form with expected inputs and verify the submission script targets the correct endpoint, constructs a safe payload, and handles errors appropriately (no real Supabase connectivity required).
 
+**Bug 9: Stored XSS vulnerability in analytics dashboard via unsafe innerHTML rendering**
+- **Status**: Resolved on branch `bug/9-stored-xss-vulnerability-in-analytics`.
+- **Step 1 (Complete)**: Identified every place attacker-controlled analytics data (from localStorage `brunelly_analytics` and Supabase `analytics_events`) is rendered into the DOM via `innerHTML` in `brunelly-analytics.html`. Vulnerable fields: `e.source`, `e.device`, `e.articleTitle`, `e.category`, `e.email`, `e.type`.
+- **Step 2 (Complete)**: Refactored `renderSources()`, `renderTopArticles()`, `renderCategoryChart()`, `renderNewsletter()`, `renderReferrers()`, and `renderEvents()` to use safe DOM construction (`document.createElement`, `textContent`, `appendChild`) instead of `innerHTML` template literals. No user-controlled values pass through `innerHTML`.
+- **Step 3 (Complete)**: Added `escapeHtml()` defensive helper to `brunelly-analytics.html` for any future rendering that cannot avoid `innerHTML`.
+- **Step 4 (Complete)**: Verified safe functions (`renderScrollDepth`, `renderDevices`, `renderHeatmap`, `renderViewsChart`, `renderKPIs`) require no changes — they use only hardcoded values, computed numbers, or constrained enums.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.

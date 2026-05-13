@@ -297,6 +297,16 @@ function normaliseEvent(row) {
   };
 }
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 let RANGE_DAYS=7, viewsChart=null, catChart=null;
 
 function doLogin(){
@@ -542,14 +552,46 @@ function renderSources(events){
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   const icons={direct:'🔗',google:'G',linkedin:'in',twitter:'X',reddit:'r/',discord:'DC'};
   const colors={direct:'#a78bfa',google:'#60a5fa',linkedin:'#0077b5',twitter:'#1da1f2',reddit:'#ff4500',discord:'#5865f2'};
-  document.getElementById('source-list').innerHTML=sorted.map(([src,cnt])=>`
-    <div class="source-row">
-      <div class="source-icon" style="background:${colors[src]||'#a78bfa'};color:#000;">${icons[src]||'?'}</div>
-      <div class="source-name">${src.charAt(0).toUpperCase()+src.slice(1)}</div>
-      <div class="source-count">${cnt}</div>
-      <div class="source-pct">${(cnt/total*100).toFixed(0)}%</div>
-      <div class="source-bar-wrap"><div class="source-bar" style="width:${(cnt/total*100).toFixed(1)}%;background:${colors[src]||'#a78bfa'}"></div></div>
-    </div>`).join('')||'<div class="empty">No data yet</div>';
+  const container=document.getElementById('source-list');
+  container.innerHTML='';
+  if(!sorted.length){
+    const empty=document.createElement('div');
+    empty.className='empty';
+    empty.textContent='No data yet';
+    container.appendChild(empty);
+    return;
+  }
+  sorted.forEach(function([src,cnt]){
+    const row=document.createElement('div');
+    row.className='source-row';
+    const icon=document.createElement('div');
+    icon.className='source-icon';
+    icon.style.background=colors[src]||'#a78bfa';
+    icon.style.color='#000';
+    icon.textContent=icons[src]||'?';
+    row.appendChild(icon);
+    const name=document.createElement('div');
+    name.className='source-name';
+    name.textContent=src.charAt(0).toUpperCase()+src.slice(1);
+    row.appendChild(name);
+    const count=document.createElement('div');
+    count.className='source-count';
+    count.textContent=cnt;
+    row.appendChild(count);
+    const pct=document.createElement('div');
+    pct.className='source-pct';
+    pct.textContent=(cnt/total*100).toFixed(0)+'%';
+    row.appendChild(pct);
+    const barWrap=document.createElement('div');
+    barWrap.className='source-bar-wrap';
+    const bar=document.createElement('div');
+    bar.className='source-bar';
+    bar.style.width=(cnt/total*100).toFixed(1)+'%';
+    bar.style.background=colors[src]||'#a78bfa';
+    barWrap.appendChild(bar);
+    row.appendChild(barWrap);
+    container.appendChild(row);
+  });
 }
 
 // ── TOP ARTICLES ──────────────────────────────────────────────────
@@ -570,17 +612,64 @@ function renderTopArticles(){
   const cb={'AI':'rgba(167,139,250,.4)','Agile':'rgba(96,165,250,.3)','ChatGPT & AI Orchestration':'rgba(251,146,60,.3)','Behind the Build':'rgba(74,222,128,.3)'};
   const cbg={'AI':'rgba(167,139,250,.12)','Agile':'rgba(96,165,250,.1)','ChatGPT & AI Orchestration':'rgba(251,146,60,.1)','Behind the Build':'rgba(74,222,128,.1)'};
   const tbody=document.getElementById('top-articles');
-  if(!arts.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No click data yet. Visit the resources page to start tracking.</td></tr>';return;}
-  tbody.innerHTML=arts.slice(0,10).map((a,i)=>`<tr>
-    <td style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);">${i+1}</td>
-    <td class="art-title-cell" title="${a.title}">${a.title}</td>
-    <td><span class="tag" style="color:${cc[a.category]||'#a78bfa'};border-color:${cb[a.category]||'rgba(167,139,250,.4)'};background:${cbg[a.category]||'rgba(167,139,250,.12)'};">${(a.category||'').replace('ChatGPT & AI Orchestration','ChatGPT')}</span></td>
-    <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--white);">${a.clicks}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);">${(a.clicks/pvs*100).toFixed(1)}%</td>
-    <td><div class="mini-bar-wrap"><div class="mini-bar" style="width:${(a.clicks/max*100).toFixed(0)}%;background:${cc[a.category]||'#a78bfa'}"></div></div></td>
-  </tr>`).join('');
+  tbody.innerHTML='';
+  if(!arts.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=6;
+    td.className='empty';
+    td.textContent='No click data yet. Visit the resources page to start tracking.';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+  arts.slice(0,10).forEach(function(a,i){
+    const tr=document.createElement('tr');
+    const tdRank=document.createElement('td');
+    tdRank.style.fontFamily="'DM Mono',monospace";
+    tdRank.style.fontSize='.7rem';
+    tdRank.style.color='var(--muted)';
+    tdRank.textContent=i+1;
+    tr.appendChild(tdRank);
+    const tdTitle=document.createElement('td');
+    tdTitle.className='art-title-cell';
+    tdTitle.title=a.title;
+    tdTitle.textContent=a.title;
+    tr.appendChild(tdTitle);
+    const tdCat=document.createElement('td');
+    const spanCat=document.createElement('span');
+    spanCat.className='tag';
+    spanCat.style.color=cc[a.category]||'#a78bfa';
+    spanCat.style.borderColor=cb[a.category]||'rgba(167,139,250,.4)';
+    spanCat.style.background=cbg[a.category]||'rgba(167,139,250,.12)';
+    spanCat.textContent=(a.category||'').replace('ChatGPT & AI Orchestration','ChatGPT');
+    tdCat.appendChild(spanCat);
+    tr.appendChild(tdCat);
+    const tdClicks=document.createElement('td');
+    tdClicks.style.fontFamily="'DM Mono',monospace";
+    tdClicks.style.fontSize='.78rem';
+    tdClicks.style.color='var(--white)';
+    tdClicks.textContent=a.clicks;
+    tr.appendChild(tdClicks);
+    const tdCtr=document.createElement('td');
+    tdCtr.style.fontFamily="'DM Mono',monospace";
+    tdCtr.style.fontSize='.7rem';
+    tdCtr.style.color='var(--muted)';
+    tdCtr.textContent=(a.clicks/pvs*100).toFixed(1)+'%';
+    tr.appendChild(tdCtr);
+    const tdBar=document.createElement('td');
+    const barWrap=document.createElement('div');
+    barWrap.className='mini-bar-wrap';
+    const bar=document.createElement('div');
+    bar.className='mini-bar';
+    bar.style.width=(a.clicks/max*100).toFixed(0)+'%';
+    bar.style.background=cc[a.category]||'#a78bfa';
+    barWrap.appendChild(bar);
+    tdBar.appendChild(barWrap);
+    tr.appendChild(tdBar);
+    tbody.appendChild(tr);
+  });
 }
-
 // ── CATEGORY CHART ────────────────────────────────────────────────
 function renderCategoryChart(events){
   const clicks=events.filter(e=>e.type==='article_click');
@@ -593,11 +682,27 @@ function renderCategoryChart(events){
   if(!labels.length){return;}
   catChart=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.slice(0,labels.length),borderColor:'#09090b',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
   const total=data.reduce((a,b)=>a+b,0)||1;
-  document.getElementById('cat-legend').innerHTML=labels.map((l,i)=>`
-    <div style="display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--light);">
-      <span style="width:8px;height:8px;border-radius:50%;background:${colors[i]};flex-shrink:0;"></span>
-      ${l.replace('ChatGPT & AI Orchestration','ChatGPT')} ${(data[i]/total*100).toFixed(0)}%
-    </div>`).join('');
+  const container=document.getElementById('cat-legend');
+  container.innerHTML='';
+  labels.forEach(function(l,i){
+    const item=document.createElement('div');
+    item.style.display='flex';
+    item.style.alignItems='center';
+    item.style.gap='.4rem';
+    item.style.fontFamily="'DM Mono',monospace";
+    item.style.fontSize='.6rem';
+    item.style.color='var(--light)';
+    const dot=document.createElement('span');
+    dot.style.width='8px';
+    dot.style.height='8px';
+    dot.style.borderRadius='50%';
+    dot.style.background=colors[i];
+    dot.style.flexShrink='0';
+    item.appendChild(dot);
+    const text=document.createTextNode(l.replace('ChatGPT & AI Orchestration','ChatGPT')+' '+(data[i]/total*100).toFixed(0)+'%');
+    item.appendChild(text);
+    container.appendChild(item);
+  });
 }
 
 // ── SCROLL DEPTH ──────────────────────────────────────────────────
@@ -645,17 +750,63 @@ function renderNewsletter(events){
     {label:'Signed up',val:subs,color:'var(--green)'},
   ];
   const max=funnel[0].val||1;
-  document.getElementById('newsletter-funnel').innerHTML=funnel.map(f=>`
-    <div class="funnel-row">
-      <div class="funnel-label">${f.label}</div>
-      <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${(f.val/max*100).toFixed(1)}%;background:${f.color}"></div></div>
-      <div class="funnel-num">${f.val.toLocaleString()}</div>
-      <div class="funnel-pct">${(f.val/max*100).toFixed(0)}%</div>
-    </div>`).join('');
+  const funnelContainer=document.getElementById('newsletter-funnel');
+  funnelContainer.innerHTML='';
+  funnel.forEach(function(f){
+    const row=document.createElement('div');
+    row.className='funnel-row';
+    const label=document.createElement('div');
+    label.className='funnel-label';
+    label.textContent=f.label;
+    row.appendChild(label);
+    const barWrap=document.createElement('div');
+    barWrap.className='funnel-bar-wrap';
+    const bar=document.createElement('div');
+    bar.className='funnel-bar';
+    bar.style.width=(f.val/max*100).toFixed(1)+'%';
+    bar.style.background=f.color;
+    barWrap.appendChild(bar);
+    row.appendChild(barWrap);
+    const num=document.createElement('div');
+    num.className='funnel-num';
+    num.textContent=f.val.toLocaleString();
+    row.appendChild(num);
+    const pct=document.createElement('div');
+    pct.className='funnel-pct';
+    pct.textContent=(f.val/max*100).toFixed(0)+'%';
+    row.appendChild(pct);
+    funnelContainer.appendChild(row);
+  });
   const recent=events.filter(e=>e.type==='newsletter_signup').slice(-5).reverse();
-  document.getElementById('recent-subs').innerHTML=recent.length
-    ? recent.map(e=>`<div style="display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.78rem;"><span style="color:var(--white);">${e.email||'—'}</span><span style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);">${new Date(e.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span></div>`).join('')
-    : '<div style="color:var(--muted);font-size:.78rem;">No signups yet</div>';
+  const recentContainer=document.getElementById('recent-subs');
+  recentContainer.innerHTML='';
+  if(!recent.length){
+    const empty=document.createElement('div');
+    empty.style.color='var(--muted)';
+    empty.style.fontSize='.78rem';
+    empty.textContent='No signups yet';
+    recentContainer.appendChild(empty);
+    return;
+  }
+  recent.forEach(function(e){
+    const row=document.createElement('div');
+    row.style.display='flex';
+    row.style.justifyContent='space-between';
+    row.style.padding='.35rem 0';
+    row.style.borderBottom='1px solid var(--border)';
+    row.style.fontSize='.78rem';
+    const emailSpan=document.createElement('span');
+    emailSpan.style.color='var(--white)';
+    emailSpan.textContent=e.email||'—';
+    row.appendChild(emailSpan);
+    const dateSpan=document.createElement('span');
+    dateSpan.style.fontFamily="'DM Mono',monospace";
+    dateSpan.style.fontSize='.62rem';
+    dateSpan.style.color='var(--muted)';
+    dateSpan.textContent=new Date(e.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    row.appendChild(dateSpan);
+    recentContainer.appendChild(row);
+  });
 }
 
 // ── HEATMAP ───────────────────────────────────────────────────────
@@ -685,25 +836,96 @@ function renderReferrers(events){
   });
   const rows=Object.entries(counts).sort((a,b)=>b[1].views-a[1].views);
   const names={direct:'Direct / None',google:'Google Search',linkedin:'LinkedIn',twitter:'X / Twitter',reddit:'Reddit',discord:'Discord'};
-  document.getElementById('referrer-tbody').innerHTML=rows.map(([s,d])=>`<tr>
-    <td style="color:var(--white);">${names[s]||s}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.75rem;">${d.views}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.75rem;">${d.clicks}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);">${d.views>0?(d.clicks/d.views*100).toFixed(1)+'%':'—'}</td>
-  </tr>`).join('')||'<tr><td colspan="4" class="empty">No data yet</td></tr>';
+  const tbody=document.getElementById('referrer-tbody');
+  tbody.innerHTML='';
+  if(!rows.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=4;
+    td.className='empty';
+    td.textContent='No data yet';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+  rows.forEach(function([s,d]){
+    const tr=document.createElement('tr');
+    const tdName=document.createElement('td');
+    tdName.style.color='var(--white)';
+    tdName.textContent=names[s]||s;
+    tr.appendChild(tdName);
+    const tdViews=document.createElement('td');
+    tdViews.style.fontFamily="'DM Mono',monospace";
+    tdViews.style.fontSize='.75rem';
+    tdViews.textContent=d.views;
+    tr.appendChild(tdViews);
+    const tdClicks=document.createElement('td');
+    tdClicks.style.fontFamily="'DM Mono',monospace";
+    tdClicks.style.fontSize='.75rem';
+    tdClicks.textContent=d.clicks;
+    tr.appendChild(tdClicks);
+    const tdCtr=document.createElement('td');
+    tdCtr.style.fontFamily="'DM Mono',monospace";
+    tdCtr.style.fontSize='.72rem';
+    tdCtr.style.color='var(--muted)';
+    tdCtr.textContent=d.views>0?(d.clicks/d.views*100).toFixed(1)+'%':'—';
+    tr.appendChild(tdCtr);
+    tbody.appendChild(tr);
+  });
 }
 
 // ── EVENTS ────────────────────────────────────────────────────────
 function renderEvents(){
   const evts=getEvents().slice(-100).reverse();
   const types={pageview:'📄 Page View',article_click:'🖱️ Article Click',newsletter_signup:'📧 Newsletter'};
-  document.getElementById('events-tbody').innerHTML=evts.slice(0,50).map(e=>`<tr>
-    <td style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);white-space:nowrap;">${new Date(e.ts).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
-    <td style="font-size:.78rem;">${types[e.type]||e.type}</td>
-    <td style="font-size:.78rem;color:var(--light);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.articleTitle||e.email||'—'}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);">${e.source||'—'}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);">${e.device||'—'}</td>
-  </tr>`).join('')||'<tr><td colspan="5" class="empty">No events yet. Visit the resources page to start collecting data.</td></tr>';
+  const tbody=document.getElementById('events-tbody');
+  tbody.innerHTML='';
+  if(!evts.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=5;
+    td.className='empty';
+    td.textContent='No events yet. Visit the resources page to start collecting data.';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+  evts.slice(0,50).forEach(function(e){
+    const tr=document.createElement('tr');
+    const tdTime=document.createElement('td');
+    tdTime.style.fontFamily="'DM Mono',monospace";
+    tdTime.style.fontSize='.62rem';
+    tdTime.style.color='var(--muted)';
+    tdTime.style.whiteSpace='nowrap';
+    tdTime.textContent=new Date(e.ts).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    tr.appendChild(tdTime);
+    const tdType=document.createElement('td');
+    tdType.style.fontSize='.78rem';
+    tdType.textContent=types[e.type]||e.type;
+    tr.appendChild(tdType);
+    const tdDetail=document.createElement('td');
+    tdDetail.style.fontSize='.78rem';
+    tdDetail.style.color='var(--light)';
+    tdDetail.style.maxWidth='200px';
+    tdDetail.style.whiteSpace='nowrap';
+    tdDetail.style.overflow='hidden';
+    tdDetail.style.textOverflow='ellipsis';
+    tdDetail.textContent=e.articleTitle||e.email||'—';
+    tr.appendChild(tdDetail);
+    const tdSource=document.createElement('td');
+    tdSource.style.fontFamily="'DM Mono',monospace";
+    tdSource.style.fontSize='.68rem';
+    tdSource.style.color='var(--muted)';
+    tdSource.textContent=e.source||'—';
+    tr.appendChild(tdSource);
+    const tdDevice=document.createElement('td');
+    tdDevice.style.fontFamily="'DM Mono',monospace";
+    tdDevice.style.fontSize='.68rem';
+    tdDevice.style.color='var(--muted)';
+    tdDevice.textContent=e.device||'—';
+    tr.appendChild(tdDevice);
+    tbody.appendChild(tr);
+  });
 }
 
 // ── EXPORT CSV ────────────────────────────────────────────────────
