@@ -687,6 +687,7 @@ function buildArticleRow(a, i) {
   btnEdit.setAttribute('data-action', 'edit');
   btnEdit.setAttribute('data-type', 'articles');
   btnEdit.setAttribute('data-index', String(i));
+  btnEdit.setAttribute('data-id', String(a.id));
   btnEdit.textContent = 'Edit';
   var btnDelete = document.createElement('button');
   btnDelete.className = 'btn btn-danger';
@@ -742,7 +743,7 @@ function renderVideos() {
             + '<td class="td-title">' + escapeHtml(v.title) + '</td>'
             + '<td style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(v.youtube_url||'—') + '</td>'
             + '<td><span class="published-badge '+(v.published&&v.youtube_id?'pub-yes':'pub-no')+'">'+(v.published&&v.youtube_id?'&#9679; Live':'&#9675; Coming soon')+'</span></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + escapeHtml(v.id) + '">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="videos" data-index="' + escapeHtml(i) + '" data-id="' + escapeHtml(v.id) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="videos" data-id="' + escapeHtml(v.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="5" class="empty-state">No videos yet.</td></tr>';
@@ -762,7 +763,7 @@ function renderUseCases() {
             + '<td class="td-title" style="max-width:340px;">' + escapeHtml(uc.title) + '</td>'
             + '<td><span class="published-badge '+(uc.published?'pub-yes':'pub-no')+'">'+(uc.published?'&#9679; Published':'&#9675; Hidden')+'</span>'
             + '<label class="toggle" style="margin-left:.8rem;vertical-align:middle;"><input type="checkbox" '+(uc.published?'checked':'')+' data-id="' + escapeHtml(uc.id) + '"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + escapeHtml(uc.id) + '">Delete</button></td>'
+            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="usecases" data-index="' + escapeHtml(i) + '" data-id="' + escapeHtml(uc.id) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="use_cases" data-id="' + escapeHtml(uc.id) + '">Delete</button></td>'
             + '</tr>';
         }).join('')
       : '<tr><td colspan="4" class="empty-state">No use cases yet.</td></tr>';
@@ -786,7 +787,7 @@ function render() {
 }
 
 // ── Form ──────────────────────────────────────────────────────────
-var _currentItems = [];
+
 window._cmsArticles = [];
 window._cmsVideos = [];
 window._cmsUseCases = [];
@@ -802,43 +803,46 @@ function showAdd() {
   showFormView();
 }
 
-function editItem(type, idx) {
-  var items;
-  if (type === 'articles') items = window._cmsArticles;
-  else if (type === 'videos') items = window._cmsVideos;
-  else if (type === 'usecases') items = window._cmsUseCases;
-  else return;
-  if (!Array.isArray(items) || idx < 0 || idx >= items.length) return;
-  _currentItems = items;
-  var item = items[idx];
-  var t = type==='usecases'?'uc':type==='videos'?'video':'article';
-  document.getElementById('form-idx').value = item.id;
-  document.getElementById('form-type').value = t;
-  document.getElementById('form-heading').textContent = 'Edit ' + (type==='usecases'?'Use Case':type==='videos'?'Video':'Article');
-  resetFormFields();
-  if (t==='article') {
-    document.getElementById('f-title').value    = item.title||'';
-    document.getElementById('f-excerpt').value  = item.excerpt||'';
-    document.getElementById('f-category').value = item.category||'';
-    document.getElementById('f-date').value      = item.date||'';
-    document.getElementById('f-url').value       = item.url||'';
-    document.getElementById('f-image').value     = item.image||'';
-    previewImg();
-  } else if (t==='video') {
-    document.getElementById('fv-title').value  = item.title||'';
-    document.getElementById('fv-desc').value   = item.description||'';
-    document.getElementById('fv-url').value    = item.youtube_url||'';
-    document.getElementById('fv-ytid').value   = item.youtube_id||'';
-    document.getElementById('fv-dur').value    = item.duration||'';
-    document.getElementById('fv-pub').checked  = item.published||false;
-  } else {
-    document.getElementById('fuc-title').value = item.title||'';
-    document.getElementById('fuc-body').value  = item.body||'';
-    document.getElementById('fuc-icon').value  = item.icon||'';
-    document.getElementById('fuc-color').value = item.icon_color||'#a78bfa';
-    document.getElementById('fuc-pub').checked = item.published||false;
-  }
-  showFormView();
+function editItem(type, id) {
+  var table = type === 'usecases' ? 'use_cases' : type === 'videos' ? 'videos' : 'articles';
+  if (!id) { showToast('Cannot edit: missing item ID', 'error'); return; }
+  sbGet(table, 'id=eq.' + id).then(function(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      showToast('Item not found', 'error');
+      return;
+    }
+    var item = rows[0];
+    var t = type === 'usecases' ? 'uc' : type === 'videos' ? 'video' : 'article';
+    document.getElementById('form-idx').value = item.id;
+    document.getElementById('form-type').value = t;
+    document.getElementById('form-heading').textContent = 'Edit ' + (type === 'usecases' ? 'Use Case' : type === 'videos' ? 'Video' : 'Article');
+    resetFormFields();
+    if (t === 'article') {
+      document.getElementById('f-title').value    = item.title || '';
+      document.getElementById('f-excerpt').value  = item.excerpt || '';
+      document.getElementById('f-category').value = item.category || '';
+      document.getElementById('f-date').value      = item.date || '';
+      document.getElementById('f-url').value       = item.url || '';
+      document.getElementById('f-image').value     = item.image || '';
+      previewImg();
+    } else if (t === 'video') {
+      document.getElementById('fv-title').value  = item.title || '';
+      document.getElementById('fv-desc').value   = item.description || '';
+      document.getElementById('fv-url').value    = item.youtube_url || '';
+      document.getElementById('fv-ytid').value   = item.youtube_id || '';
+      document.getElementById('fv-dur').value    = item.duration || '';
+      document.getElementById('fv-pub').checked  = item.published || false;
+    } else {
+      document.getElementById('fuc-title').value = item.title || '';
+      document.getElementById('fuc-body').value  = item.body || '';
+      document.getElementById('fuc-icon').value  = item.icon || '';
+      document.getElementById('fuc-color').value = item.icon_color || '#a78bfa';
+      document.getElementById('fuc-pub').checked = item.published || false;
+    }
+    showFormView();
+  }).catch(function(err) {
+    showToast('Error loading item: ' + (err && err.message ? err.message : ''), 'error');
+  });
 }
 
 function deleteItem(table, id) {
@@ -1285,7 +1289,7 @@ function handleTableClick(e) {
   if (!btn) return;
   var action = btn.getAttribute('data-action');
   if (action === 'edit') {
-    editItem(btn.getAttribute('data-type'), parseInt(btn.getAttribute('data-index'), 10));
+    editItem(btn.getAttribute('data-type'), btn.getAttribute('data-id'));
   } else if (action === 'delete') {
     deleteItem(btn.getAttribute('data-table'), btn.getAttribute('data-id'));
   }
