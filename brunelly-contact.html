@@ -77,7 +77,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100;200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 
-  :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,0.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,0.12);--accent-mid:rgba(167,139,250,0.4);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--orange:#fb923c;}
+  :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,0.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,0.12);--accent-mid:rgba(167,139,250,0.4);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.1);--orange:#fb923c;}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;font-weight: 400;line-height:1.6;overflow-x:hidden;}
@@ -149,6 +149,10 @@
   .form-textarea{resize:vertical;min-height:120px;}
   .form-submit{width:100%;font-family:"DM Mono",monospace;font-size:.8rem;letter-spacing:.06em;padding:.9rem;background:var(--accent);border:none;border-radius:8px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;margin-top:.5rem;}
   .form-submit:hover{background:#c4b5fd;box-shadow:0 0 24px rgba(167,139,250,.4);}
+  .form-submit:disabled{opacity:.6;cursor:not-allowed;}
+  .toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.9rem 1.5rem;border-radius:8px;font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.06em;display:none;align-items:center;gap:.6rem;}
+  .toast.success{background:var(--green-dim);border:1px solid var(--green);color:var(--green);}
+  .toast.error{background:var(--red-dim);border:1px solid var(--red);color:var(--red);}
   .form-note{font-size:.75rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.6;}
   .calendly-section{padding:5rem 3rem;background:var(--off-black);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
   .calendly-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
@@ -675,6 +679,8 @@ footer {
     <div class="footer-copy">&#169; 2026 Brunelly. All Rights Reserved.</div>
   </div>
 </footer>
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
 <!-- COOKIE BANNER -->
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:1.2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
   <div style="flex:1;min-width:260px;">
@@ -794,6 +800,89 @@ reveals.forEach(el=>io.observe(el));
       }
     });
   }
+})();
+</script>
+<script>
+(function() {
+  'use strict';
+
+  function showToast(msg, type) {
+    type = type || 'success';
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = (type === 'success' ? '\u2713 ' : '\u2715 ') + msg;
+    el.className = 'toast ' + type;
+    el.style.display = 'flex';
+    setTimeout(function() { el.style.display = 'none'; }, 3000);
+  }
+
+  var form = document.getElementById('contact-form');
+  var submitBtn = document.getElementById('contact-submit-btn');
+  if (!form || !submitBtn) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var firstName = (document.getElementById('first-name').value || '').trim();
+    var lastName  = (document.getElementById('last-name').value || '').trim();
+    var email     = (document.getElementById('work-email').value || '').trim();
+    var company   = (document.getElementById('company-size').value || '').trim();
+    var project   = (document.getElementById('project-type').value || '').trim();
+    var message   = (document.getElementById('message').value || '').trim();
+
+    if (!firstName) {
+      showToast('Please enter your first name.', 'error');
+      return;
+    }
+    if (firstName.length > 100) {
+      showToast('First name must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (!lastName) {
+      showToast('Please enter your last name.', 'error');
+      return;
+    }
+    if (lastName.length > 100) {
+      showToast('Last name must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (!email) {
+      showToast('Please enter your email address.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    if (email.length > 255) {
+      showToast('Email must be 255 characters or fewer.', 'error');
+      return;
+    }
+    if (company.length > 100) {
+      showToast('Company / team size must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (project.length > 100) {
+      showToast('Project type must be 100 characters or fewer.', 'error');
+      return;
+    }
+    if (message.length > 5000) {
+      showToast('Message must be 5,000 characters or fewer.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending\u2026';
+
+    // TODO: Step 3 will wire the actual Supabase POST here.
+    // For now, simulate the async flow to demonstrate UX patterns.
+    setTimeout(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send message \u2192';
+      showToast('Message sent successfully. We\'ll be in touch soon.', 'success');
+      form.reset();
+    }, 600);
+  });
 })();
 </script>
 </body>
