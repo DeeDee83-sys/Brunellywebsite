@@ -574,7 +574,7 @@ footer {
         <h2>See Brunelly in action</h2>
         <p>Step-by-step product walkthroughs demonstrating real Brunelly functionality. More videos coming soon.</p>
       </div>
-      <a href="https://www.youtube.com/@Brunelly" target="_blank" class="view-all-link">YouTube channel &#8594;</a>
+      <a href="https://www.youtube.com/@Brunelly" target="_blank" rel="noopener noreferrer" class="view-all-link">YouTube channel &#8594;</a>
     </div>
     <div class="videos-grid reveal" id="videos-grid"></div>
   </div>
@@ -622,18 +622,18 @@ footer {
     </div>
     <div class="footer-col">
       <h4>Community</h4>
-      <a href="https://www.linkedin.com/company/brunelly/" target="_blank">LinkedIn</a>
-      <a href="https://x.com/BrunellyAI" target="_blank">X / Twitter</a>
-      <a href="https://www.reddit.com/r/Brunelly/" target="_blank">Reddit</a>
-      <a href="https://discord.gg/cWfNSXzQjr" target="_blank">Discord</a>
+      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://x.com/BrunellyAI" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" rel="noopener noreferrer">Reddit</a>
+      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" rel="noopener noreferrer">Discord</a>
     </div>
   </div>
   <div class="footer-right">
     <div class="footer-socials">
-      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" class="social-btn" title="LinkedIn">in</a>
-      <a href="https://x.com/BrunellyAI" target="_blank" class="social-btn" title="X / Twitter">&#120143;</a>
-      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" class="social-btn" title="Reddit">r/</a>
-      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" class="social-btn" title="Discord">DC</a>
+      <a href="https://www.linkedin.com/company/brunelly/" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn">in</a>
+      <a href="https://x.com/BrunellyAI" target="_blank" rel="noopener noreferrer" class="social-btn" title="X / Twitter">&#120143;</a>
+      <a href="https://www.reddit.com/r/Brunelly/" target="_blank" rel="noopener noreferrer" class="social-btn" title="Reddit">r/</a>
+      <a href="https://discord.gg/cWfNSXzQjr" target="_blank" rel="noopener noreferrer" class="social-btn" title="Discord">DC</a>
     </div>
     <div class="footer-policy">
       <a href="brunelly-privacy.html">Privacy</a>
@@ -665,7 +665,10 @@ function sbFetch(table, params) {
       'Authorization': 'Bearer ' + SUPA_KEY,
       'Content-Type': 'application/json'
     }
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
 }
 
 function sbInsert(table, data) {
@@ -681,8 +684,34 @@ function sbInsert(table, data) {
   });
 }
 
+// ── Security helpers ──────────────────────────────────────────────
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isSafeUrl(str) {
+  if (str == null) return false;
+  var s = String(str).trim().toLowerCase();
+  return s.indexOf('http://') === 0 || s.indexOf('https://') === 0;
+}
+
+function isSafeCssValue(str) {
+  if (str == null) return false;
+  var s = String(str).toLowerCase();
+  if (/javascript:/.test(s)) return false;
+  if (/expression\s*\(/.test(s)) return false;
+  if (/url\s*\(\s*["']?javascript:/.test(s)) return false;
+  return true;
+}
+
 // ── Seed data (fallback if Supabase unavailable) ──────────────────
-var ARTICLES_SEED = [{"id": "1", "title": "Vibe Coding Isn't Bad, You Are", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "brunelly-article-vibe-coding-isnt-bad-you-are.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/03/P6564icture1-e1773203362723.webp?fit=621%2C447&ssl=1", "date": "March 2026"}, {"id": "2", "title": "Your AI Product Is Not A Real Business", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "brunelly-article-your-ai-product-is-not-a-real-business.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Untitled-design.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "3", "title": "How many Rs are there really in strawberry?", "excerpt": "How many Rs are there in the word strawberry? AI can't tell you. Apparently. You've all seen it. Screenshots, Reddit threads, smug tweets.", "category": "AI", "url": "brunelly-article-how-many-rs-are-there-really-in-strawberry.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-7.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "4", "title": "Part 2: AI context in the real-world", "excerpt": "Learn to manage AI context with trimming, rolling, compaction, and memory strategies to boost performance and reduce costs.", "category": "Agile", "url": "brunelly-article-part-2-ai-context-in-the-real-world.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/AI-context-in-real-apps.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "5", "title": "Part 1: Managing your AI context in real apps", "excerpt": "Learn how to manage AI context in real applications using trimming, rolling context, compaction, and memory strategies to improve performance and reduce cost.", "category": "Agile", "url": "brunelly-article-part-1-managing-your-ai-context-in-real-apps.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-5.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "6", "title": "From ScrumBuddy to Brunelly: Bad Requirements Are Still Killing Software Projects", "excerpt": "From ScrumBuddy to Brunelly: Why bad requirements still break software and how structured, AI-driven workflows turn ideas into successful products.", "category": "Behind the Build", "url": "brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-1.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "7", "title": "I Built a Compiler in Five Days with Claude AI", "excerpt": "This exercise was both for fun and a necessity. The orchestration system powering Brunelly, my AI tool, had gotten messy.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-compiler-built-with-claude-ai.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "8", "title": "Why I Put Claude in Jail and Let Him Code Anyway", "excerpt": "AI vibe coding is fun but chaotic. Here's how I built a containerized orchestration system that turned Claude AI code generation into secure, production-ready workflows.", "category": "Behind the Build", "url": "brunelly-article-claude-ai-coding-orchestration-containerized-workflows.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/thumbnail-.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "9", "title": "The Censor Behind the Curtain: The Hidden Orchestration Behind ChatGPT5", "excerpt": "There's another side to GPT5 that has bigger consequences: censorship, fact-checking, and how the system decides what you see.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-the-censor-behind-the-curtain.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/Coco-Loco_Posts-e1756793759482.png?fit=800%2C512&ssl=1", "date": "September 2025"}, {"id": "10", "title": "Why GPT-5 Feels Like a Stranger", "excerpt": "GPT-5 feels different. Not because of the model, but because of orchestration. Discover how routing agents, memory placement, and system tweaks change ChatGPT5 tone, accuracy, and personality.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-why-gpt5-feels-like-a-stranger-orchestration-changes.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-bertellifotografia-16027813-1-scaled.jpg?fit=800%2C454&ssl=1", "date": "September 2025"}, {"id": "11", "title": "Inside ChatGPT's Safety Net: What Really Happens When You Cross the Line", "excerpt": "ChatGPT's orchestration is the most interesting part of ChatGPT. It is not just a helpful assistant \u2014 it is also the bouncer, the censor, and the crisis manager.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-inside-chatgpts-safety-net.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-sylvain-cls-3918566-5866051-1-1-scaled.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "12", "title": "The Secret System Behind ChatGPT: How Orchestration Affects Everything", "excerpt": "Ever had ChatGPT forget your chat history? Have you noticed sudden personality changes mid-chat? Find out how AI orchestration is the reason that happens.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-the-secret-system-behind-chatgpt.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-googledeepmind-18069697-1.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "13", "title": "The Hidden Beast Behind ChatGPT: How AI Orchestration Shapes Every Conversation", "excerpt": "Discover the hidden orchestration system behind ChatGPT that controls memory, tone, safety, and tools. Learn why it matters for AI users and builders.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-chatgpt-orchestration.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-nemuel-6424590-1.jpg?fit=800%2C533&ssl=1", "date": "September 2025"}];
+var ARTICLES_SEED = [{"id": "1", "title": "Vibe Coding Isn't Bad, You Are", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "https://brunelly.com/brunelly-article-vibe-coding-isnt-bad-you-are.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/03/P6564icture1-e1773203362723.webp?fit=621%2C447&ssl=1", "date": "March 2026"}, {"id": "2", "title": "Your AI Product Is Not A Real Business", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "https://brunelly.com/brunelly-article-your-ai-product-is-not-a-real-business.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Untitled-design.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "3", "title": "How many Rs are there really in strawberry?", "excerpt": "How many Rs are there in the word strawberry? AI can't tell you. Apparently. You've all seen it. Screenshots, Reddit threads, smug tweets.", "category": "AI", "url": "https://brunelly.com/brunelly-article-how-many-rs-are-there-really-in-strawberry.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-7.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "4", "title": "Part 2: AI context in the real-world", "excerpt": "Learn to manage AI context with trimming, rolling, compaction, and memory strategies to boost performance and reduce costs.", "category": "Agile", "url": "https://brunelly.com/brunelly-article-part-2-ai-context-in-the-real-world.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/AI-context-in-real-apps.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "5", "title": "Part 1: Managing your AI context in real apps", "excerpt": "Learn how to manage AI context in real applications using trimming, rolling context, compaction, and memory strategies to improve performance and reduce cost.", "category": "Agile", "url": "https://brunelly.com/brunelly-article-part-1-managing-your-ai-context-in-real-apps.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-5.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "6", "title": "From ScrumBuddy to Brunelly: Bad Requirements Are Still Killing Software Projects", "excerpt": "From ScrumBuddy to Brunelly: Why bad requirements still break software and how structured, AI-driven workflows turn ideas into successful products.", "category": "Behind the Build", "url": "https://brunelly.com/brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-1.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "7", "title": "I Built a Compiler in Five Days with Claude AI", "excerpt": "This exercise was both for fun and a necessity. The orchestration system powering Brunelly, my AI tool, had gotten messy.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-compiler-built-with-claude-ai.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "8", "title": "Why I Put Claude in Jail and Let Him Code Anyway", "excerpt": "AI vibe coding is fun but chaotic. Here's how I built a containerized orchestration system that turned Claude AI code generation into secure, production-ready workflows.", "category": "Behind the Build", "url": "https://brunelly.com/brunelly-article-claude-ai-coding-orchestration-containerized-workflows.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/thumbnail-.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "9", "title": "The Censor Behind the Curtain: The Hidden Orchestration Behind ChatGPT5", "excerpt": "There's another side to GPT5 that has bigger consequences: censorship, fact-checking, and how the system decides what you see.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-the-censor-behind-the-curtain.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/Coco-Loco_Posts-e1756793759482.png?fit=800%2C512&ssl=1", "date": "September 2025"}, {"id": "10", "title": "Why GPT-5 Feels Like a Stranger", "excerpt": "GPT-5 feels different. Not because of the model, but because of orchestration. Discover how routing agents, memory placement, and system tweaks change ChatGPT5 tone, accuracy, and personality.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-why-gpt5-feels-like-a-stranger-orchestration-changes.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-bertellifotografia-16027813-1-scaled.jpg?fit=800%2C454&ssl=1", "date": "September 2025"}, {"id": "11", "title": "Inside ChatGPT's Safety Net: What Really Happens When You Cross the Line", "excerpt": "ChatGPT's orchestration is the most interesting part of ChatGPT. It is not just a helpful assistant \u2014 it is also the bouncer, the censor, and the crisis manager.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-inside-chatgpts-safety-net.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-sylvain-cls-3918566-5866051-1-1-scaled.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "12", "title": "The Secret System Behind ChatGPT: How Orchestration Affects Everything", "excerpt": "Ever had ChatGPT forget your chat history? Have you noticed sudden personality changes mid-chat? Find out how AI orchestration is the reason that happens.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-the-secret-system-behind-chatgpt.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-googledeepmind-18069697-1.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "13", "title": "The Hidden Beast Behind ChatGPT: How AI Orchestration Shapes Every Conversation", "excerpt": "Discover the hidden orchestration system behind ChatGPT that controls memory, tone, safety, and tools. Learn why it matters for AI users and builders.", "category": "ChatGPT & AI Orchestration", "url": "https://brunelly.com/brunelly-article-chatgpt-orchestration.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-nemuel-6424590-1.jpg?fit=800%2C533&ssl=1", "date": "September 2025"}];
 var VIDEOS_SEED   = [{"id": "v1", "title": "Platform Overview", "description": "A comprehensive walkthrough of the Brunelly platform and its core capabilities.", "youtubeUrl": "https://youtu.be/DWwjalfXJ3I", "youtubeId": "DWwjalfXJ3I", "duration": "", "published": true}, {"id": "v2", "title": "Signup and Onboarding", "description": "The first-run experience from account creation through project setup.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v3", "title": "Feature Backlog Generation", "description": "AI-powered generation of a structured feature backlog from high-level requirements.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v4", "title": "Story Backlog Generation", "description": "Breaking features down into implementable user stories with acceptance criteria.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v5", "title": "Code Generation", "description": "Automated code generation from story specifications with full context awareness.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v6", "title": "Documentation Generation", "description": "Generating technical documentation, design documents, and specifications.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v7", "title": "Tech Expert", "description": "Interactive AI technical advisor for architecture decisions and code guidance.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v8", "title": "Testing", "description": "Automated test plan generation and test execution capabilities.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v9", "title": "Bug Hunt", "description": "AI-driven static analysis and bug detection across the codebase.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v10", "title": "Code Quality, Security and Risk Assessment", "description": "Comprehensive quality analysis, security scanning, and risk scoring.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v11", "title": "Code Reviews", "description": "AI-assisted code review with actionable feedback and suggestions.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v12", "title": "Repository Initialisation", "description": "Setting up a new repository with best-practice structure and configuration.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v13", "title": "Code Engine Selection", "description": "Selecting and configuring the AI code generation engine for your project.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}];
 var UC_SEED       = [{"id": "uc1", "icon": "\u25c8", "iconBg": "rgba(167,139,250,.12)", "iconColor": "#a78bfa", "title": "Modernising a legacy system without breaking what works", "body": "Brunelly reads a complex brownfield codebase, maps its architecture and dependencies, and generates a safe, prioritised modernisation roadmap so teams can move forward without breaking production.", "published": false}, {"id": "uc2", "icon": "\u2b21", "iconBg": "rgba(59,130,246,.1)", "iconColor": "#60a5fa", "title": "Scaling an engineering team from 5 to 25 without losing velocity", "body": "As teams grow, context gets fragmented. Brunelly acts as institutional memory so new engineers onboard faster, architectural decisions stay consistent, and no one has to re-explain sprint three decisions.", "published": false}, {"id": "uc3", "icon": "\u26a1", "iconBg": "rgba(74,222,128,.1)", "iconColor": "#4ade80", "title": "Building greenfield software with architectural integrity from day one", "body": "Starting fresh gives you the opportunity to get the architecture right. Brunelly shapes your system from the first conversation and maintains that integrity through every sprint.", "published": false}, {"id": "uc4", "icon": "\u25c9", "iconBg": "rgba(251,146,60,.1)", "iconColor": "#fb923c", "title": "Meeting compliance requirements without slowing delivery", "body": "For teams building under GDPR, SOC2, or other frameworks, Brunelly builds those constraints into its context so security and compliance checks happen automatically, not as afterthoughts.", "published": false}];
 
@@ -729,79 +758,176 @@ function renderArticles() {
   var grid = document.getElementById('articles-grid');
   grid.innerHTML = '<div class="no-results" style="padding:3rem;text-align:center;color:var(--muted);font-family:DM Mono,monospace;font-size:.75rem;">Loading articles...</div>';
   getArticles(function(all) {
-  var filtered = currentCat === 'all' ? all : all.filter(function(a) { return a.category === currentCat; });
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="no-results">No articles in this category yet.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < filtered.length; i++) {
-    var a = filtered[i];
-    var cc = CAT_COLOR[a.category]  || '#a78bfa';
-    var cb = CAT_BORDER[a.category] || 'rgba(167,139,250,.4)';
-    var cbg= CAT_BG[a.category]     || 'rgba(167,139,250,.12)';
-    var imgHtml = a.image
-      ? '<img src="' + a.image + '" alt="" class="article-img" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<div class="article-img-ph">No image</div>';
-    html += '<a href="' + a.url + '" target="_blank" class="article-card" data-id="' + a.id + '">'
-          + imgHtml
-          + '<div class="article-body">'
-          + '<span class="article-tag" style="color:' + cc + ';border-color:' + cb + ';background:' + cbg + ';">' + a.category + '</span>'
-          + '<h3>' + a.title + '</h3>'
-          + '<p>' + a.excerpt + '</p>'
-          + '<div class="article-meta"><span>' + (a.date || '') + '</span><span class="article-arrow">&#8594;</span></div>'
-          + '</div>'
-          + '</a>';
-  }
-  grid.innerHTML = html;
-  }); // end getArticles callback
+    var filtered = currentCat === 'all' ? all : all.filter(function(a) { return a.category === currentCat; });
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="no-results">No articles in this category yet.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    for (var i = 0; i < filtered.length; i++) {
+      var a = filtered[i];
+      var cc = CAT_COLOR[a.category] || '#a78bfa';
+      var cb = CAT_BORDER[a.category] || 'rgba(167,139,250,.4)';
+      var cbg = CAT_BG[a.category] || 'rgba(167,139,250,.12)';
+
+      var card = document.createElement('a');
+      card.className = 'article-card';
+      card.setAttribute('data-id', a.id);
+      if (isSafeUrl(a.url)) {
+        card.href = a.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      } else {
+        card.href = '#';
+        card.style.cursor = 'default';
+      }
+
+      if (a.image && isSafeUrl(a.image)) {
+        var img = document.createElement('img');
+        img.src = a.image;
+        img.alt = '';
+        img.className = 'article-img';
+        img.loading = 'lazy';
+        img.onerror = function() { this.style.display = 'none'; };
+        card.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.className = 'article-img-ph';
+        ph.textContent = 'No image';
+        card.appendChild(ph);
+      }
+
+      var body = document.createElement('div');
+      body.className = 'article-body';
+
+      var tag = document.createElement('span');
+      tag.className = 'article-tag';
+      tag.style.color = cc;
+      tag.style.borderColor = cb;
+      tag.style.background = cbg;
+      tag.textContent = a.category || '';
+      body.appendChild(tag);
+
+      var h3 = document.createElement('h3');
+      h3.textContent = a.title || '';
+      body.appendChild(h3);
+
+      var p = document.createElement('p');
+      p.textContent = a.excerpt || '';
+      body.appendChild(p);
+
+      var meta = document.createElement('div');
+      meta.className = 'article-meta';
+      var dateSpan = document.createElement('span');
+      dateSpan.textContent = a.date || '';
+      meta.appendChild(dateSpan);
+      var arrow = document.createElement('span');
+      arrow.className = 'article-arrow';
+      arrow.innerHTML = '&#8594;';
+      meta.appendChild(arrow);
+      body.appendChild(meta);
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    }
+  });
 }
 
 // ── Videos ────────────────────────────────────────────────────────
 function renderVideos() {
   var grid = document.getElementById('videos-grid');
   getVideos(function(all) {
-  if (!all.length) {
-    grid.innerHTML = '<div class="no-results">No videos yet.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < all.length; i++) {
-    var v = all[i];
-    var hasVideo = !!(v.youtubeUrl && v.youtubeId);
-    var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg' : '';
-    var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
-    var cardOpen = hasVideo
-      ? '<a href="' + v.youtubeUrl + '" target="_blank" class="' + cardClass + '">'
-      : '<div class="' + cardClass + '">';
-    var cardClose = hasVideo ? '</a>' : '</div>';
-
-    var thumbContent = '';
-    if (thumb) {
-      thumbContent += '<img src="' + thumb + '" alt="" onerror="this.style.display=\'none\'">';
+    if (!all.length) {
+      grid.innerHTML = '<div class="no-results">No videos yet.</div>';
+      return;
     }
-    thumbContent += '<div class="video-thumb-ph" style="' + (thumb ? 'display:none;' : '') + '">'
-                  + '<div class="video-play-btn">' + (hasVideo ? '&#9654;' : '&#8987;') + '</div>'
-                  + (hasVideo ? '' : '<div class="video-coming-txt">Coming soon</div>')
-                  + '</div>';
-    if (hasVideo)  thumbContent += '<div class="video-watch-badge">&#9654; Watch</div>';
-    if (!hasVideo) thumbContent += '<div class="video-soon-badge">Coming soon</div>';
+    grid.innerHTML = '';
+    for (var i = 0; i < all.length; i++) {
+      var v = all[i];
+      var hasVideo = !!(v.youtubeUrl && v.youtubeId);
+      var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg' : '';
+      var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
 
-    var footerHtml = hasVideo
-      ? '<div class="video-footer" style="color:var(--accent);">Watch on YouTube &#8594;</div>'
-      : '<div class="video-footer" style="color:var(--muted);">Coming soon</div>';
+      var card;
+      if (hasVideo && isSafeUrl(v.youtubeUrl)) {
+        card = document.createElement('a');
+        card.href = v.youtubeUrl;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      } else {
+        card = document.createElement('div');
+      }
+      card.className = cardClass;
 
-    html += cardOpen
-          + '<div class="video-thumb">' + thumbContent + '</div>'
-          + '<div class="video-info">'
-          + '<h3>' + v.title + '</h3>'
-          + '<p>' + v.description + '</p>'
-          + footerHtml
-          + '</div>'
-          + cardClose;
-  }
-  grid.innerHTML = html;
-  }); // end getVideos callback
+      var thumbWrap = document.createElement('div');
+      thumbWrap.className = 'video-thumb';
+
+      if (thumb) {
+        var img = document.createElement('img');
+        img.src = thumb;
+        img.alt = '';
+        img.onerror = function() { this.style.display = 'none'; };
+        thumbWrap.appendChild(img);
+      }
+
+      var ph = document.createElement('div');
+      ph.className = 'video-thumb-ph';
+      ph.style.display = thumb ? 'none' : '';
+
+      var playBtn = document.createElement('div');
+      playBtn.className = 'video-play-btn';
+      playBtn.innerHTML = hasVideo ? '&#9654;' : '&#8987;';
+      ph.appendChild(playBtn);
+
+      if (!hasVideo) {
+        var comingTxt = document.createElement('div');
+        comingTxt.className = 'video-coming-txt';
+        comingTxt.textContent = 'Coming soon';
+        ph.appendChild(comingTxt);
+      }
+
+      thumbWrap.appendChild(ph);
+
+      if (hasVideo) {
+        var badge = document.createElement('div');
+        badge.className = 'video-watch-badge';
+        badge.innerHTML = '&#9654; Watch';
+        thumbWrap.appendChild(badge);
+      } else {
+        var soonBadge = document.createElement('div');
+        soonBadge.className = 'video-soon-badge';
+        soonBadge.textContent = 'Coming soon';
+        thumbWrap.appendChild(soonBadge);
+      }
+
+      card.appendChild(thumbWrap);
+
+      var info = document.createElement('div');
+      info.className = 'video-info';
+
+      var h3 = document.createElement('h3');
+      h3.textContent = v.title || '';
+      info.appendChild(h3);
+
+      var p = document.createElement('p');
+      p.textContent = v.description || '';
+      info.appendChild(p);
+
+      var footer = document.createElement('div');
+      footer.className = 'video-footer';
+      if (hasVideo) {
+        footer.style.color = 'var(--accent)';
+        footer.innerHTML = 'Watch on YouTube &#8594;';
+      } else {
+        footer.style.color = 'var(--muted)';
+        footer.textContent = 'Coming soon';
+      }
+      info.appendChild(footer);
+
+      card.appendChild(info);
+      grid.appendChild(card);
+    }
+  });
 }
 
 // ── Use Cases ─────────────────────────────────────────────────────
@@ -816,15 +942,33 @@ function renderUseCases() {
     }
     section.style.display = 'block';
     if (navBtn) navBtn.style.display = 'inline-block';
-    var html = '';
+    var grid = document.getElementById('use-cases-grid');
+    grid.innerHTML = '';
     for (var i = 0; i < published.length; i++) {
       var uc = published[i];
-      html += '<div class="use-case">'
-            + '<div class="use-case-icon" style="background:' + (uc.icon_bg || uc.iconBg || 'var(--accent-dim)') + ';color:' + (uc.icon_color || uc.iconColor || 'var(--accent)') + ';">' + (uc.icon || '◈') + '</div>'
-            + '<div><h3>' + uc.title + '</h3><p>' + uc.body + '</p></div>'
-            + '</div>';
+      var card = document.createElement('div');
+      card.className = 'use-case';
+
+      var icon = document.createElement('div');
+      icon.className = 'use-case-icon';
+      var bg = uc.icon_bg || uc.iconBg || 'var(--accent-dim)';
+      var color = uc.icon_color || uc.iconColor || 'var(--accent)';
+      icon.style.background = isSafeCssValue(bg) ? bg : 'var(--accent-dim)';
+      icon.style.color = isSafeCssValue(color) ? color : 'var(--accent)';
+      icon.textContent = uc.icon || '◈';
+      card.appendChild(icon);
+
+      var content = document.createElement('div');
+      var h3 = document.createElement('h3');
+      h3.textContent = uc.title || '';
+      content.appendChild(h3);
+      var p = document.createElement('p');
+      p.textContent = uc.body || '';
+      content.appendChild(p);
+      card.appendChild(content);
+
+      grid.appendChild(card);
     }
-    document.getElementById('use-cases-grid').innerHTML = html;
   });
 }
 

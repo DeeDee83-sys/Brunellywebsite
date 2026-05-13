@@ -115,6 +115,18 @@ CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
 CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
 CREATE INDEX IF NOT EXISTS idx_leads_source     ON leads(source);
 
+-- ── Article Submissions (restricted public write) ─────────────────
+-- Public visitors can suggest articles, but cannot write directly to
+-- the articles table. This table accepts only safe, non-executable
+-- fields (suggested_url, submitter_email, notes) for review by admins.
+CREATE TABLE IF NOT EXISTS article_submissions (
+  id              BIGSERIAL PRIMARY KEY,
+  suggested_url   TEXT,
+  submitter_email TEXT,
+  notes           TEXT,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ── Row Level Security — lock down policies ───────────────────────
 ALTER TABLE articles        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE videos          ENABLE ROW LEVEL SECURITY;
@@ -142,6 +154,8 @@ DROP POLICY IF EXISTS "Public insert analytics"     ON analytics_events;
 DROP POLICY IF EXISTS "Public read analytics"       ON analytics_events;
 DROP POLICY IF EXISTS "Public insert leads"         ON leads;
 DROP POLICY IF EXISTS "Public read leads"           ON leads;
+DROP POLICY IF EXISTS "Public insert article_submissions" ON article_submissions;
+DROP POLICY IF EXISTS "Public read article_submissions"   ON article_submissions;
 
 -- Helper: check if current auth user has one of the required roles
 CREATE OR REPLACE FUNCTION public.user_has_role(required_roles TEXT[])
@@ -228,6 +242,21 @@ CREATE POLICY "Admin delete leads"
     auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin'])
   );
 
+-- ── article_submissions: restricted public insert, admin read ─────
+-- Public write is enabled but restricted to non-executable fields.
+-- Anonymous users can submit a suggested URL, email, and notes.
+-- Admins review submissions and promote valid ones to the articles table.
+CREATE POLICY "Public insert article_submissions"
+  ON article_submissions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin read article_submissions"
+  ON article_submissions FOR SELECT USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin','content_editor'])
+  );
+CREATE POLICY "Admin delete article_submissions"
+  ON article_submissions FOR DELETE USING (
+    auth.uid() IS NOT NULL AND user_has_role(ARRAY['admin'])
+  );
+
 -- ── Seed hero image slots ─────────────────────────────────
 INSERT INTO hero_images (id, label, hint) VALUES
   ('plan',   'Plan',         'Backlog/story generation interface'),
@@ -266,6 +295,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE article_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own profile (required for login role check)

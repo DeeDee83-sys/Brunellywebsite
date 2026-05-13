@@ -13,7 +13,7 @@ describe('RLS Policies', function() {
     var expected = [
       'articles', 'videos', 'use_cases', 'faqs',
       'feature_images', 'hero_images', 'analytics_events', 'leads',
-      'profiles'
+      'article_submissions', 'profiles'
     ];
     expected.forEach(function(table) {
       assert.ok(tablesWithRLS.indexOf(table) !== -1, 'table ' + table + ' should have RLS enabled');
@@ -123,6 +123,43 @@ describe('RLS Policies', function() {
         }),
         'leads DELETE should be admin-only'
       );
+    });
+  });
+
+  describe('article_submissions', function() {
+    test('allows public INSERT', function() {
+      assert.ok(
+        hasPolicy(policies, 'article_submissions', 'INSERT', function(p, text) {
+          return text.indexOf('true') !== -1;
+        }),
+        'article_submissions should allow public INSERT'
+      );
+    });
+
+    test('restricts SELECT to admin/content_editor', function() {
+      assert.ok(
+        hasPolicy(policies, 'article_submissions', 'SELECT', function(p, text) {
+          return text.indexOf('admin') !== -1 && text.indexOf('content_editor') !== -1;
+        }),
+        'article_submissions SELECT should require admin or content_editor'
+      );
+    });
+
+    test('restricts DELETE to admin only', function() {
+      assert.ok(
+        hasPolicy(policies, 'article_submissions', 'DELETE', function(p, text) {
+          return text.indexOf('admin') !== -1 && text.indexOf('analytics_viewer') === -1;
+        }),
+        'article_submissions DELETE should be admin-only'
+      );
+    });
+
+    test('does NOT allow anonymous SELECT', function() {
+      var tablePolicies = getPoliciesForTable(policies, 'article_submissions');
+      var hasAnonSelect = tablePolicies.some(function(p) {
+        return p.action === 'SELECT' && (p.using || '').indexOf('true') !== -1;
+      });
+      assert.strictEqual(hasAnonSelect, false, 'article_submissions should not allow anonymous SELECT');
     });
   });
 
