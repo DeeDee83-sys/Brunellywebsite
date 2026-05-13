@@ -609,6 +609,93 @@ var CC  = {'AI':'#a78bfa','Agile':'#60a5fa','ChatGPT & AI Orchestration':'#fb923
 var CB  = {'AI':'rgba(167,139,250,.4)','Agile':'rgba(96,165,250,.3)','ChatGPT & AI Orchestration':'rgba(251,146,60,.3)','Behind the Build':'rgba(74,222,128,.3)'};
 var CBG = {'AI':'rgba(167,139,250,.12)','Agile':'rgba(96,165,250,.1)','ChatGPT & AI Orchestration':'rgba(251,146,60,.1)','Behind the Build':'rgba(74,222,128,.1)'};
 
+// ── Safe article row builder (centralised so future edits cannot reintroduce innerHTML) ──
+function buildArticleRow(a, i) {
+  var tr = document.createElement('tr');
+
+  // Image cell
+  var tdImg = document.createElement('td');
+  if (isSafeUrl(a.image)) {
+    var img = document.createElement('img');
+    img.src = a.image;
+    img.className = 'preview-thumb';
+    img.onerror = function() { this.style.display = 'none'; };
+    tdImg.appendChild(img);
+  } else {
+    var ph = document.createElement('div');
+    ph.className = 'preview-ph';
+    ph.textContent = 'No img';
+    tdImg.appendChild(ph);
+  }
+  tr.appendChild(tdImg);
+
+  // Title + URL cell
+  var tdTitle = document.createElement('td');
+  tdTitle.className = 'td-title';
+  tdTitle.style.maxWidth = '260px';
+  tdTitle.appendChild(document.createTextNode(a.title || ''));
+  tdTitle.appendChild(document.createElement('br'));
+  if (isSafeUrl(a.url)) {
+    var aLink = document.createElement('a');
+    aLink.href = a.url;
+    aLink.target = '_blank';
+    aLink.style.fontFamily = "'DM Mono',monospace";
+    aLink.style.fontSize = '.65rem';
+    aLink.style.color = 'var(--accent)';
+    aLink.style.textDecoration = 'none';
+    aLink.textContent = '\u2197 view';
+    tdTitle.appendChild(aLink);
+  } else {
+    var spanUrl = document.createElement('span');
+    spanUrl.style.fontFamily = "'DM Mono',monospace";
+    spanUrl.style.fontSize = '.65rem';
+    spanUrl.style.color = 'var(--muted)';
+    spanUrl.textContent = a.url || '\u2014';
+    tdTitle.appendChild(spanUrl);
+  }
+  tr.appendChild(tdTitle);
+
+  // Category cell
+  var tdCat = document.createElement('td');
+  var spanCat = document.createElement('span');
+  spanCat.className = 'tag-pill';
+  spanCat.style.color = CC[a.category] || '#a78bfa';
+  spanCat.style.borderColor = CB[a.category] || 'rgba(167,139,250,.4)';
+  spanCat.style.background = CBG[a.category] || 'rgba(167,139,250,.12)';
+  spanCat.style.fontSize = '.58rem';
+  spanCat.textContent = a.category || '';
+  tdCat.appendChild(spanCat);
+  tr.appendChild(tdCat);
+
+  // Date cell
+  var tdDate = document.createElement('td');
+  tdDate.style.fontFamily = "'DM Mono',monospace";
+  tdDate.style.fontSize = '.7rem';
+  tdDate.textContent = a.date || '\u2014';
+  tr.appendChild(tdDate);
+
+  // Actions cell
+  var tdActions = document.createElement('td');
+  tdActions.className = 'td-actions';
+  var btnEdit = document.createElement('button');
+  btnEdit.className = 'btn btn-ghost';
+  btnEdit.setAttribute('data-action', 'edit');
+  btnEdit.setAttribute('data-type', 'articles');
+  btnEdit.setAttribute('data-index', String(i));
+  btnEdit.textContent = 'Edit';
+  var btnDelete = document.createElement('button');
+  btnDelete.className = 'btn btn-danger';
+  btnDelete.setAttribute('data-action', 'delete');
+  btnDelete.setAttribute('data-table', 'articles');
+  btnDelete.setAttribute('data-id', String(a.id));
+  btnDelete.textContent = 'Delete';
+  tdActions.appendChild(btnEdit);
+  tdActions.appendChild(btnDelete);
+  tr.appendChild(tdActions);
+
+  return tr;
+}
+
 // ── Render tables ─────────────────────────────────────────────────
 function renderArticles() {
   sbGet('articles').then(function(arts) {
@@ -616,18 +703,23 @@ function renderArticles() {
     window._cmsArticles = arts;
     document.getElementById('art-count').textContent = '(' + arts.length + ')';
     var tbody = document.getElementById('articles-tbody');
-    tbody.innerHTML = arts.length
-      ? arts.map(function(a,i) {
-          return '<tr>'
-            + '<td>' + (a.image ? '<img src="'+escapeHtml(a.image)+'" class="preview-thumb" onerror="this.style.display=\'none\'">' : '<div class="preview-ph">No img</div>') + '</td>'
-            + '<td class="td-title" style="max-width:260px;">' + escapeHtml(a.title) + '<br>' + (isSafeUrl(a.url) ? '<a href="'+escapeHtml(a.url)+'" target="_blank" style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--accent);text-decoration:none;">&#8599; view</a>' : '<span style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--muted);">'+escapeHtml(a.url||'—')+'</span>') + '</td>'
-            + '<td><span class="tag-pill" style="color:'+(CC[a.category]||'#a78bfa')+';border-color:'+(CB[a.category]||'rgba(167,139,250,.4)')+';background:'+(CBG[a.category]||'rgba(167,139,250,.12)')+';font-size:.58rem;">' + escapeHtml(a.category||'') + '</span></td>'
-            + '<td style="font-family:\'DM Mono\',monospace;font-size:.7rem;">' + escapeHtml(a.date||'—') + '</td>'
-            + '<td class="td-actions"><button class="btn btn-ghost" data-action="edit" data-type="articles" data-index="' + escapeHtml(i) + '">Edit</button><button class="btn btn-danger" data-action="delete" data-table="articles" data-id="' + escapeHtml(a.id) + '">Delete</button></td>'
-            + '</tr>';
-        }).join('')
-      : '<tr><td colspan="5" class="empty-state">No articles yet. Click "+ Add Article" to create your first.</td></tr>';
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    if (arts.length === 0) {
+      var trEmpty = document.createElement('tr');
+      var tdEmpty = document.createElement('td');
+      tdEmpty.colSpan = 5;
+      tdEmpty.className = 'empty-state';
+      tdEmpty.textContent = 'No articles yet. Click "+ Add Article" to create your first.';
+      trEmpty.appendChild(tdEmpty);
+      tbody.appendChild(trEmpty);
+    } else {
+      for (var i = 0; i < arts.length; i++) {
+        tbody.appendChild(buildArticleRow(arts[i], i));
+      }
+    }
     updateStats();
+  }).catch(function(err) {
+    showToast('Error loading articles: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 

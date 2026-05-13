@@ -32,7 +32,7 @@ code/
 - Do not introduce new inline `var SUPA_URL` / `var SUPA_KEY` declarations in HTML files.
 - Prefer `window.SUPA_URL` and `window.SUPA_KEY` globals loaded from `supabase-config.js`.
 - Validate HTML and check JavaScript syntax before committing.
-- Escape all user-controlled values before inserting them into HTML via `innerHTML`. Use the shared `escapeHtml()` helper (or safe DOM construction) rather than raw string concatenation.
+- Prefer safe DOM construction (`createElement`, `textContent`) over `innerHTML` for all user-controlled values. Where `innerHTML` is unavoidable, escape all user-controlled values before inserting them into HTML via `innerHTML`. Use the shared `escapeHtml()` helper rather than raw string concatenation.
 - Validate all URLs assigned to `href` or `src` with `isSafeUrl()` (allows `http://` and `https://` only).
 - Sanitize CSS values assigned to `style` attributes with `isSafeCssValue()` before assignment.
 - Add `rel="noopener noreferrer"` to all `target="_blank"` links.
@@ -54,6 +54,12 @@ code/
 - Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
 - **Defensive hardening (Steps 1–13, Complete)**: Eliminated residual injection vectors and brittle patterns across both dashboards. This includes XSS remediation via `escapeHtml()` and `isSafeUrl()`, event delegation replacing inline handlers, comprehensive `.catch()` error handling, `sbDelete()` filter support, analytics cache correctness, and automated test coverage with `node --test`. See `BUG2_PR_DESCRIPTION.md` for full details.
 
+**Bug 3: Stored XSS vulnerability via unsafe innerHTML in admin panel article rendering**
+- **Status (Complete)**: Refactored `renderArticles` in `brunelly-admin.html` to eliminate `innerHTML` string concatenation for untrusted article data.
+- Introduced centralised `buildArticleRow()` helper that constructs each table row using `document.createElement`, `document.createTextNode`, and `textContent`. No user-controlled values pass through `innerHTML`.
+- All URL-bearing attributes (`img.src`, `a.href`) are validated with `isSafeUrl()` before assignment; unsafe URLs fall back to plain text or placeholder elements.
+- Added `tests/article-render.test.js` with mock-DOM XSS regression tests that exercise the exact production helper, verifying malicious payloads (`<script>`, `<img onerror>`, `javascript:` URLs) are rendered only as inert text and unsafe URLs are rejected.
+
 ### Defensive Security Hardening (Complete)
 All hardening steps on the Bug 2 branch are complete. Residual injection vectors and brittle patterns have been eliminated.
 
@@ -70,6 +76,8 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 - **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
 - **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
 - **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
+- **Step 14 (Complete)**: Hardened the XSS regression test mock DOM in `tests/article-render.test.js`. Added an `innerHTML` setter to `mockElement()` via `Object.defineProperty()` so that any accidental `innerHTML` assignment in production rendering code flips `_innerHtmlSet` to `true`. This ensures `hasInnerHtml()` accurately detects innerHTML usage instead of silently returning `false`.
+- **Step 15 (Complete)**: Added `.catch()` to the `sbGet('articles')` promise chain inside `renderArticles()` in `brunelly-admin.html`. Supabase query failures now surface a user-visible toast error (`showToast('Error loading articles: ...', 'error')`) instead of failing silently, consistent with all other CRUD operations in the file.
 
 **Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
 - **Status (Complete)**: Remediated on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
@@ -134,9 +142,9 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3 — current).
 - Commit message conventions:
-  - Security work: `security(step-N): brief description` or `docs(bug-N): brief description`
+  - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
 
