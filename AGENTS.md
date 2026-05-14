@@ -137,6 +137,12 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Step 3 (Complete)**: Added `escapeHtml()` defensive helper to `brunelly-analytics.html` for any future rendering that cannot avoid `innerHTML`.
 - **Step 4 (Complete)**: Verified safe functions (`renderScrollDepth`, `renderDevices`, `renderHeatmap`, `renderViewsChart`, `renderKPIs`) require no changes — they use only hardcoded values, computed numbers, or constrained enums.
 
+**Bug 10: Security vulnerability — Client-side authentication bypass for analytics dashboard**
+- **Status**: Resolved on branch `bug/10-security-vulnerability-client-side-authentication-bypass`.
+- **Root cause**: The analytics dashboard relied on a hardcoded plaintext password (`const PASS='brunelly2026'`) and an easily forged `sessionStorage` flag (`sessionStorage.getItem('analytics_auth')==='1'`) for authentication. This allowed trivial bypass by opening browser developer tools and manually setting the storage key.
+- **Remediation**: Replaced the client-side password gate with **Supabase Auth** email/password login and server-validated JWT sessions. `sessionStorage` and hardcoded secrets were removed entirely from `brunelly-analytics.html`. Access is now gated by `requireAuthAndRole()`, which verifies an active Supabase session and checks the user's role against the `profiles` table (`admin` or `analytics_viewer`). Unauthenticated or unauthorised users are rejected before any analytics data is loaded.
+- **Note on HTTP-only cookies**: The work item answer specified server-side sessions with HTTP-only cookies. Within the current static-HTML architecture, Supabase Auth JWT sessions provide the practical equivalent: passwords are verified server-side, sessions are managed by Supabase's authentication service, and the client holds only a time-bound access token. A full HTTP-only cookie implementation would require a dedicated backend (e.g., NestJS) and is tracked as a separate architectural initiative.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -178,7 +184,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
