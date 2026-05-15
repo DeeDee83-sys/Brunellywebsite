@@ -605,33 +605,24 @@ reveals.forEach(el=>io.observe(el));
 
 <script>
 (function() {
+  var consent = localStorage.getItem('brunelly_cookie_consent');
+  if (consent !== 'all') return;
 
-  function fireEvent(evt) {
-    fetchWithRetry(SUPA_URL + '/rest/v1/analytics_events', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        type: evt.type,
-        ts: evt.ts,
-        source: evt.source || null,
-        device: evt.device || null,
-        scroll_depth: evt.scrollDepth || null,
-        time_on_page: evt.timeOnPage || null,
-        article_id: evt.articleId || null,
-        article_title: evt.articleTitle || null,
-        category: evt.category || null,
-        video_title: evt.videoTitle || null,
-        email: evt.email || null,
-        page_url: window.location.pathname,
-        created_at: new Date().toISOString()
-      })
-    }, 'Analytics event post').catch(function(){});
+  var EVENT_URL = SUPA_URL + '/rest/v1/analytics_events';
+  var UPSERT_URL = EVENT_URL + '?on_conflict=event_id';
+  var JSON_TYPE = 'application/json';
+
+  function generateId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
   }
+
+  var pageViewId = generateId();
+  var t0 = Date.now();
+  var maxS = 0;
+  var unloadSent = false;
 
   function getSource() {
     var r = document.referrer || '';
@@ -651,37 +642,156 @@ reveals.forEach(el=>io.observe(el));
     return 'desktop';
   }
 
-  var src = getSource(), dev = getDevice(), t0 = Date.now(), maxS = 0, fired = false;
+  var src = getSource();
+  var dev = getDevice();
 
   window.addEventListener('scroll', function() {
     var p = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
     if (p > maxS) maxS = p;
   }, { passive: true });
 
-  function firePageview() {
-    if (fired) return; fired = true;
-    fireEvent({ type: 'pageview', ts: t0, source: src, device: dev, scrollDepth: maxS, timeOnPage: Date.now() - t0 });
+  function buildPayload(evt) {
+    return {
+      type: evt.type,
+      ts: evt.ts,
+      source: evt.source || src,
+      device: evt.device || dev,
+      scroll_depth: evt.scrollDepth != null ? evt.scrollDepth : maxS,
+      time_on_page: evt.timeOnPage != null ? evt.timeOnPage : (Date.now() - t0),
+      article_id: evt.articleId || null,
+      article_title: evt.articleTitle || null,
+      category: evt.category || null,
+      video_title: evt.videoTitle || null,
+      email: evt.email || null,
+      page_url: window.location.pathname,
+      created_at: new Date().toISOString()
+    };
   }
 
-  window.addEventListener('beforeunload', firePageview);
-  setTimeout(firePageview, 30000);
+  function buildPageviewPayload(evt) {
+    var payload = buildPayload(evt);
+    payload.event_id = pageViewId;
+    return payload;
+  }
 
-  // Track article clicks (resources page)
+  function sendReliably(payload) {
+    var keepaliveSupported = (function() {
+      try {
+        return 'keepalive' in new Request('about:blank');
+      } catch (e) {
+        return false;
+      }
+    })();
+
+    if (keepaliveSupported) {
+      try {
+        var headers = {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        };
+        fetchWithRetry(UPSERT_URL, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload),
+          keepalive: true
+        }, 'Analytics unload pageview').catch(function(){});
+        return;
+      } catch (e) {}
+    }
+
+    if (navigator.sendBeacon) {
+      var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
+      var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
+      try {
+        if (navigator.sendBeacon(url, blob)) {
+          return;
+        }
+      } catch (e) {}
+    }
+
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', UPSERT_URL, false);
+      xhr.setRequestHeader('Content-Type', JSON_TYPE);
+      xhr.setRequestHeader('apikey', SUPA_KEY);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + SUPA_KEY);
+      xhr.setRequestHeader('Prefer', 'return=minimal, resolution=merge-duplicates');
+      xhr.send(JSON.stringify(payload));
+    } catch (e) {}
+  }
+
+  function trackPageview(isUnload) {
+    if (isUnload && unloadSent) return;
+
+    var payload = buildPageviewPayload({
+      type: 'pageview',
+      ts: t0,
+      source: src,
+      device: dev,
+      scrollDepth: maxS,
+      timeOnPage: Date.now() - t0
+    });
+
+    if (isUnload) {
+      unloadSent = true;
+      sendReliably(payload);
+    } else {
+      fetchWithRetry(UPSERT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        },
+        body: JSON.stringify(payload)
+      }, 'Analytics pageview').catch(function(){});
+    }
+  }
+
+  function trackInteraction(evt) {
+    var payload = buildPayload(evt);
+    fetchWithRetry(EVENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': JSON_TYPE,
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    }, 'Analytics interaction').catch(function(){});
+  }
+
+  trackPageview(false);
+
+  function onHidden() {
+    if (document.visibilityState === 'hidden') {
+      trackPageview(true);
+    }
+  }
+
+  document.addEventListener('visibilitychange', onHidden);
+  window.addEventListener('pagehide', function() {
+    trackPageview(true);
+  });
+
   document.addEventListener('click', function(e) {
     var card = e.target.closest('.article-card');
     if (card) {
       var t = card.querySelector('h3') ? card.querySelector('h3').textContent : '';
       var c = card.querySelector('.article-tag') ? card.querySelector('.article-tag').textContent : '';
-      fireEvent({ type: 'article_click', ts: Date.now(), articleTitle: t.trim(), category: c.trim(), articleId: card.dataset.id || '', source: src, device: dev });
+      trackInteraction({ type: 'article_click', ts: Date.now(), articleTitle: t.trim(), category: c.trim(), articleId: card.dataset.id || '', source: src, device: dev });
     }
     var vid = e.target.closest('.video-card.has-link');
     if (vid) {
       var vt = vid.querySelector('h3') ? vid.querySelector('h3').textContent : '';
-      fireEvent({ type: 'video_click', ts: Date.now(), videoTitle: vt.trim(), source: src, device: dev });
+      trackInteraction({ type: 'video_click', ts: Date.now(), videoTitle: vt.trim(), source: src, device: dev });
     }
   });
 
-  // Newsletter signup
   function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
   }
@@ -693,7 +803,7 @@ reveals.forEach(el=>io.observe(el));
       var em = si.value.trim();
       if (ne) ne.style.display = 'none';
       if (em && validateEmail(em)) {
-        fireEvent({ type: 'newsletter_signup', ts: Date.now(), email: em, source: src });
+        trackInteraction({ type: 'newsletter_signup', ts: Date.now(), email: em, source: src });
         sb.textContent = 'Subscribed!';
         sb.disabled = true;
         si.value = '';
