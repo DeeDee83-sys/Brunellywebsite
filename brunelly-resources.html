@@ -163,6 +163,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .newsletter-input::placeholder{color:var(--muted);}
 .newsletter-btn{font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.05em;padding:.75rem 1.2rem;background:var(--accent);border:none;border-radius:8px;color:var(--black);cursor:pointer;font-weight:500;white-space:nowrap;transition:all .2s;}
 .newsletter-btn:hover{background:#c4b5fd;}
+.newsletter-error{display:none;margin-top:.6rem;font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.04em;color:#f87171;}
 
 
 
@@ -602,6 +603,7 @@ footer {
       <input type="email" class="newsletter-input" placeholder="your@email.com" />
       <button class="newsletter-btn">Subscribe &#8594;</button>
     </div>
+    <div class="newsletter-error" id="newsletter-error"></div>
   </div>
 </section>
 
@@ -1073,16 +1075,26 @@ document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
       pushEvent({ type: 'video_click', ts: Date.now(), videoTitle: vt.trim(), source: src, device: dev });
     }
   });
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  }
   var sb = document.querySelector('.newsletter-btn');
   var si = document.querySelector('.newsletter-input');
+  var ne = document.getElementById('newsletter-error');
   if (sb && si) {
     sb.addEventListener('click', function() {
       var em = si.value.trim();
-      if (em && em.indexOf('@') > -1) {
+      if (ne) ne.style.display = 'none';
+      if (em && validateEmail(em)) {
         pushEvent({ type: 'newsletter_signup', ts: Date.now(), email: em, source: src });
         sb.textContent = 'Subscribed!';
         sb.disabled = true;
         si.value = '';
+      } else {
+        if (ne) {
+          ne.textContent = 'Please enter a valid email address.';
+          ne.style.display = 'block';
+        }
       }
     });
   }
