@@ -156,6 +156,19 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
   - Added `tests/validate-email.test.js` with `node --test` regression coverage for the regex.
 - **Pages affected**: `brunelly-resources.html`, all 14 article pages, 5 feature pages, `brunelly-features-hub.html`, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-terms.html`, and `brunelly-redesign.html` (including chat-bot email capture).
 
+**Bug 13: Race condition in pageview tracking causes missed or delayed analytics events**
+- **Status**: Complete on branch `bug/13-race-condition-in-pageview-tracking`.
+- **Root cause**: 26 HTML files used a shared `fired` boolean flag with `beforeunload` and a 30-second timeout. If `beforeunload` fired and navigation was cancelled, the `fired` flag prevented the timeout from ever sending a pageview. Short visits under 30 seconds were also lost because no event fired on page load.
+- **Remediation**:
+  - Removed the shared `fired` boolean, `beforeunload` listener, and 30-second timeout from all 26 affected pages.
+  - Replaced with the Story 21 canonical pattern: `pageViewId` + `event_id` with server-side unique constraint and upsert (`on_conflict=event_id`, `resolution=merge-duplicates`) guaranteeing exactly one row per page session.
+  - `trackPageview(false)` fires immediately on page load so short bounces are never lost.
+  - `trackPageview(true)` is wired to `visibilitychange` (hidden) and `pagehide` for reliable unload delivery.
+  - `sendReliably()` provides three-tier transport: `fetch(keepalive)` primary, `navigator.sendBeacon` fallback, synchronous `XMLHttpRequest` for very old browsers.
+  - `unloadSent` boolean guards only the unload path, preventing redundant network requests without blocking the load-time send.
+  - Standardised all interaction tracking (article clicks, video clicks, newsletter signups) under `trackInteraction()` while preserving page-specific behaviours such as `brunelly-resources.html` localStorage backup.
+- **Pages affected**: All 14 article pages, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-features-build.html`, `brunelly-features-collaborate.html`, `brunelly-features-plan.html`, `brunelly-features-quality.html`, `brunelly-features-understand.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-redesign.html`, `brunelly-resources.html`, and `brunelly-terms.html`.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
