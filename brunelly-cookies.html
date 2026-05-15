@@ -474,6 +474,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
 </head>
 <body>
 <nav>
@@ -588,7 +589,7 @@ reveals.forEach(el=>io.observe(el));
 (function() {
 
   function fireEvent(evt) {
-    fetch(SUPA_URL + '/rest/v1/analytics_events', {
+    fetchWithRetry(SUPA_URL + '/rest/v1/analytics_events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -611,7 +612,7 @@ reveals.forEach(el=>io.observe(el));
         page_url: window.location.pathname,
         created_at: new Date().toISOString()
       })
-    }).catch(function(){});
+    }, 'Analytics event post').catch(function(){});
   }
 
   function getSource() {

@@ -617,6 +617,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
   <script src="faq-renderer.js"></script>
 </head>
 <body>
@@ -995,7 +996,7 @@ function setCookieConsent(level){
 (function() {
 
   function fireEvent(evt) {
-    fetch(SUPA_URL + '/rest/v1/analytics_events', {
+    fetchWithRetry(SUPA_URL + '/rest/v1/analytics_events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1018,7 +1019,7 @@ function setCookieConsent(level){
         page_url: window.location.pathname,
         created_at: new Date().toISOString()
       })
-    }).catch(function(){});
+    }, 'Analytics event post').catch(function(){});
   }
 
   function getSource() {
@@ -1088,7 +1089,7 @@ function setCookieConsent(level){
 
 <script>
 (function() {
-  fetch(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
+  fetchWithRetry(SUPA_URL + '/rest/v1/faqs?page=eq.pricing&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
   .then(function(r) { return r.json(); })
@@ -1108,7 +1109,11 @@ function setCookieConsent(level){
       });
     });
   })
-  .catch(function(){});
+  .catch(function(err) {
+    if (window.showToast) {
+      window.showToast('Unable to load FAQs. Please try again later.', 'error');
+    }
+  });
 })();
 </script>
 </body>

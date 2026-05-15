@@ -613,6 +613,7 @@ footer {
   }
 </style>
   <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
 </head>
 <body>
 
@@ -843,7 +844,7 @@ function setCookieConsent(level){
 (function() {
   var slots = ["understand-onboarding", "understand-codebase", "understand-context"];
 
-  fetch(SUPA_URL + '/rest/v1/feature_images?id=in.(' + slots.join(',') + ')&select=id,image_url', {
+  fetchWithRetry(SUPA_URL + '/rest/v1/feature_images?id=in.(' + slots.join(',') + ')&select=id,image_url', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
   .then(function(r) { return r.json(); })
@@ -857,14 +858,18 @@ function setCookieConsent(level){
       }
     });
   })
-  .catch(function(){});
+  .catch(function(err) {
+    if (window.showToast) {
+      window.showToast('Unable to load feature images. Please try again later.', 'error');
+    }
+  });
 })();
 </script>
 <script>
 (function() {
 
   function fireEvent(evt) {
-    fetch(SUPA_URL + '/rest/v1/analytics_events', {
+    fetchWithRetry(SUPA_URL + '/rest/v1/analytics_events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -887,7 +892,7 @@ function setCookieConsent(level){
         page_url: window.location.pathname,
         created_at: new Date().toISOString()
       })
-    }).catch(function(){});
+    }, 'Analytics event post').catch(function(){});
   }
 
   function getSource() {

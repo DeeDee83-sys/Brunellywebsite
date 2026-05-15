@@ -2049,6 +2049,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
 </head>
 <body>
 
@@ -3596,7 +3597,7 @@ setTimeout(function() {
 <script>
 (function() {
 
-  fetch(SUPA_URL + '/rest/v1/hero_images?select=id,image_url', {
+  fetchWithRetry(SUPA_URL + '/rest/v1/hero_images?select=id,image_url', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
   .then(function(r) { return r.json(); })
@@ -3610,14 +3611,18 @@ setTimeout(function() {
       panel.innerHTML = '<img src="' + row.image_url + '" class="showcase-img" alt="Brunelly ' + row.id + '" />';
     });
   })
-  .catch(function(){});
+  .catch(function(err) {
+    if (window.showToast) {
+      window.showToast('Unable to load hero images. Please try again later.', 'error');
+    }
+  });
 })();
 </script>
 <script>
 (function() {
 
   function fireEvent(evt) {
-    fetch(SUPA_URL + '/rest/v1/analytics_events', {
+    fetchWithRetry(SUPA_URL + '/rest/v1/analytics_events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -3640,7 +3645,7 @@ setTimeout(function() {
         page_url: window.location.pathname,
         created_at: new Date().toISOString()
       })
-    }).catch(function(){});
+    }, 'Analytics event post').catch(function(){});
   }
 
   function getSource() {
