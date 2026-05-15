@@ -3541,7 +3541,7 @@ function chatSend() {
     chatGoto('lead_capture_email');
   } else if (mode === 'email') {
     var val = document.getElementById('chat-email-input').value.trim();
-    if (!val || val.indexOf('@') < 0) {
+    if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) {
       document.getElementById('chat-email-input').style.borderColor = '#f87171';
       return;
     }
@@ -3697,16 +3697,26 @@ setTimeout(function() {
   });
 
   // Newsletter signup
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  }
   var sb = document.querySelector('.newsletter-btn');
   var si = document.querySelector('.newsletter-input');
+  var ne = document.getElementById('newsletter-error');
   if (sb && si) {
     sb.addEventListener('click', function() {
       var em = si.value.trim();
-      if (em && em.indexOf('@') > -1) {
+      if (ne) ne.style.display = 'none';
+      if (em && validateEmail(em)) {
         fireEvent({ type: 'newsletter_signup', ts: Date.now(), email: em, source: src });
         sb.textContent = 'Subscribed!';
         sb.disabled = true;
         si.value = '';
+      } else {
+        if (ne) {
+          ne.textContent = 'Please enter a valid email address.';
+          ne.style.display = 'block';
+        }
       }
     });
   }
