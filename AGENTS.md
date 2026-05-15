@@ -145,7 +145,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Note on HTTP-only cookies**: The work item answer specified server-side sessions with HTTP-only cookies. Within the current static-HTML architecture, Supabase Auth JWT sessions provide the practical equivalent: passwords are verified server-side, sessions are managed by Supabase's authentication service, and the client holds only a time-bound access token. A full HTTP-only cookie implementation would require a dedicated backend (e.g., NestJS) and is tracked as a separate architectural initiative.
 
 **Bug 11: Swallowed exceptions in Supabase fetch calls causing silent failures**
-- **Status**: In progress on branch `bug/11-swallowed-exceptions-in-supabase-fetch`.
+- **Status**: Complete on branch `bug/11-swallowed-exceptions-in-supabase-fetch`.
 - **Root cause**: 38 empty `.catch(function(){})` handlers across 28 files silently swallowed network, auth, and timeout errors for analytics POSTs, feature/hero image loads, FAQ loads, and unload tracking.
 - **Remediation**: Introduced `error-handler.js`, a shared browser-side utility that provides:
   - `logError(context, error)` — consistent `console.error` with context labels
