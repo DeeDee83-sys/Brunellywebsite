@@ -167,6 +167,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
   - `sendReliably()` provides three-tier transport: `fetch(keepalive)` primary, `navigator.sendBeacon` fallback, synchronous `XMLHttpRequest` for very old browsers.
   - `unloadSent` boolean guards only the unload path, preventing redundant network requests without blocking the load-time send.
   - Standardised all interaction tracking (article clicks, video clicks, newsletter signups) under `trackInteraction()` while preserving page-specific behaviours such as `brunelly-resources.html` localStorage backup.
+  - **Endpoint alignment**: Both load-time `trackPageview(false)` and unload-time `trackPageview(true)` now use `UPSERT_URL` with `Prefer: return=minimal, resolution=merge-duplicates` and the same `event_id`, eliminating any race where a load INSERT could fail after an unload UPSERT already created the row.
 - **Pages affected**: All 14 article pages, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-features-build.html`, `brunelly-features-collaborate.html`, `brunelly-features-plan.html`, `brunelly-features-quality.html`, `brunelly-features-understand.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-redesign.html`, `brunelly-resources.html`, and `brunelly-terms.html`.
 
 ### Auth Architecture
