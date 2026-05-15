@@ -2,6 +2,8 @@
 // Extracted analytics helpers from brunelly-features-hub.html
 // ════════════════════════════════════════════════════════════════
 
+var errorHelpers = require('./error-helpers');
+
 function generateId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -76,7 +78,7 @@ function sendReliably(payload, env) {
   // Primary: fetch with keepalive (supports full upsert headers).
   if (keepaliveSupported && fetchImpl) {
     try {
-      fetchImpl(UPSERT_URL, {
+      errorHelpers.fetchWithRetry(UPSERT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': JSON_TYPE,
@@ -86,6 +88,10 @@ function sendReliably(payload, env) {
         },
         body: JSON.stringify(payload),
         keepalive: true
+      }, 'Analytics unload pageview', {
+        fetch: fetchImpl,
+        maxAttempts: 3,
+        baseDelay: 300
       }).catch(function(){});
       return 'fetch-keepalive';
     } catch (e) {}

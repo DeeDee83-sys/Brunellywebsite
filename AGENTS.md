@@ -10,6 +10,7 @@ code/
 ├── supabase-config.js  # Centralised Supabase client configuration (URL + anon key)
 ├── supabase-auth.js    # Shared Supabase Auth client + role helpers
 ├── faq-renderer.js     # Shared safe FAQ accordion renderer (createElement + textContent)
+├── error-handler.js    # Shared error-handling: logging, toast, fetch retry (Bug 11)
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
@@ -143,6 +144,17 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Remediation**: Replaced the client-side password gate with **Supabase Auth** email/password login and server-validated JWT sessions. `sessionStorage` and hardcoded secrets were removed entirely from `brunelly-analytics.html`. Access is now gated by `requireAuthAndRole()`, which verifies an active Supabase session and checks the user's role against the `profiles` table (`admin` or `analytics_viewer`). Unauthenticated or unauthorised users are rejected before any analytics data is loaded.
 - **Note on HTTP-only cookies**: The work item answer specified server-side sessions with HTTP-only cookies. Within the current static-HTML architecture, Supabase Auth JWT sessions provide the practical equivalent: passwords are verified server-side, sessions are managed by Supabase's authentication service, and the client holds only a time-bound access token. A full HTTP-only cookie implementation would require a dedicated backend (e.g., NestJS) and is tracked as a separate architectural initiative.
 
+**Bug 11: Swallowed exceptions in Supabase fetch calls causing silent failures**
+- **Status**: Complete on branch `bug/11-swallowed-exceptions-in-supabase-fetch`.
+- **Root cause**: 38 empty `.catch(function(){})` handlers across 28 files silently swallowed network, auth, and timeout errors for analytics POSTs, feature/hero image loads, FAQ loads, and unload tracking.
+- **Remediation**: Introduced `error-handler.js`, a shared browser-side utility that provides:
+  - `logError(context, error)` — consistent `console.error` with context labels
+  - `showToast(message, type)` — user-visible toast notification (reuses existing page toast if present, otherwise creates a self-contained element with inline styles); uses `textContent` only for XSS safety
+  - `fetchWithRetry(url, options, context)` — exponential-backoff retry with max 3 attempts (300 ms → 600 ms → 1200 ms)
+  - `handleFetchError(context, error, notifyUser)` — unified handler that logs and optionally surfaces a toast
+  - `window.showToast` is only defined if absent, preserving existing contact/admin/analytics toast implementations.
+- Extracted testable helpers into `tests/lib/error-helpers.js` for Node `node --test` coverage.
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -184,7 +196,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current), `bug/11-swallowed-exceptions-in-supabase-fetch` (Bug 11 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`

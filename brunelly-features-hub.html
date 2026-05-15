@@ -788,6 +788,7 @@ footer {
 
 </style>
   <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
   <script src="faq-renderer.js"></script>
 </head>
 <body>
@@ -1120,7 +1121,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
     if (keepalive) {
       opts.keepalive = true;
     }
-    fetch(url, opts).catch(function(){});
+    fetchWithRetry(url, opts, 'Analytics unload pageview').catch(function(){});
   }
 
   var keepaliveSupported = (function() {
@@ -1189,7 +1190,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
       unloadSent = true;
       sendReliably(payload);
     } else {
-      fetch(EVENT_URL, {
+      fetchWithRetry(EVENT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': JSON_TYPE,
@@ -1198,13 +1199,13 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
           'Prefer': 'return=minimal'
         },
         body: JSON.stringify(payload)
-      }).catch(function(){});
+      }, 'Analytics pageview').catch(function(){});
     }
   }
 
   function trackInteraction(evt) {
     var payload = buildPayload(evt);
-    fetch(EVENT_URL, {
+    fetchWithRetry(EVENT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': JSON_TYPE,
@@ -1213,7 +1214,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
         'Prefer': 'return=minimal'
       },
       body: JSON.stringify(payload)
-    }).catch(function(){});
+    }, 'Analytics interaction').catch(function(){});
   }
 
   // Immediate fire on page load
@@ -1265,7 +1266,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
 
 <script>
 (function() {
-  fetch(SUPA_URL + '/rest/v1/faqs?page=eq.hub&order=sort_order.asc&select=id,question,answer', {
+  fetchWithRetry(SUPA_URL + '/rest/v1/faqs?page=eq.hub&order=sort_order.asc&select=id,question,answer', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   })
   .then(function(r) { return r.json(); })
@@ -1285,7 +1286,11 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
       });
     });
   })
-  .catch(function(){});
+  .catch(function(err) {
+    if (window.showToast) {
+      window.showToast('Unable to load FAQs. Please try again later.', 'error');
+    }
+  });
 })();
 </script>
 </body>

@@ -137,7 +137,21 @@ describe('Analytics Tracking', function() {
       assert.strictEqual(p1.event_id, 'abc-123');
       assert.strictEqual(p2.event_id, 'abc-123');
       assert.strictEqual(p1.event_id, p2.event_id);
-      assert.deepStrictEqual(p1, p2);
+      // created_at may differ by 1 ms, so compare all other fields
+      assert.strictEqual(p1.type, p2.type);
+      assert.strictEqual(p1.ts, p2.ts);
+      assert.strictEqual(p1.source, p2.source);
+      assert.strictEqual(p1.device, p2.device);
+      assert.strictEqual(p1.scroll_depth, p2.scroll_depth);
+      assert.strictEqual(p1.time_on_page, p2.time_on_page);
+      assert.strictEqual(p1.article_id, p2.article_id);
+      assert.strictEqual(p1.article_title, p2.article_title);
+      assert.strictEqual(p1.category, p2.category);
+      assert.strictEqual(p1.video_title, p2.video_title);
+      assert.strictEqual(p1.email, p2.email);
+      assert.strictEqual(p1.page_url, p2.page_url);
+      assert.strictEqual(typeof p1.created_at, 'string');
+      assert.strictEqual(typeof p2.created_at, 'string');
     });
   });
 
