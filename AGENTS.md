@@ -145,15 +145,16 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - Extracted testable helpers into `tests/lib/error-helpers.js` for Node `node --test` coverage.
 
 **Bug 12: Insufficient email validation in newsletter signup allows invalid emails**
-- **Status**: In progress on branch `bug/12-insufficient-email-validation-in-newsletter`.
-- **Root cause**: Newsletter signup forms across 25 HTML files validated emails only with `indexOf('@') > -1`, accepting malformed addresses such as `@test.com`, `test@`, `a@b`, and strings with multiple `@` symbols. Invalid emails were stored in `localStorage` under `brunelly_analytics` and forwarded to Supabase `analytics_events`, polluting analytics and lead data.
+- **Status**: Complete on branch `bug/12-insufficient-email-validation-in-newsletter`.
+- **Root cause**: Newsletter signup forms across 27 HTML files validated emails only with `indexOf('@') > -1`, accepting malformed addresses such as `@test.com`, `test@`, `a@b`, and strings with multiple `@` symbols. Invalid emails were stored in `localStorage` under `brunelly_analytics` and forwarded to Supabase `analytics_events`, polluting analytics and lead data.
 - **Remediation**:
   - Replaced the weak `@` check with a simplified regex `/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/` that requires a non-empty local part, exactly one `@`, a non-empty domain, and a TLD of at least two characters.
   - Added a per-page `validateEmail(email)` helper inside each affected page's analytics IIFE to avoid new global config patterns.
-  - Added an inline `.newsletter-error` element and corresponding CSS to each affected page for user-visible validation feedback.
-  - Updated submit handlers to hide previous errors, validate before any side effects, and keep the submit button enabled when validation fails so users can correct input.
-  - Invalid emails are silently rejected — no `pushEvent`/`fireEvent` call, no Supabase write, no localStorage write, and no analytics tracking of the invalid attempt.
-- **Pages affected**: `brunelly-resources.html`, all 13 article pages, 5 feature pages, `brunelly-features-hub.html`, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-terms.html`, and `brunelly-redesign.html` (including chat-bot email capture).
+  - Added an inline `.newsletter-error` element and corresponding CSS to `brunelly-resources.html` for user-visible validation feedback.
+  - Updated submit handlers across all affected pages to hide previous errors, validate before any side effects, and keep the submit button enabled when validation fails so users can correct input.
+  - Invalid emails are silently rejected — no `pushEvent`/`fireEvent`/`trackInteraction` call, no Supabase write, no localStorage write, and no analytics tracking of the invalid attempt.
+  - Added `tests/validate-email.test.js` with `node --test` regression coverage for the regex.
+- **Pages affected**: `brunelly-resources.html`, all 14 article pages, 5 feature pages, `brunelly-features-hub.html`, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-terms.html`, and `brunelly-redesign.html` (including chat-bot email capture).
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
