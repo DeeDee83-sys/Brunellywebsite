@@ -461,13 +461,13 @@ if(!localStorage.getItem('brunelly_cookie_consent'))document.getElementById('coo
       unloadSent = true;
       sendReliably(payload);
     } else {
-      fetchWithRetry(EVENT_URL, {
+      fetchWithRetry(UPSERT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': JSON_TYPE,
           'apikey': SUPA_KEY,
           'Authorization': 'Bearer ' + SUPA_KEY,
-          'Prefer': 'return=minimal'
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
         },
         body: JSON.stringify(payload)
       }, 'Analytics pageview').catch(function(){});
