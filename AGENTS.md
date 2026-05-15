@@ -63,23 +63,12 @@ code/
 - Added `tests/article-render.test.js` with mock-DOM XSS regression tests that exercise the exact production helper, verifying malicious payloads (`<script>`, `<img onerror>`, `javascript:` URLs) are rendered only as inert text and unsafe URLs are rejected.
 
 ### Defensive Security Hardening (Complete)
-All hardening steps on the Bug 2 branch are complete. Residual injection vectors and brittle patterns have been eliminated.
+All hardening steps on the Bug 2 branch are complete. Residual injection vectors and brittle patterns have been eliminated. See `BUG2_PR_DESCRIPTION.md` for full per-step details.
 
-- **Step 1 (Complete)**: Stored XSS remediation. Added `escapeHtml()` helper to `brunelly-admin.html` and applied explicit HTML-escaping to all user-controlled values in `renderArticles`, `renderVideos`, `renderUseCases`, `renderFaqs`, `renderLeads`, `renderImages`, and `renderHeroImages`.
-- **Step 2 (Complete)**: Removed all dynamic inline `onclick`/`onchange` handlers from `brunelly-admin.html` and replaced them with event delegation. Buttons and inputs now use stable `data-*` attributes (`data-action`, `data-type`, `data-index`, `data-table`, `data-id`, `data-page`). `editItem()` and `editFaqById()` now look up items from global caches instead of parsing JSON blobs embedded in HTML attributes.
-- **Step 3 (Complete)**: FAQ edit-button injection issue resolved during Step 2. Broken single-quote escaping removed; FAQ question/answer values are no longer interpolated into executable JS contexts. `editFaqById()` now looks up FAQ data from global cache by stable `data-id`.
-- **Step 4 (Complete)**: Added `.catch()` to all previously unhandled promise chains in `brunelly-admin.html`. User-facing operations (`toggleUC`, `saveFeatImage`, `clearFeatImage`, `saveHeroImage`, `clearHeroImage`, `saveFaq`, `deleteFaqById`, `deleteItem`) now surface errors via `showToast`. Background `seedIfEmpty` seeding routines log errors via `console.error`.
-- **Step 5 (Complete)**: Extended `sbDelete()` with an optional `filter` parameter and refactored `clearLeads()` to use it instead of a raw `supabaseClient.from(...).delete()` call. Added `.catch()` with `showToast` error handling so failures are visible to the user.
-- **Step 6 (Complete)**: Updated `clearData()` in `brunelly-analytics.html` to actually delete `analytics_events` records from Supabase (via `.delete().gt('id',0)`) before clearing local cache. Added admin-only DELETE RLS policy. Extended `showToast()` to support error styling so failures are visible.
-- **Step 7 (Complete)**: Added `.catch()` to `exportLeads()`, `exportData()`, and `importData()` in `brunelly-admin.html` to ensure Supabase failures during import/export operations surface user-visible toast errors instead of failing silently.
-- **Step 8 (Complete)**: Hardened XSS/injection defenses in `brunelly-admin.html` rendering. Added `isSafeUrl()` helper that permits only `http://` and `https://` schemes. Article URLs are now rendered as plain text when unsafe, and lead email `mailto:` links were removed in favour of plain text.
-- **Step 9 (Complete)**: Applied defense-in-depth escaping to all dynamically generated `data-*` attribute values (`data-id`, `data-index`, `data-page`) in `brunelly-admin.html` using `escapeHtml()`. This prevents attribute-breakout injection even if future IDs contain quote characters.
-- **Step 10 (Complete)**: Improved analytics UX alignment with authorization in `brunelly-analytics.html`. The **Clear data** button now has `id="clear-btn"` and `init()` conditionally shows it only when `window.currentRole === 'admin'`, matching the RLS policy that restricts `analytics_events` DELETE to admins.
-- **Step 11 (Complete)**: Fixed cache correctness in `brunelly-analytics.html` after destructive operations. `clearData()` now resets `_eventsCache = null` and `_eventsCacheTime = 0` alongside `localStorage.removeItem`, ensuring the dashboard renders the empty state immediately instead of serving stale cached events.
-- **Step 12 (Complete)**: Corrected `BUG2_PR_DESCRIPTION.md` to accurately describe the PR's actual diff/scope. Removed the false claim that `git diff main` is empty; documented the real changes across auth gating, XSS remediation, event delegation, error handling, and RLS/policy updates.
-- **Step 13 (Complete)**: Introduced automated test coverage using Node.js built-in `node --test` runner (zero external dependencies). Tests cover: `escapeHtml` / `isSafeUrl` helpers, RLS policy validation via SQL parsing, role-gating logic for both dashboards, mocked Supabase Auth flows (signIn, signOut, getUserRole), and CRUD helper filter parsing (`sbGet`, `sbUpsert`, `sbUpdate`, `sbDelete`). Includes `package.json` with test script and `.github/workflows/ci.yml` for CI regression prevention.
-- **Step 14 (Complete)**: Hardened the XSS regression test mock DOM in `tests/article-render.test.js`. Added an `innerHTML` setter to `mockElement()` via `Object.defineProperty()` so that any accidental `innerHTML` assignment in production rendering code flips `_innerHtmlSet` to `true`. This ensures `hasInnerHtml()` accurately detects innerHTML usage instead of silently returning `false`.
-- **Step 15 (Complete)**: Added `.catch()` to the `sbGet('articles')` promise chain inside `renderArticles()` in `brunelly-admin.html`. Supabase query failures now surface a user-visible toast error (`showToast('Error loading articles: ...', 'error')`) instead of failing silently, consistent with all other CRUD operations in the file.
+- **XSS remediation**: `escapeHtml()` and `isSafeUrl()` applied across all admin renderers.
+- **Event delegation**: Removed all inline `onclick`/`onchange` handlers; stable `data-*` attributes now drive actions.
+- **Error handling**: `.catch()` with `showToast` added to all user-facing CRUD and import/export operations.
+- **Infrastructure**: `sbDelete()` filter support, analytics cache correctness fixes, and `node --test` automated regression coverage.
 
 **Bug 4: Stored XSS Vulnerability via Unescaped Supabase Data on Resources Page**
 - **Status (Complete)**: Remediated on branch `bug/4-stored-xss-vulnerability-via-unescaped`.
@@ -155,6 +144,18 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
   - `window.showToast` is only defined if absent, preserving existing contact/admin/analytics toast implementations.
 - Extracted testable helpers into `tests/lib/error-helpers.js` for Node `node --test` coverage.
 
+**Bug 12: Insufficient email validation in newsletter signup allows invalid emails**
+- **Status**: Complete on branch `bug/12-insufficient-email-validation-in-newsletter`.
+- **Root cause**: Newsletter signup forms across 27 HTML files validated emails only with `indexOf('@') > -1`, accepting malformed addresses such as `@test.com`, `test@`, `a@b`, and strings with multiple `@` symbols. Invalid emails were stored in `localStorage` under `brunelly_analytics` and forwarded to Supabase `analytics_events`, polluting analytics and lead data.
+- **Remediation**:
+  - Replaced the weak `@` check with a simplified regex `/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/` that requires a non-empty local part, exactly one `@`, a non-empty domain, and a TLD of at least two characters.
+  - Added a per-page `validateEmail(email)` helper inside each affected page's analytics IIFE to avoid new global config patterns.
+  - Added an inline `.newsletter-error` element and corresponding CSS to `brunelly-resources.html` for user-visible validation feedback.
+  - Updated submit handlers across all affected pages to hide previous errors, validate before any side effects, and keep the submit button enabled when validation fails so users can correct input.
+  - Invalid emails are silently rejected — no `pushEvent`/`fireEvent`/`trackInteraction` call, no Supabase write, no localStorage write, and no analytics tracking of the invalid attempt.
+  - Added `tests/validate-email.test.js` with `node --test` regression coverage for the regex.
+- **Pages affected**: `brunelly-resources.html`, all 14 article pages, 5 feature pages, `brunelly-features-hub.html`, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-terms.html`, and `brunelly-redesign.html` (including chat-bot email capture).
+
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
@@ -196,7 +197,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current), `bug/11-swallowed-exceptions-in-supabase-fetch` (Bug 11 — current).
+- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current), `bug/11-swallowed-exceptions-in-supabase-fetch` (Bug 11 — current), `bug/12-insufficient-email-validation-in-newsletter` (Bug 12 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
