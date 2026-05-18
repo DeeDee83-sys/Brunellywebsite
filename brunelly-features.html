@@ -506,14 +506,39 @@
   </a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
-    <li><a href="#" class="active">Features</a></li>
-    <li><a href="#">Pricing</a></li>
-    <li><a href="#">Resources</a></li>
+    <li><a href="brunelly-features-hub.html" class="active">Features</a></li>
+    <li><a href="brunelly-pricing.html">Pricing</a></li>
+    <li class="nav-dropdown">
+      <a href="brunelly-resources.html">Resources</a>
+      <ul class="nav-dropdown-menu">
+        <li><a href="brunelly-resources.html#articles">Articles</a></li>
+        <li><a href="brunelly-resources.html#videos">Videos</a></li>
+      </ul>
+    </li>
   </ul>
   <div class="nav-actions">
-    <a href="#" class="btn-ghost">Talk to an expert</a>
+    <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-ghost">Talk to an expert</a>
   </div>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-nav" id="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="brunelly-features-hub.html" class="active">Features</a>
+  <a href="brunelly-pricing.html">Pricing</a>
+  <div class="mobile-nav-group">
+    <button class="mobile-nav-group-toggle" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');">Resources</button>
+    <div class="mobile-nav-sub">
+      <a href="brunelly-resources.html#articles">Articles</a>
+      <a href="brunelly-resources.html#videos">Videos</a>
+    </div>
+  </div>
+  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
+</div>
+  </div>
+  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
+</div>
 
 <!-- FEATURES HERO -->
 <section class="features-hero">
