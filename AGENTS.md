@@ -14,6 +14,7 @@ code/
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
+├── brunelly-responsive.css  # Shared responsive stylesheet (Story 42)
 ├── tests/              # Automated regression tests (node --test)
 └── AGENTS.md           # This file
 ```
@@ -211,11 +212,20 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/21-improve-pageview-tracking-to-avoid` (Story 21 — merged to main), `bug/4-stored-xss-vulnerability-via-unescaped` (Bug 4), `bug/3-stored-xss-vulnerability-via-unsafe` (Bug 3), `bug/5-stored-xss-vulnerability-via-innerhtml` (Bug 5 — merged to main), `bug/6-stored-xss-vulnerability-via-unescaped` (Bug 6 — current), `bug/10-security-vulnerability-client-side-authentication-bypass` (Bug 10 — current), `bug/11-swallowed-exceptions-in-supabase-fetch` (Bug 11 — current), `bug/12-insufficient-email-validation-in-newsletter` (Bug 12 — current).
+- Active branches: `feature/42-implement-mobile-responsive-design-for` (Story 42 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
+  - Responsive work: `responsive(story-42): brief description`
 - Ensure `.gitignore` excludes `node_modules/`, build outputs, and environment files.
+
+## Responsive Design
+
+**Story 42**: Canonical mobile-responsive styles for all public pages.
+- Shared stylesheet: `brunelly-responsive.css` (linked from every public HTML page).
+- Standard breakpoints: Desktop (default), Laptop `(max-width: 1199px)`, Tablet `(max-width: 900px)`, Mobile `(max-width: 600px)`, Small Mobile `(max-width: 400px)`, plus Landscape/Portrait orientation queries.
+- Global rules: `overflow-x: hidden`, fluid images (`max-width: 100%`), minimum 44×44px touch targets.
+- Scope excludes `brunelly-admin.html` and `brunelly-analytics.html`.
 
 ## Deployment Notes
 
