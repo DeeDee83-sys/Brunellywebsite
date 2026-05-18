@@ -224,7 +224,9 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 **Story 42**: Canonical mobile-responsive styles for all public pages.
 - Shared stylesheet: `brunelly-responsive.css` (linked from every public HTML page).
 - Standard breakpoints: Desktop (default), Laptop `(max-width: 1199px)`, Tablet `(max-width: 900px)`, Mobile `(max-width: 600px)`, Small Mobile `(max-width: 400px)`, plus Landscape/Portrait orientation queries.
-- Global rules: `overflow-x: hidden`, fluid images (`max-width: 100%`), minimum 44×44px touch targets.
+- Global rules: `overflow-x: hidden`, fluid images (`max-width: 100%`), `code { overflow-wrap: break-word }`, minimum 44×44px touch targets.
+- Landscape grids: 2-column overrides for `.articles-grid`, `.videos-grid`, `.kpi-grid`, `.use-cases-grid`, `.row-3`, `.scroll-grid` at ≤900px and ≤600px landscape.
+- Mobile nav accessibility: `brunelly-nav-a11y.js` (linked from all public pages) provides Escape/click-outside dismissal, focus trapping, and ARIA sync. Drawer has `role="dialog"`, `aria-modal`, `aria-hidden`; hamburger has `aria-expanded`, `aria-controls`; group toggle has `aria-expanded`, `aria-controls`. Smooth `opacity`/`translateY` transition on open/close.
 - Scope excludes `brunelly-admin.html` and `brunelly-analytics.html`.
 
 ## Deployment Notes
