@@ -18,6 +18,7 @@ img, video, iframe, svg, canvas, embed, object {
   max-width: 100%;
   height: auto;
 }
+code { overflow-wrap: break-word; }
 
 /* ── Minimum touch targets ── */
 @media (max-width: 900px) {
@@ -199,6 +200,12 @@ img, video, iframe, svg, canvas, embed, object {
   .feat-copy h2 { font-size: 1.3rem; }
 }
 
+/* ── Landscape Tablet/Phone (640px–900px) ── */
+@media (max-width: 900px) and (orientation: landscape) {
+  .articles-grid, .videos-grid { grid-template-columns: 1fr 1fr !important; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
 /* ── Landscape Phone ── */
 @media (max-width: 600px) and (orientation: landscape) {
   .res-hero, .hub-hero, .pricing-hero, .contact-hero, .policy-hero, .page-hero {
@@ -208,6 +215,7 @@ img, video, iframe, svg, canvas, embed, object {
   .hero-badge { font-size: 0.6rem !important; }
   .feat-visual { min-height: 180px !important; }
   .article-hero { padding: 4rem 1.5rem 1.5rem; }
+  .use-cases-grid, .row-3, .scroll-grid { grid-template-columns: 1fr 1fr !important; }
 }
 
 /* ── Portrait Phone ── */
