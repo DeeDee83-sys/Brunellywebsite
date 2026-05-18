@@ -507,7 +507,7 @@
       justify-content: flex-start;
     }
 
-    .nav-hamburger { display: flex; }
+    .nav-hamburger { display: flex !important; }
 
     .nav-actions .btn-ghost { display: none; }
   }
@@ -1788,25 +1788,11 @@ footer {
    Breakpoints: 1200 | 900 | 600 | 400
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Hamburger button ── */
-.nav-hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px;
-  flex-shrink: 0;
-}
+
 .nav-hamburger span {
   display: block;
   height: 1.5px;
-  background: var(--light);
+  background: var(--white);
   border-radius: 2px;
   transition: all 0.25s;
 }
@@ -1861,7 +1847,7 @@ footer {
   /* Nav */
   nav { padding: 0 1.5rem; }
   .nav-links { display: none !important; }
-  .nav-hamburger { display: flex; }
+  .nav-hamburger { display: flex !important; }
 
   /* Typography */
   h1, .res-hero h1, .hub-hero h1, .pricing-hero h1, .contact-hero h1 {
@@ -2487,7 +2473,7 @@ footer {
 
 <script>
   // Mobile nav toggle
-  const navToggle = document.getElementById('nav-toggle');
+  const navToggle = document.getElementById('nav-hamburger');
   const navLinks  = document.querySelector('.nav-links');
   if (navToggle) {
     navToggle.addEventListener('click', () => {
