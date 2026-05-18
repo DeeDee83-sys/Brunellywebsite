@@ -38,7 +38,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .btn-ghost{font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.05em;color:var(--light);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:.5rem 1.1rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;font-weight:500;}
 .btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.3);}
 .nav-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;cursor:pointer;background:none;border:1px solid var(--border);border-radius:6px;padding:6px;flex-shrink:0;}
-.nav-hamburger span{display:block;height:1.5px;background:var(--light);border-radius:2px;transition:all .25s;}
+.nav-hamburger span{display:block;height:1.5px;background: var(--white);border-radius:2px;transition:all .25s;}
 .mobile-nav{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(9,9,11,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:99;padding:1rem 0;flex-direction:column;}
 .mobile-nav.open{display:flex;}
 .mobile-nav a{font-family:"DM Mono",monospace;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:.9rem 2rem;border-bottom:1px solid var(--border);transition:all .2s;}
@@ -113,8 +113,15 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
 .footer-policy a{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);text-decoration:none;letter-spacing:.04em;transition:color .2s;}
 .footer-policy a:hover{color:var(--white);}
 .footer-copy{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);letter-spacing:.04em;text-align:right;}
-@media(max-width:900px){nav{padding:0 1.5rem;}.nav-links{display:none!important;}.nav-hamburger{display:flex;}.breadcrumb{padding:5rem 1.5rem 0;}.article-hero{padding:1.5rem 1.5rem 2rem;}.article-cover{padding:0 1.5rem;}.article-body{padding:2rem 1.5rem 4rem;}footer{grid-template-columns:1fr;gap:2rem;padding:2rem 1.5rem;}.footer-right{align-items:flex-start;}.footer-copy{text-align:left;}.footer-policy{justify-content:flex-start;}}
+@media(max-width:900px){nav{padding:0 1.5rem;}.nav-links{display:none!important;}.nav-hamburger{display:flex !important;}.breadcrumb{padding:5rem 1.5rem 0;}.article-hero{padding:1.5rem 1.5rem 2rem;}.article-cover{padding:0 1.5rem;}.article-body{padding:2rem 1.5rem 4rem;}footer{grid-template-columns:1fr;gap:2rem;padding:2rem 1.5rem;}.footer-right{align-items:flex-start;}.footer-copy{text-align:left;}.footer-policy{justify-content:flex-start;}}
 @media(max-width:600px){.article-hero h1{font-size:1.7rem;}.article-nav{grid-template-columns:1fr;}}
+  /* ── Nav dropdown ── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown > a::after { content: ' ▾'; font-size: 0.7em; }
+  .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: rgba(9,9,11,0.98); border: 1px solid var(--border); min-width: 160px; list-style: none; padding: 0.4rem 0; z-index: 200; }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu li a { display: block !important; padding: 0.65rem 1.4rem !important; font-size: 0.76rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-right: none !important; border-left: none !important; height: auto !important; white-space: nowrap; }
+  .nav-dropdown-menu li a:hover { color: var(--white) !important; background: rgba(255,255,255,0.05); }
 </style>
 
   <script type="application/ld+json">
@@ -199,15 +206,18 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
     <li><a href="index.html">Home</a></li>
     <li><a href="brunelly-features-hub.html">Features</a></li>
     <li><a href="brunelly-pricing.html">Pricing</a></li>
-    <li><a href="brunelly-resources.html" class="active">Resources</a></li>
-    <li><a href="brunelly-contact.html">Contact</a></li>
+    <li class="nav-dropdown">
+      <a href="brunelly-resources.html" class="active">Resources</a>
+      <ul class="nav-dropdown-menu">
+        <li><a href="brunelly-resources.html#articles">Articles</a></li>
+        <li><a href="brunelly-resources.html#videos">Videos</a></li>
+      </ul>
+    </li>
   </ul>
   <div class="nav-actions">
     <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-ghost">Talk to an expert</a>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger"
-    onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');"
-    aria-label="Toggle menu">
+  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');" aria-label="Toggle menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -216,8 +226,16 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
   <a href="index.html">Home</a>
   <a href="brunelly-features-hub.html">Features</a>
   <a href="brunelly-pricing.html">Pricing</a>
-  <a href="brunelly-resources.html" class="active">Resources</a>
-  <a href="brunelly-contact.html">Contact</a>
+  <div class="mobile-nav-group">
+    <button class="mobile-nav-group-toggle active" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');">Resources</button>
+    <div class="mobile-nav-sub">
+      <a href="brunelly-resources.html#articles">Articles</a>
+      <a href="brunelly-resources.html#videos">Videos</a>
+    </div>
+  </div>
+  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
+</div>
+  </div>
   <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
 </div>
 
