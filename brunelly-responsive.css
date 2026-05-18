@@ -24,7 +24,7 @@ img, video, iframe, svg, canvas, embed, object {
   a, button, [role="button"], input, textarea, select, label, .nav-links li a,
   .mobile-nav a, .page-nav-btn, .page-nav-item, .sub-nav-item,
   .newsletter-btn, .newsletter-input, .contact-social, .social-btn,
-  .faq-question, .filter-btn, .btn-primary, .btn-ghost, .btn-secondary,
+  .faq-q, .filter-btn, .btn-primary, .btn-ghost, .btn-secondary,
   .pill-btn, .tab-btn, .nav-hamburger {
     min-height: 44px;
     min-width: 44px;
