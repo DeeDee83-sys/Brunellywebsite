@@ -1,4 +1,4 @@
-const { describe, test } = require('node:test');
+﻿const { describe, test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
@@ -214,11 +214,11 @@ describe('User-impacting fetch error handling', function() {
 
   test('hero image loads include toast notification on failure', function() {
     var codeDir = path.join(__dirname, '..');
-    var content = fs.readFileSync(path.join(codeDir, 'brunelly-redesign.html'), 'utf8');
+    var content = fs.readFileSync(path.join(codeDir, 'index.html'), 'utf8');
     assert.ok(content.indexOf('Unable to load hero images') !== -1,
-      'brunelly-redesign.html missing hero image error toast');
+      'index.html missing hero image error toast');
     assert.ok(content.indexOf('fetchWithRetry') !== -1,
-      'brunelly-redesign.html missing fetchWithRetry wrapper');
+      'index.html missing fetchWithRetry wrapper');
   });
 
   test('FAQ loads include toast notification on failure', function() {
