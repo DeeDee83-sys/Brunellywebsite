@@ -278,9 +278,8 @@
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  @media (max-width: 1100px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } .credits-grid { grid-template-columns: 1fr; } nav { padding: 0 1.5rem; } .nav-links { display: none; } }
-
+  @media (max-width: 900px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } .credits-grid { grid-template-columns: 1fr; } nav { padding: 0 1.5rem; } .nav-links { display: none; } }
 
 /* ── Footer ── */
 footer {
@@ -376,23 +375,6 @@ footer {
   letter-spacing: 0.04em;
   text-align: right;
 }
-@media (max-width: 900px) {
-  footer {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    padding: 2rem 1.5rem !important;
-  }
-  .footer-right { align-items: flex-start !important; }
-  .footer-copy  { text-align: left !important; }
-  .footer-policy { justify-content: flex-start !important; }
-  .footer-cols { gap: 1.5rem; }
-}
-@media (max-width: 600px) {
-  footer { padding: 1.5rem 1.2rem !important; gap: 1.5rem !important; }
-  .footer-cols { flex-direction: column; gap: 1.2rem; }
-  .footer-socials { gap: 0.5rem; }
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — injected site-wide
@@ -626,6 +608,7 @@ footer {
   <script src="supabase-config.js"></script>
   <script src="error-handler.js"></script>
   <script src="faq-renderer.js"></script>
+  <link rel="stylesheet" href="brunelly-responsive.css">
 </head>
 <body>
 
@@ -646,23 +629,20 @@ footer {
   <div class="nav-actions">
     <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-ghost">Talk to an expert</a>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');" aria-label="Toggle menu">
+  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');h.setAttribute('aria-expanded',n.classList.contains('open'));n.setAttribute('aria-hidden',!n.classList.contains('open'));" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-nav">
     <span></span><span></span><span></span>
   </button>
 </nav>
-<div class="mobile-nav" id="mobile-nav">
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Mobile menu" aria-hidden="true">
   <a href="index.html">Home</a>
   <a href="brunelly-features-hub.html">Features</a>
   <a href="brunelly-pricing.html" class="active">Pricing</a>
   <div class="mobile-nav-group">
-    <button class="mobile-nav-group-toggle" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');">Resources</button>
-    <div class="mobile-nav-sub">
+    <button class="mobile-nav-group-toggle" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');this.setAttribute('aria-expanded',s.classList.contains('open'));" aria-expanded="false" aria-controls="mobile-nav-sub-resources">Resources</button>
+    <div class="mobile-nav-sub" id="mobile-nav-sub-resources">
       <a href="brunelly-resources.html#articles">Articles</a>
       <a href="brunelly-resources.html#videos">Videos</a>
     </div>
-  </div>
-  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
-</div>
   </div>
   <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
 </div>
@@ -1025,7 +1005,6 @@ function setCookieConsent(level){
 })();
 </script>
 
-
 <script>
 (function() {
   var consent = localStorage.getItem('brunelly_cookie_consent');
@@ -1270,5 +1249,6 @@ function setCookieConsent(level){
   });
 })();
 </script>
+<script src="brunelly-nav-a11y.js"></script>
 </body>
 </html>

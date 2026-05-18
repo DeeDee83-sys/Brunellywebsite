@@ -113,8 +113,6 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
 .footer-policy a{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);text-decoration:none;letter-spacing:.04em;transition:color .2s;}
 .footer-policy a:hover{color:var(--white);}
 .footer-copy{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);letter-spacing:.04em;text-align:right;}
-@media(max-width:900px){nav{padding:0 1.5rem;}.nav-links{display:none!important;}.nav-hamburger{display:flex !important;}.breadcrumb{padding:5rem 1.5rem 0;}.article-hero{padding:1.5rem 1.5rem 2rem;}.article-cover{padding:0 1.5rem;}.article-body{padding:2rem 1.5rem 4rem;}footer{grid-template-columns:1fr;gap:2rem;padding:2rem 1.5rem;}.footer-right{align-items:flex-start;}.footer-copy{text-align:left;}.footer-policy{justify-content:flex-start;}}
-@media(max-width:600px){.article-hero h1{font-size:1.7rem;}.article-nav{grid-template-columns:1fr;}}
   /* ── Nav dropdown ── */
   .nav-dropdown { position: relative; }
   .nav-dropdown > a::after { content: ' ▾'; font-size: 0.7em; }
@@ -197,6 +195,7 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
   </script>
   <script src="supabase-config.js"></script>
   <script src="error-handler.js"></script>
+  <link rel="stylesheet" href="brunelly-responsive.css">
 </head>
 <body>
 
@@ -217,24 +216,21 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
   <div class="nav-actions">
     <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-ghost">Talk to an expert</a>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');" aria-label="Toggle menu">
+  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');h.setAttribute('aria-expanded',n.classList.contains('open'));n.setAttribute('aria-hidden',!n.classList.contains('open'));" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-nav">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
-<div class="mobile-nav" id="mobile-nav">
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Mobile menu" aria-hidden="true">
   <a href="index.html">Home</a>
   <a href="brunelly-features-hub.html">Features</a>
   <a href="brunelly-pricing.html">Pricing</a>
   <div class="mobile-nav-group">
-    <button class="mobile-nav-group-toggle active" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');">Resources</button>
-    <div class="mobile-nav-sub">
+    <button class="mobile-nav-group-toggle active" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');this.setAttribute('aria-expanded',s.classList.contains('open'));" aria-expanded="false" aria-controls="mobile-nav-sub-resources">Resources</button>
+    <div class="mobile-nav-sub" id="mobile-nav-sub-resources">
       <a href="brunelly-resources.html#articles">Articles</a>
       <a href="brunelly-resources.html#videos">Videos</a>
     </div>
-  </div>
-  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
-</div>
   </div>
   <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
 </div>
@@ -572,5 +568,6 @@ if(!localStorage.getItem('brunelly_cookie_consent'))document.getElementById('coo
   }
 })();
 </script>
+<script src="brunelly-nav-a11y.js"></script>
 </body>
 </html>

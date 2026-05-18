@@ -274,7 +274,6 @@
     .nav-links { display: none; }
   }
 
-
   /* HUB HERO */
   .hub-hero {
     padding: 9rem 3rem 5rem; text-align: center;
@@ -416,7 +415,7 @@
   .hub-cta h2 span { color: var(--accent); }
   .hub-cta p { font-size: 0.95rem; color: var(--light); max-width: 480px; margin: 0 auto 2rem; line-height: 1.75; }
 
-  @media (max-width: 1000px) {
+  @media (max-width: 900px) {
     .pillars-grid { grid-template-columns: repeat(2, 1fr); }
     .why-stats { grid-template-columns: repeat(2, 1fr); }
   }
@@ -442,8 +441,6 @@
   .faq-item.open .faq-a { display: block; }
   .faq-item.open .faq-q-icon { transform: rotate(45deg); }
   .faq-item.open .faq-q { color: var(--accent); }
-
-
 
 /* ── Footer ── */
 footer {
@@ -539,23 +536,6 @@ footer {
   letter-spacing: 0.04em;
   text-align: right;
 }
-@media (max-width: 900px) {
-  footer {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    padding: 2rem 1.5rem !important;
-  }
-  .footer-right { align-items: flex-start !important; }
-  .footer-copy  { text-align: left !important; }
-  .footer-policy { justify-content: flex-start !important; }
-  .footer-cols { gap: 1.5rem; }
-}
-@media (max-width: 600px) {
-  footer { padding: 1.5rem 1.2rem !important; gap: 1.5rem !important; }
-  .footer-cols { flex-direction: column; gap: 1.2rem; }
-  .footer-socials { gap: 0.5rem; }
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — injected site-wide
@@ -797,6 +777,7 @@ footer {
   <script src="supabase-config.js"></script>
   <script src="error-handler.js"></script>
   <script src="faq-renderer.js"></script>
+  <link rel="stylesheet" href="brunelly-responsive.css">
 </head>
 <body>
 <nav>
@@ -818,23 +799,20 @@ footer {
   <div class="nav-actions">
     <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-ghost">Talk to an expert</a>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');" aria-label="Toggle menu">
+  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById('mobile-nav');var h=document.getElementById('nav-hamburger');n.classList.toggle('open');h.classList.toggle('open');h.setAttribute('aria-expanded',n.classList.contains('open'));n.setAttribute('aria-hidden',!n.classList.contains('open'));" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-nav">
     <span></span><span></span><span></span>
   </button>
 </nav>
-<div class="mobile-nav" id="mobile-nav">
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Mobile menu" aria-hidden="true">
   <a href="index.html">Home</a>
   <a href="brunelly-features-hub.html" class="active">Features</a>
   <a href="brunelly-pricing.html">Pricing</a>
   <div class="mobile-nav-group">
-    <button class="mobile-nav-group-toggle" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');">Resources</button>
-    <div class="mobile-nav-sub">
+    <button class="mobile-nav-group-toggle" onclick="var s=this.nextElementSibling;s.classList.toggle('open');this.classList.toggle('open');this.setAttribute('aria-expanded',s.classList.contains('open'));" aria-expanded="false" aria-controls="mobile-nav-sub-resources">Resources</button>
+    <div class="mobile-nav-sub" id="mobile-nav-sub-resources">
       <a href="brunelly-resources.html#articles">Articles</a>
       <a href="brunelly-resources.html#videos">Videos</a>
     </div>
-  </div>
-  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
-</div>
   </div>
   <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta">Talk to an expert</a>
 </div>
@@ -964,7 +942,6 @@ footer {
   </div>
 </section>
 
-
 <!-- FAQ SECTION -->
 <section class="faq-section">
   <div class="faq-inner">
@@ -1071,7 +1048,6 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   });
 });
 </script>
-
 
 <script>
 (function() {
@@ -1335,5 +1311,6 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   });
 })();
 </script>
+<script src="brunelly-nav-a11y.js"></script>
 </body>
 </html>
