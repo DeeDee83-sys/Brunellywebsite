@@ -505,6 +505,13 @@ footer {
   .plan-card { padding: 1.2rem 1rem !important; }
 }
 
+  /* ── Nav dropdown ── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown > a::after { content: ' ▾'; font-size: 0.7em; }
+  .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: rgba(9,9,11,0.98); border: 1px solid var(--border); min-width: 160px; list-style: none; padding: 0.4rem 0; z-index: 200; }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu li a { display: block !important; padding: 0.65rem 1.4rem !important; font-size: 0.76rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-right: none !important; border-left: none !important; height: auto !important; white-space: nowrap; }
+  .nav-dropdown-menu li a:hover { color: var(--white) !important; background: rgba(255,255,255,0.05); }
 </style>
   <script src="supabase-config.js"></script>
   <script src="error-handler.js"></script>
