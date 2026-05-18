@@ -281,7 +281,6 @@
   @media (max-width: 900px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } .credits-grid { grid-template-columns: 1fr; } nav { padding: 0 1.5rem; } .nav-links { display: none; } }
 
-
 /* ── Footer ── */
 footer {
   border-top: 1px solid var(--border);
@@ -376,23 +375,6 @@ footer {
   letter-spacing: 0.04em;
   text-align: right;
 }
-@media (max-width: 900px) {
-  footer {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    padding: 2rem 1.5rem !important;
-  }
-  .footer-right { align-items: flex-start !important; }
-  .footer-copy  { text-align: left !important; }
-  .footer-policy { justify-content: flex-start !important; }
-  .footer-cols { gap: 1.5rem; }
-}
-@media (max-width: 600px) {
-  footer { padding: 1.5rem 1.2rem !important; gap: 1.5rem !important; }
-  .footer-cols { flex-direction: column; gap: 1.2rem; }
-  .footer-socials { gap: 0.5rem; }
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — injected site-wide
@@ -1025,7 +1007,6 @@ function setCookieConsent(level){
   if(!consent){document.getElementById('cookie-banner').style.display='flex';}
 })();
 </script>
-
 
 <script>
 (function() {

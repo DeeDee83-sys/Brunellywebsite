@@ -68,6 +68,8 @@ img, video, iframe, svg, canvas, embed, object {
   /* Grids */
   .articles-grid, .videos-grid { grid-template-columns: 1fr !important; }
   .use-cases-grid, .row-3, .scroll-grid { grid-template-columns: 1fr 1fr !important; }
+  .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  .why-stats { grid-template-columns: repeat(2, 1fr); }
   .row-2, .row-half, .credits-grid,
   .contact-hero-inner, .calendly-inner,
   .contact-form-wrap { grid-template-columns: 1fr !important; gap: 2rem !important; }
@@ -135,6 +137,9 @@ img, video, iframe, svg, canvas, embed, object {
   .page-hero { padding: 5rem 1.2rem 2.5rem; }
   .hero-badge { font-size: 0.65rem !important; }
   .article-hero h1 { font-size: 1.7rem; }
+  .article-nav { grid-template-columns: 1fr; }
+  .pillars-grid { grid-template-columns: 1fr; }
+  .why-stats { grid-template-columns: 1fr; }
 
   /* Sections */
   section, .res-section, .faq-section, .credits-section,

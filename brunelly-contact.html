@@ -121,7 +121,6 @@
   .reveal.visible{opacity:1;transform:translateY(0);}
   @media (max-width:900px){nav{padding:0 1.5rem;}.nav-links{display:none;}}
 
-
   .contact-hero{padding:9rem 3rem 5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
   .contact-hero::before{content:"";position:absolute;top:-20%;right:-10%;width:600px;height:600px;background:radial-gradient(ellipse,rgba(167,139,250,.06) 0%,transparent 70%);pointer-events:none;}
   .contact-hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
@@ -169,8 +168,6 @@
   .cal-slot-time{font-family:"DM Mono",monospace;font-size:.8rem;color:var(--accent);min-width:70px;}
   .cal-slot-label{font-size:.85rem;color:var(--light);}
   @media (max-width:900px){.contact-hero-inner,.calendly-inner{grid-template-columns:1fr;gap:3rem;}.form-row{grid-template-columns:1fr;}.contact-hero{padding:7rem 1.5rem 3rem;}.calendly-section{padding:4rem 1.5rem;}}
-
-
 
 /* ── Footer ── */
 footer {
@@ -266,23 +263,6 @@ footer {
   letter-spacing: 0.04em;
   text-align: right;
 }
-@media (max-width: 900px) {
-  footer {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    padding: 2rem 1.5rem !important;
-  }
-  .footer-right { align-items: flex-start !important; }
-  .footer-copy  { text-align: left !important; }
-  .footer-policy { justify-content: flex-start !important; }
-  .footer-cols { gap: 1.5rem; }
-}
-@media (max-width: 600px) {
-  footer { padding: 1.5rem 1.2rem !important; gap: 1.5rem !important; }
-  .footer-cols { flex-direction: column; gap: 1.2rem; }
-  .footer-socials { gap: 0.5rem; }
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — injected site-wide
