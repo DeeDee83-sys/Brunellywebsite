@@ -1186,6 +1186,10 @@ document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
     }
   });
 
+})();
+
+// ── Newsletter subscribe (runs regardless of cookie consent) ──────
+(function() {
   function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
   }
@@ -1197,7 +1201,23 @@ document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
       var em = si.value.trim();
       if (ne) ne.style.display = 'none';
       if (em && validateEmail(em)) {
-        trackInteraction({ type: 'newsletter_signup', ts: Date.now(), email: em, source: src });
+        // Insert into dedicated subscribers table
+        if (window.SUPA_URL && window.SUPA_KEY) {
+          fetch(window.SUPA_URL + '/rest/v1/subscribers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': window.SUPA_KEY,
+              'Authorization': 'Bearer ' + window.SUPA_KEY,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ email: em, source: 'resources_page' })
+          }).then(function(res) {
+            if (!res.ok) {
+              res.text().then(function(body) { console.warn('Subscriber insert failed:', res.status, body); });
+            }
+          }).catch(function(err) { console.warn('Subscriber insert error:', err); });
+        }
         sb.textContent = 'Subscribed!';
         sb.disabled = true;
         si.value = '';

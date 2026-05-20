@@ -33,7 +33,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 .btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.3);}
 .btn-success:hover{background:rgba(74,222,128,.2);}
 .cms-body{max-width:1300px;margin:0 auto;padding:2.5rem;}
-.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem;}
+.stats-row{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem;}
 .stat-card{background:var(--off-black);padding:1.3rem;}
 .stat-num{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:1.8rem;letter-spacing:-.02em;color:var(--accent);}
 .stat-label{font-family:"DM Mono",monospace;font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:.25rem;}
@@ -129,6 +129,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
       <div class="stat-card"><div class="stat-num" id="s-uc-live">0</div><div class="stat-label">Use Cases Live</div></div>
       <div class="stat-card"><div class="stat-num" id="s-uc-hidden">0</div><div class="stat-label">Use Cases Hidden</div></div>
       <div class="stat-card"><div class="stat-num" id="s-images">0/17</div><div class="stat-label">Feature Images</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-subscribers">0</div><div class="stat-label">Subscribers</div></div>
     </div>
 
     <!-- TABS -->
@@ -140,6 +141,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
       <button class="tab" id="tab-hero" onclick="switchTab('hero')">Hero Images</button>
       <button class="tab" id="tab-faqs" onclick="switchTab('faqs')">FAQs</button>
       <button class="tab" id="tab-leads" onclick="switchTab('leads')">Leads</button>
+      <button class="tab" id="tab-subscribers" onclick="switchTab('subscribers')">Subscribers</button>
     </div>
 
     <!-- ARTICLES VIEW -->
@@ -226,6 +228,23 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
       <table class="data-table">
         <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Source</th><th>Date</th></tr></thead>
         <tbody id="leads-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- SUBSCRIBERS VIEW -->
+    <div id="view-subscribers" style="display:none;">
+      <div class="table-toolbar">
+        <h2>Subscribers <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="subscribers-count"></span></h2>
+        <div style="display:flex;gap:.7rem;">
+          <button class="btn btn-ghost" onclick="exportSubscribers()">Export CSV</button>
+        </div>
+      </div>
+      <div style="font-size:.83rem;color:var(--muted);margin-bottom:1.5rem;">
+        Email addresses collected from the "Stay in the loop" form on the resources page.
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Email</th><th>Source</th><th>Subscribed</th></tr></thead>
+        <tbody id="subscribers-tbody"></tbody>
       </table>
     </div>
 
@@ -572,15 +591,15 @@ function stripHtml(str) {
 var currentTab = 'articles';
 function switchTab(t) {
   currentTab = t;
-  ['articles','videos','usecases','images','faqs','leads'].forEach(function(id) {
+  ['articles','videos','usecases','images','faqs','leads','subscribers'].forEach(function(id) {
     document.getElementById('view-'+id).style.display = id===t ? 'block' : 'none';
     document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
   document.getElementById('view-form').style.display = 'none';
   document.getElementById('view-faq-form').style.display = 'none';
-  var labels = {'articles':'+ Add Article','videos':'+ Add Video','usecases':'+ Add Use Case','images':'Feature Images','faqs':'FAQs','leads':'Leads'};
+  var labels = {'articles':'+ Add Article','videos':'+ Add Video','usecases':'+ Add Use Case','images':'Feature Images','faqs':'FAQs','leads':'Leads','subscribers':'Subscribers'};
   document.getElementById('add-btn').textContent = labels[t] || '+';
-  document.getElementById('add-btn').style.display = (t==='images'||t==='faqs'||t==='leads') ? 'none' : 'inline-flex';
+  document.getElementById('add-btn').style.display = (t==='images'||t==='faqs'||t==='leads'||t==='subscribers') ? 'none' : 'inline-flex';
   render();
 }
 
@@ -592,12 +611,14 @@ function updateStats() {
     sbGet('use_cases','select=id,published'),
     sbGet('feature_images','select=id,image_url'),
     sbGet('hero_images','select=id,image_url'),
+    sbGet('subscribers','select=id'),
   ]).then(function(results) {
     var arts  = Array.isArray(results[0]) ? results[0] : [];
     var vids  = Array.isArray(results[1]) ? results[1] : [];
     var ucs   = Array.isArray(results[2]) ? results[2] : [];
     var fimgs = Array.isArray(results[3]) ? results[3] : [];
     var himgs = Array.isArray(results[4]) ? results[4] : [];
+    var subs  = Array.isArray(results[5]) ? results[5] : [];
     var s = document.getElementById.bind(document);
     s('s-articles').textContent = arts.length;
     s('s-videos-live').textContent = vids.filter(function(v){return v.published&&v.youtube_id;}).length;
@@ -606,6 +627,7 @@ function updateStats() {
     s('s-uc-hidden').textContent = ucs.filter(function(u){return !u.published;}).length;
     var imgCount = fimgs.filter(function(i){return i.image_url;}).length + himgs.filter(function(i){return i.image_url;}).length;
     s('s-images').textContent = imgCount + '/' + (fimgs.length + himgs.length);
+    s('s-subscribers').textContent = subs.length;
   }).catch(function(e){ console.error('Stats error:', e); });
 }
 
@@ -993,7 +1015,8 @@ function render() {
   else if (currentTab==='usecases')  renderUseCases();
   else if (currentTab==='images')    { renderHeroImages(); renderImages(); }
   else if (currentTab==='faqs')      { renderFaqs(); document.getElementById('view-faq-form').style.display='none'; }
-  else if (currentTab==='leads')     renderLeads();
+  else if (currentTab==='leads')        renderLeads();
+  else if (currentTab==='subscribers')  renderSubscribers();
 }
 
 // ── Form ──────────────────────────────────────────────────────────
@@ -1636,6 +1659,83 @@ function clearLeads() {
     });
 }
 
+// ── Subscribers ───────────────────────────────────────────────────
+function renderSubscribers() {
+  var countEl = document.getElementById('subscribers-count');
+  if (countEl) countEl.textContent = '(loading...)';
+  sbGet('subscribers', 'order=subscribed_at.desc&limit=1000').then(function(rows) {
+    if (!Array.isArray(rows)) rows = [];
+    if (countEl) countEl.textContent = '(' + rows.length + ')';
+    var tbody = document.getElementById('subscribers-tbody');
+    while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+    if (rows.length === 0) {
+      var trEmpty = document.createElement('tr');
+      var tdEmpty = document.createElement('td');
+      tdEmpty.colSpan = 3;
+      tdEmpty.className = 'empty-state';
+      tdEmpty.textContent = 'No subscribers yet. Sign-ups from the resources page will appear here.';
+      trEmpty.appendChild(tdEmpty);
+      tbody.appendChild(trEmpty);
+      updateStats();
+      return;
+    }
+    rows.forEach(function(sub) {
+      var tr = document.createElement('tr');
+
+      var tdEmail = document.createElement('td');
+      tdEmail.style.color = 'var(--accent)';
+      tdEmail.style.fontFamily = "'DM Mono',monospace";
+      tdEmail.style.fontSize = '.8rem';
+      tdEmail.textContent = sub.email || '';
+      tr.appendChild(tdEmail);
+
+      var tdSource = document.createElement('td');
+      var spanSource = document.createElement('span');
+      spanSource.style.fontFamily = 'DM Mono,monospace';
+      spanSource.style.fontSize = '.6rem';
+      spanSource.style.padding = '.18rem .5rem';
+      spanSource.style.borderRadius = '4px';
+      spanSource.style.background = 'var(--accent-dim)';
+      spanSource.style.border = '1px solid var(--accent-mid)';
+      spanSource.style.color = 'var(--accent)';
+      spanSource.textContent = sub.source || 'resources_page';
+      tdSource.appendChild(spanSource);
+      tr.appendChild(tdSource);
+
+      var tdDate = document.createElement('td');
+      tdDate.style.fontFamily = 'DM Mono,monospace';
+      tdDate.style.fontSize = '.7rem';
+      tdDate.style.color = 'var(--muted)';
+      var d = new Date(sub.subscribed_at).toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      tdDate.textContent = d;
+      tr.appendChild(tdDate);
+
+      tbody.appendChild(tr);
+    });
+    updateStats();
+  }).catch(function(err) {
+    showToast('Error loading subscribers: ' + (err && err.message ? err.message : ''), 'error');
+  });
+}
+
+function exportSubscribers() {
+  sbGet('subscribers', 'order=subscribed_at.desc&limit=100000').then(function(rows) {
+    if (!Array.isArray(rows) || !rows.length) { showToast('No subscribers to export', 'error'); return; }
+    var lines = [['Email','Source','Subscribed At']];
+    rows.forEach(function(s) {
+      lines.push([s.email || '', s.source || '', new Date(s.subscribed_at).toISOString()]);
+    });
+    var csv = lines.map(function(r) { return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'brunelly-subscribers-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    showToast('Exported ' + rows.length + ' subscribers', 'success');
+  }).catch(function(err) {
+    showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
+  });
+}
+
 // ── Export/Import ─────────────────────────────────────────────────
 function triggerImport(type) { document.getElementById('import-'+type).click(); }
 
@@ -1786,6 +1886,8 @@ function init() {
   var pricingFaqTbody = document.getElementById('pricing-faq-tbody');
   if (hubFaqTbody) hubFaqTbody.addEventListener('click', handleFaqClick);
   if (pricingFaqTbody) pricingFaqTbody.addEventListener('click', handleFaqClick);
+  var subsTbody = document.getElementById('subscribers-tbody');
+  if (subsTbody) subsTbody.addEventListener('click', handleTableClick);
 }
 
 // init() is called by requireAuthAndRole() after successful session + role check
