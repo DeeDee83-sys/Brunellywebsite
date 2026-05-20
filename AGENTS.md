@@ -180,6 +180,44 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
   - `sbFetchAna(params)` in `brunelly-analytics.html`: similar filter parsing for `analytics_events` queries.
   - Both helpers attach the user's `access_token` when available, falling back to the anon key for unauthenticated requests.
 
+### Hybrid Authentication Model (Story 48)
+
+The CMS uses **two parallel authentication paths** depending on the entity being managed. This hybrid exists because blog posts (articles) were moved to a shared-hosting-compatible PHP backend, while legacy CMS entities remain on direct Supabase browser access for operational simplicity.
+
+#### Path A: PHP Backend API — Blog Posts (`articles`)
+**Used by**: `brunelly-admin.html` "Blog Posts" tab, `cms-api.js`
+**Endpoints**: `api/cms-login.php`, `api/cms-posts.php`, `api/cms-post.php`, `api/cms-upload.php`
+
+1. **Login**: `cmsLogin()` POSTs credentials to `api/cms-login.php`.
+2. **Supabase verification**: PHP verifies credentials against Supabase Auth REST API (`/auth/v1/token`).
+3. **Role check**: PHP queries the `profiles` table to confirm `admin` or `content_editor` role.
+4. **Session cookie**: PHP signs a JWT (issuer `brunelly-cms`, 24h expiry) and sets an `HttpOnly`, `SameSite=Strict` cookie named `cms_session`.
+5. **Subsequent requests**: Browser sends the cookie automatically. PHP verifies the JWT signature and expiry on every request, then authorises the action.
+6. **Data access**: PHP uses the Supabase service-role key server-side to read/write the `articles` table via PostgREST.
+
+**Environment requirements**:
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` must be set as server environment variables.
+- `FRONTEND_ORIGIN` controls CORS (defaults to `http://localhost:3000,http://localhost:8080`).
+
+#### Path B: Direct Supabase Access — All Other CMS Entities
+**Used by**: `brunelly-admin.html` tabs for Videos, Use Cases, Feature Images, Hero Images, FAQs, Leads, plus `brunelly-analytics.html`
+**Helpers**: `sbGet()`, `sbUpsert()`, `sbUpdate()`, `sbDelete()` in `brunelly-admin.html`; `sbFetchAna()` in `brunelly-analytics.html`
+
+1. **Login**: `signIn()` uses the Supabase JS client (`supabase-auth.js`) to authenticate directly with Supabase Auth.
+2. **Session token**: Supabase returns an `access_token`. The browser stores it in `window.currentSession`.
+3. **Subsequent requests**: The Supabase JS client automatically attaches the `access_token` as a `Bearer` header to every request.
+4. **Authorisation**: Supabase RLS policies evaluate the authenticated user against the `profiles` table using `user_has_role()`. Writes are allowed only for `admin`/`content_editor` (or `admin`/`analytics_viewer` for analytics reads).
+
+**Environment requirements**:
+- `supabase-config.js` must expose `window.SUPA_URL` and `window.SUPA_KEY` (anon key only).
+- No server-side env vars are needed for this path.
+
+#### Cross-Path Behaviour in the Admin Panel
+- `brunelly-admin.html` logs in via **Path A** (PHP) for blog post management.
+- The same page also loads data via **Path B** (direct Supabase) for videos, use cases, images, FAQs, and leads.
+- Both paths rely on the same Supabase `profiles` table for role checks, so a user with `content_editor` role can manage blog posts (PHP) and also manage videos/images (direct Supabase) without re-authenticating.
+- **Session expiry**: If the PHP cookie expires, `cms-api.js` dispatches `cms:sessionExpired` and the user is returned to the login screen. The direct Supabase token expiry is handled by the Supabase JS client (`onAuthStateChange`).
+
 ### Key Rules
 - `supabase-config.js` must contain **only** the client-safe anon/public key.
 - The Supabase service-role key must **never** appear in any client-side file.
