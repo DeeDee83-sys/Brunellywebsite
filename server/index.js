@@ -17,22 +17,32 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && require.main === module) {
+  console.error('FATAL: JWT_SECRET must be set');
+  process.exit(1);
+}
 const COOKIE_NAME = 'cms_session';
 const COOKIE_MAX_AGE_MS = 1000 * 60 * 60 * 24; // 24 hours
 
 // ── Supabase clients ──────────────────────────────────────────────
+let supabaseAdmin;
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('FATAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
-  process.exit(1);
+if (supabaseUrl && supabaseServiceKey) {
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+} else {
+  console.warn('WARN: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY not set. Using stub Supabase client.');
+  supabaseAdmin = {
+    from: function() { throw new Error('Supabase not configured'); },
+    auth: {
+      signInWithPassword: function() { throw new Error('Supabase not configured'); }
+    }
+  };
 }
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
-});
 
 // ── Middleware ────────────────────────────────────────────────────
 app.use(helmet());
@@ -41,7 +51,7 @@ app.use(express.json({ limit: '2mb' }));
 
 const allowedOrigins = (process.env.FRONTEND_ORIGIN || '').split(',').filter(Boolean);
 if (allowedOrigins.length === 0) {
-  allowedOrigins.push('http://localhost:3000', 'http://localhost:8080', 'null');
+  allowedOrigins.push('http://localhost:3000', 'http://localhost:8080');
 }
 
 app.use(cors({
@@ -61,6 +71,20 @@ if (!fs.existsSync(BLOG_IMAGES_DIR)) {
 app.use('/static', express.static(STATIC_DIR));
 
 // ── Auth helpers ──────────────────────────────────────────────────
+
+function isSafeUrl(str) {
+  if (str == null) return false;
+  const s = String(str).trim().toLowerCase();
+  return s.startsWith('http://') || s.startsWith('https://');
+}
+
+function sanitizePostgrestSearch(search) {
+  return search.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
+function escapePostgrestOrValue(value) {
+  return value.replace(/,/g, '\\,').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+}
 
 function signSessionToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h', issuer: 'brunelly-cms' });
@@ -198,7 +222,8 @@ app.get('/cms/posts', requireAuth, requireRole(['admin', 'content_editor']), asy
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+    const safeSearch = escapePostgrestOrValue(sanitizePostgrestSearch(search));
+    query = query.or(`title.ilike.%${safeSearch}%,excerpt.ilike.%${safeSearch}%`);
   }
 
   query = query
@@ -246,8 +271,8 @@ app.post('/cms/posts', requireAuth, requireRole(['admin', 'content_editor']), as
     title: String(title).trim(),
     excerpt: String(excerpt).trim(),
     category: String(category).trim(),
-    url: url ? String(url).trim() : null,
-    image: image ? String(image).trim() : null,
+    url: url && isSafeUrl(url) ? String(url).trim() : null,
+    image: image && isSafeUrl(image) ? String(image).trim() : null,
     content: content ? String(content).trim() : null,
     published_at: published_at || null,
     created_at: now,
@@ -278,8 +303,8 @@ app.put('/cms/posts/:id', requireAuth, requireRole(['admin', 'content_editor']),
   if (title !== undefined) update.title = String(title).trim();
   if (excerpt !== undefined) update.excerpt = String(excerpt).trim();
   if (category !== undefined) update.category = String(category).trim();
-  if (url !== undefined) update.url = url ? String(url).trim() : null;
-  if (image !== undefined) update.image = image ? String(image).trim() : null;
+  if (url !== undefined) update.url = url && isSafeUrl(url) ? String(url).trim() : null;
+  if (image !== undefined) update.image = image && isSafeUrl(image) ? String(image).trim() : null;
   if (content !== undefined) update.content = content ? String(content).trim() : null;
   if (published_at !== undefined) update.published_at = published_at || null;
 

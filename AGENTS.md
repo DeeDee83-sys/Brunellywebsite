@@ -17,7 +17,8 @@ code/
 ├── sitemap.xml, robots.txt, llms.txt
 ├── brunelly-responsive.css  # Shared responsive stylesheet (Story 42)
 ├── static/             # Static assets (blog images uploaded via CMS)
-├── server/             # Node.js CMS backend API (Story 48)
+├── api/                # PHP CMS backend API (Story 48 — shared-hosting-compatible)
+├── server/             # Legacy Node.js CMS backend API (Story 48 — retained for reference/tests)
 ├── tests/              # Automated regression tests (node --test)
 └── AGENTS.md           # This file
 ```
@@ -226,18 +227,24 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - Scope excludes `brunelly-admin.html` and `brunelly-analytics.html`.
 
 ### Story 48: Create and Securely Enhance CMS for Managing Blog Posts
-- Replaced direct browser-to-Supabase writes for blog posts with a secure Node.js backend API (`server/index.js`).
-- Backend endpoints: `POST /cms/login` (HTTP-only cookie session), `GET/POST /cms/posts`, `PUT/DELETE /cms/posts/:id`, `POST /cms/upload`.
+- Replaced direct browser-to-Supabase writes for blog posts with a secure PHP backend API (`api/`).
+- PHP endpoints: `cms-login.php` (HTTP-only cookie session), `cms-posts.php` (list/create), `cms-post.php` (read/update/delete), `cms-upload.php` (image upload).
+- Pure PHP JWT implementation with no external dependencies; `SameSite=Strict`, `HttpOnly` cookies.
+- Role-based access control enforced on every endpoint (`admin` or `content_editor`).
+- Backend-side URL validation (`isSafeUrl`) rejects `javascript:`, `data:`, and other unsafe schemes for `url` and `image` fields.
+- PostgREST search queries sanitise special characters (commas, parentheses, `%`, `_`, backslashes) to prevent query injection.
 - Frontend module `cms-api.js` centralises all backend communication with automatic 401 session expiry handling.
 - `brunelly-admin.html` "Articles" tab evolved into "Blog Posts" with new fields: `content` (rich body), `published_at` (draft/publish toggle), and image upload.
 - Static assets served from `static/blog-images/`; upload endpoint validates image mimetypes and size (5MB max).
 - Database: added `content TEXT` and `published_at TIMESTAMPTZ` to `articles` table.
 - Safe DOM construction preserved; no user-controlled values pass through `innerHTML`.
+- Legacy Node.js backend (`server/index.js`) retained for reference and test coverage; hardened with env-var guards and input validation.
 
 ## Deployment Notes
 
 - The Supabase anon key in `supabase-config.js` is a placeholder.
 - Before production deployment, generate a new anon key in the Supabase dashboard and update the placeholder value.
+- The PHP backend reads env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET`, `FRONTEND_ORIGIN`.
 - The server `.env` requires a real `SUPABASE_SERVICE_ROLE_KEY` and a strong `JWT_SECRET`.
 - Verify the old leaked key `sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD` is revoked in Supabase.
 - Create users via the Supabase Auth dashboard, then insert matching rows into `profiles` with the appropriate role.
