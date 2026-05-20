@@ -308,7 +308,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
             </div>
             <div class="form-group"><label>Legacy Date</label><input type="text" id="f-date" class="form-input" placeholder="e.g. April 2026" /></div>
             <div class="form-group full"><label>Article URL (legacy link-card mode)</label><input type="url" id="f-url" class="form-input" placeholder="https://brunelly.com/article-slug/ — leave blank for blog post mode" /></div>
-            <div class="form-group full"><label>Content</label><textarea id="f-content" class="form-textarea" style="min-height:240px;" placeholder="Full blog post content (HTML allowed). Leave blank for legacy link-card mode."></textarea></div>
+            <div class="form-group full"><label>Content</label><textarea id="f-content" class="form-textarea" style="min-height:240px;" placeholder="Full blog post content (HTML allowed). Leave blank for legacy link-card mode."></textarea><div style="font-size:.72rem;color:var(--muted);margin-top:.4rem;line-height:1.5;">HTML is stored as-is. Public pages must sanitise before rendering — intended strategy: DOMPurify with a strict tag whitelist (e.g., p, br, h2-h4, ul, ol, li, a, strong, em, blockquote, code, pre, img[src^=http]). Never render raw content via innerHTML without sanitisation.</div></div>
             <div class="form-group full"><label>Cover Image</label>
               <div style="display:flex;gap:.5rem;align-items:flex-start;">
                 <input type="url" id="f-image" class="form-input" placeholder="https://... or upload below" oninput="previewImg()" style="flex:1;" />

@@ -276,6 +276,7 @@ The CMS uses **two parallel authentication paths** depending on the entity being
 - Static assets served from `static/blog-images/`; upload endpoint validates image mimetypes and size (5MB max).
 - Database: added `content TEXT` and `published_at TIMESTAMPTZ` to `articles` table.
 - Safe DOM construction preserved; no user-controlled values pass through `innerHTML`.
+- **Blog post content sanitisation**: The `articles.content` field stores raw HTML. Public pages must sanitise this before rendering. Intended strategy: DOMPurify (or equivalent whitelist-based sanitiser) allowing only semantic tags (`p, br, h2-h4, ul, ol, li, a[href^=http], strong, em, blockquote, code, pre, img[src^=http]`). Never render `content` via `innerHTML` without passing through a sanitiser.
 - Legacy Node.js backend (`server/index.js`) retained for reference and test coverage; hardened with env-var guards and input validation.
 
 ## Deployment Notes
