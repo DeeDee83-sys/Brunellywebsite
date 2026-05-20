@@ -302,13 +302,17 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own profile"
   ON profiles FOR SELECT USING (auth.uid() = id);
 
+-- SECURITY DEFINER bypasses RLS when checking profiles, preventing infinite recursion
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 -- Admins can manage all profiles
 CREATE POLICY "Admins can manage profiles"
-  ON profiles FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  ON profiles FOR ALL USING (public.is_admin());
 
 -- Done!
 SELECT 'Schema created successfully' as status;
