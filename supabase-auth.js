@@ -47,13 +47,13 @@
       .single()
       .then(function(res) {
         if (res.error) {
-          console.warn('getUserRole error:', res.error.message);
+          console.error('getUserRole error:', res.error.code, res.error.message);
           return null;
         }
         return res.data ? res.data.role : null;
       })
       .catch(function(err) {
-        console.warn('getUserRole exception:', err);
+        console.error('getUserRole exception:', err);
         return null;
       });
   };

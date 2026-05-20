@@ -10,5 +10,5 @@
 // key in the Supabase dashboard and replace the value below.
 // ════════════════════════════════════════════════════════════════
 
-window.SUPA_URL = 'https://gupshlonfltnngebwdqx.supabase.co';
-window.SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1cHNobG9uZmx0bm5nZWJ3ZHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMzczNzEsImV4cCI6MjA5MzYxMzM3MX0.ifR8M-sgmtTfy4hGjn1R9SG8edZzhvgfKzeehsx5YcU';
+window.SUPA_URL = 'https://shghisotwnkoppdrscua.supabase.co';
+window.SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoZ2hpc290d25rb3BwZHJzY3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzEzMTUsImV4cCI6MjA5NDgwNzMxNX0.ebllN5Wth8S_-2Y_guPi89puNnRc-h0CIm5fQIkp6Ew';
