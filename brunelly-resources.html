@@ -106,7 +106,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .page-nav-btn{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:1rem 1.8rem;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;}
 .page-nav-btn:hover{color:var(--white);}
 .page-nav-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
-.filter-bar{padding:1.5rem 3rem;border-bottom:1px solid var(--border);background:var(--off-black);display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.filter-bar{padding:1.5rem 3rem;border-bottom:1px solid var(--border);background:var(--off-black);display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;}
 .filter-label{font-family:"DM Mono",monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;flex-shrink:0;}
 .filter-btn{font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.06em;padding:.38rem .85rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s;}
 .filter-btn:hover{color:var(--white);border-color:rgba(255,255,255,.2);}
@@ -140,12 +140,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .video-card.no-link{cursor:default;}
 .video-thumb{position:relative;aspect-ratio:16/9;background:var(--off-black);overflow:hidden;}
 .video-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.video-thumb-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);transition:background .2s;cursor:pointer;}
+.video-thumb-overlay:hover{background:rgba(0,0,0,.2);}
+.video-thumb-overlay:hover .video-play-btn{background:var(--accent);color:var(--black);border-color:var(--accent);}
 .video-thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;}
-.video-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(167,139,250,.15);border:2px solid var(--accent-mid);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--accent);transition:all .2s;}
-.video-card.has-link:hover .video-play-btn{background:var(--accent);color:var(--black);border-color:var(--accent);}
+.video-play-btn{width:56px;height:56px;border-radius:50%;background:rgba(167,139,250,.2);border:2px solid var(--accent-mid);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--accent);transition:all .2s;}
 .video-coming-txt{font-family:"DM Mono",monospace;font-size:.62rem;letter-spacing:.08em;color:var(--muted);}
-.video-watch-badge{position:absolute;top:.6rem;left:.6rem;font-family:"DM Mono",monospace;font-size:.6rem;letter-spacing:.08em;padding:.2rem .55rem;border-radius:4px;background:rgba(9,9,11,.8);color:var(--accent);border:1px solid var(--accent-mid);}
 .video-soon-badge{position:absolute;top:.6rem;right:.6rem;font-family:"DM Mono",monospace;font-size:.58rem;letter-spacing:.07em;padding:.2rem .55rem;border-radius:4px;background:rgba(9,9,11,.7);color:var(--muted);border:1px solid var(--border);}
+.video-embed{position:absolute;inset:0;width:100%;height:100%;border:none;}
 .video-info{padding:1.1rem;flex:1;display:flex;flex-direction:column;gap:.4rem;}
 .video-info h3{font-family:"Geologica",sans-serif; font-weight: 400 ;font-size:.92rem;letter-spacing:-.01em;color:var(--white);line-height:1.3;}
 .video-info p{font-size:.78rem;color:var(--light);line-height:1.6;flex:1;}
@@ -578,7 +580,7 @@ footer {
         <h2>See Brunelly in action</h2>
         <p>Step-by-step product walkthroughs demonstrating real Brunelly functionality. More videos coming soon.</p>
       </div>
-      <a href="https://www.youtube.com/@Brunelly" target="_blank" rel="noopener noreferrer" class="view-all-link">YouTube channel &#8594;</a>
+      <a href="https://www.youtube.com/@BrunellyAI" target="_blank" rel="noopener noreferrer" class="view-all-link">YouTube channel &#8594;</a>
     </div>
     <div class="videos-grid reveal" id="videos-grid"></div>
   </div>
@@ -718,7 +720,7 @@ function isSafeCssValue(str) {
 
 // ── Seed data (fallback if Supabase unavailable) ──────────────────
 var ARTICLES_SEED = [{"id": "1", "title": "Vibe Coding Isn't Bad, You Are", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "brunelly-article-vibe-coding-isnt-bad-you-are.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/03/P6564icture1-e1773203362723.webp?fit=621%2C447&ssl=1", "date": "March 2026"}, {"id": "2", "title": "Your AI Product Is Not A Real Business", "excerpt": "Most startups now splash AI on to all their marketing. AI is not your product. AI itself does not deliver business value. Unless you are a frontier lab, AI is nothing more than a tool in your stack.", "category": "AI", "url": "brunelly-article-your-ai-product-is-not-a-real-business.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Untitled-design.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "3", "title": "How many Rs are there really in strawberry?", "excerpt": "How many Rs are there in the word strawberry? AI can't tell you. Apparently. You've all seen it. Screenshots, Reddit threads, smug tweets.", "category": "AI", "url": "brunelly-article-how-many-rs-are-there-really-in-strawberry.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-7.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "4", "title": "Part 2: AI context in the real-world", "excerpt": "Learn to manage AI context with trimming, rolling, compaction, and memory strategies to boost performance and reduce costs.", "category": "Agile", "url": "brunelly-article-part-2-ai-context-in-the-real-world.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/AI-context-in-real-apps.webp?fit=624%2C416&ssl=1", "date": "February 2026"}, {"id": "5", "title": "Part 1: Managing your AI context in real apps", "excerpt": "Learn how to manage AI context in real applications using trimming, rolling context, compaction, and memory strategies to improve performance and reduce cost.", "category": "Agile", "url": "brunelly-article-part-1-managing-your-ai-context-in-real-apps.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-5.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "6", "title": "From ScrumBuddy to Brunelly: Bad Requirements Are Still Killing Software Projects", "excerpt": "From ScrumBuddy to Brunelly: Why bad requirements still break software and how structured, AI-driven workflows turn ideas into successful products.", "category": "Behind the Build", "url": "brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2026/02/Substack-Images-1.webp?fit=800%2C533&ssl=1", "date": "February 2026"}, {"id": "7", "title": "I Built a Compiler in Five Days with Claude AI", "excerpt": "This exercise was both for fun and a necessity. The orchestration system powering Brunelly, my AI tool, had gotten messy.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-compiler-built-with-claude-ai.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "8", "title": "Why I Put Claude in Jail and Let Him Code Anyway", "excerpt": "AI vibe coding is fun but chaotic. Here's how I built a containerized orchestration system that turned Claude AI code generation into secure, production-ready workflows.", "category": "Behind the Build", "url": "brunelly-article-claude-ai-coding-orchestration-containerized-workflows.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/thumbnail-.jpg?fit=800%2C576&ssl=1", "date": "September 2025"}, {"id": "9", "title": "The Censor Behind the Curtain: The Hidden Orchestration Behind ChatGPT5", "excerpt": "There's another side to GPT5 that has bigger consequences: censorship, fact-checking, and how the system decides what you see.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-the-censor-behind-the-curtain.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/Coco-Loco_Posts-e1756793759482.png?fit=800%2C512&ssl=1", "date": "September 2025"}, {"id": "10", "title": "Why GPT-5 Feels Like a Stranger", "excerpt": "GPT-5 feels different. Not because of the model, but because of orchestration. Discover how routing agents, memory placement, and system tweaks change ChatGPT5 tone, accuracy, and personality.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-why-gpt5-feels-like-a-stranger-orchestration-changes.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-bertellifotografia-16027813-1-scaled.jpg?fit=800%2C454&ssl=1", "date": "September 2025"}, {"id": "11", "title": "Inside ChatGPT's Safety Net: What Really Happens When You Cross the Line", "excerpt": "ChatGPT's orchestration is the most interesting part of ChatGPT. It is not just a helpful assistant \u2014 it is also the bouncer, the censor, and the crisis manager.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-inside-chatgpts-safety-net.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-sylvain-cls-3918566-5866051-1-1-scaled.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "12", "title": "The Secret System Behind ChatGPT: How Orchestration Affects Everything", "excerpt": "Ever had ChatGPT forget your chat history? Have you noticed sudden personality changes mid-chat? Find out how AI orchestration is the reason that happens.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-the-secret-system-behind-chatgpt.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-googledeepmind-18069697-1.jpg?fit=800%2C450&ssl=1", "date": "September 2025"}, {"id": "13", "title": "The Hidden Beast Behind ChatGPT: How AI Orchestration Shapes Every Conversation", "excerpt": "Discover the hidden orchestration system behind ChatGPT that controls memory, tone, safety, and tools. Learn why it matters for AI users and builders.", "category": "ChatGPT & AI Orchestration", "url": "brunelly-article-chatgpt-orchestration.html", "image": "https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/pexels-nemuel-6424590-1.jpg?fit=800%2C533&ssl=1", "date": "September 2025"}];
-var VIDEOS_SEED   = [{"id": "v1", "title": "Platform Overview", "description": "A comprehensive walkthrough of the Brunelly platform and its core capabilities.", "youtubeUrl": "https://youtu.be/DWwjalfXJ3I", "youtubeId": "DWwjalfXJ3I", "duration": "", "published": true}, {"id": "v2", "title": "Signup and Onboarding", "description": "The first-run experience from account creation through project setup.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v3", "title": "Feature Backlog Generation", "description": "AI-powered generation of a structured feature backlog from high-level requirements.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v4", "title": "Story Backlog Generation", "description": "Breaking features down into implementable user stories with acceptance criteria.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v5", "title": "Code Generation", "description": "Automated code generation from story specifications with full context awareness.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v6", "title": "Documentation Generation", "description": "Generating technical documentation, design documents, and specifications.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v7", "title": "Tech Expert", "description": "Interactive AI technical advisor for architecture decisions and code guidance.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v8", "title": "Testing", "description": "Automated test plan generation and test execution capabilities.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v9", "title": "Bug Hunt", "description": "AI-driven static analysis and bug detection across the codebase.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v10", "title": "Code Quality, Security and Risk Assessment", "description": "Comprehensive quality analysis, security scanning, and risk scoring.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v11", "title": "Code Reviews", "description": "AI-assisted code review with actionable feedback and suggestions.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v12", "title": "Repository Initialisation", "description": "Setting up a new repository with best-practice structure and configuration.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}, {"id": "v13", "title": "Code Engine Selection", "description": "Selecting and configuring the AI code generation engine for your project.", "youtubeUrl": "", "youtubeId": "", "duration": "", "published": false}];
+var VIDEOS_SEED   = [{"id": "v1", "title": "Platform Overview", "description": "A comprehensive walkthrough of the Brunelly platform and its core capabilities.", "youtubeUrl": "https://www.youtube.com/watch?v=DWwjalfXJ3I", "youtubeId": "DWwjalfXJ3I", "duration": "", "published": true}, {"id": "v2", "title": "Signup & Onboarding", "description": "The first-run experience from account creation through project setup.", "youtubeUrl": "https://www.youtube.com/watch?v=_m_T8Z8CxjU", "youtubeId": "_m_T8Z8CxjU", "duration": "", "published": true}, {"id": "v3", "title": "Feature Backlog Generation", "description": "AI-powered generation of a structured feature backlog from high-level requirements.", "youtubeUrl": "https://www.youtube.com/watch?v=ESBnlFeF6kM", "youtubeId": "ESBnlFeF6kM", "duration": "", "published": true}, {"id": "v4", "title": "Story Backlog Generation", "description": "Breaking features down into implementable user stories with acceptance criteria.", "youtubeUrl": "https://www.youtube.com/watch?v=CwVRD7XZTUQ", "youtubeId": "CwVRD7XZTUQ", "duration": "", "published": true}, {"id": "v5", "title": "Code Generation", "description": "Automated code generation from story specifications with full context awareness.", "youtubeUrl": "https://www.youtube.com/watch?v=ZOdtAmMQA88", "youtubeId": "ZOdtAmMQA88", "duration": "", "published": true}, {"id": "v6", "title": "Documentation Generation", "description": "Generating technical documentation, design documents, and specifications.", "youtubeUrl": "https://www.youtube.com/watch?v=8p_BYNwnHgQ", "youtubeId": "8p_BYNwnHgQ", "duration": "", "published": true}, {"id": "v7", "title": "Tech Expert", "description": "Interactive AI technical advisor for architecture decisions and code guidance.", "youtubeUrl": "https://www.youtube.com/watch?v=i0daUfcNftY", "youtubeId": "i0daUfcNftY", "duration": "", "published": true}, {"id": "v8", "title": "Testing", "description": "Automated test plan generation and test execution capabilities.", "youtubeUrl": "https://www.youtube.com/watch?v=MoCg36BCUJI", "youtubeId": "MoCg36BCUJI", "duration": "", "published": true}, {"id": "v9", "title": "Bug Hunt", "description": "AI-driven static analysis and bug detection across the codebase.", "youtubeUrl": "https://www.youtube.com/watch?v=Kq-Nyv3DPRg", "youtubeId": "Kq-Nyv3DPRg", "duration": "", "published": true}, {"id": "v10", "title": "Code Quality, Security & Risk Assessment", "description": "Comprehensive quality analysis, security scanning, and risk scoring.", "youtubeUrl": "https://www.youtube.com/watch?v=kP5c0YgjoiM", "youtubeId": "kP5c0YgjoiM", "duration": "", "published": true}, {"id": "v11", "title": "Code Reviews", "description": "AI-assisted code review with actionable feedback and suggestions.", "youtubeUrl": "https://www.youtube.com/watch?v=0kumoRzkQ1Y", "youtubeId": "0kumoRzkQ1Y", "duration": "", "published": true}, {"id": "v12", "title": "Repository Initialisation", "description": "Setting up a new repository with best-practice structure and configuration.", "youtubeUrl": "https://www.youtube.com/watch?v=66vVIJNSCzs", "youtubeId": "66vVIJNSCzs", "duration": "", "published": true}, {"id": "v13", "title": "Code Engine Selection", "description": "Selecting and configuring the AI code generation engine for your project.", "youtubeUrl": "https://www.youtube.com/watch?v=MlodY9NgsMw", "youtubeId": "MlodY9NgsMw", "duration": "", "published": true}];
 var UC_SEED       = [{"id": "uc1", "icon": "\u25c8", "iconBg": "rgba(167,139,250,.12)", "iconColor": "#a78bfa", "title": "Modernising a legacy system without breaking what works", "body": "Brunelly reads a complex brownfield codebase, maps its architecture and dependencies, and generates a safe, prioritised modernisation roadmap so teams can move forward without breaking production.", "published": false}, {"id": "uc2", "icon": "\u2b21", "iconBg": "rgba(59,130,246,.1)", "iconColor": "#60a5fa", "title": "Scaling an engineering team from 5 to 25 without losing velocity", "body": "As teams grow, context gets fragmented. Brunelly acts as institutional memory so new engineers onboard faster, architectural decisions stay consistent, and no one has to re-explain sprint three decisions.", "published": false}, {"id": "uc3", "icon": "\u26a1", "iconBg": "rgba(74,222,128,.1)", "iconColor": "#4ade80", "title": "Building greenfield software with architectural integrity from day one", "body": "Starting fresh gives you the opportunity to get the architecture right. Brunelly shapes your system from the first conversation and maintains that integrity through every sprint.", "published": false}, {"id": "uc4", "icon": "\u25c9", "iconBg": "rgba(251,146,60,.1)", "iconColor": "#fb923c", "title": "Meeting compliance requirements without slowing delivery", "body": "For teams building under GDPR, SOC2, or other frameworks, Brunelly builds those constraints into its context so security and compliance checks happen automatically, not as afterthoughts.", "published": false}];
 
 // ── Storage helpers ───────────────────────────────────────────────
@@ -848,56 +850,50 @@ function renderVideos() {
     grid.innerHTML = '';
     for (var i = 0; i < all.length; i++) {
       var v = all[i];
-      var hasVideo = !!(v.youtubeUrl && v.youtubeId);
-      var thumb = v.youtubeId ? 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg' : '';
-      var cardClass = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
-
-      var card;
-      if (hasVideo && isSafeUrl(v.youtubeUrl)) {
-        card = document.createElement('a');
-        card.href = v.youtubeUrl;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
-      } else {
-        card = document.createElement('div');
-      }
-      card.className = cardClass;
+      var hasVideo = !!(v.youtubeId);
+      var card = document.createElement('div');
+      card.className = 'video-card ' + (hasVideo ? 'has-link' : 'no-link');
 
       var thumbWrap = document.createElement('div');
       thumbWrap.className = 'video-thumb';
 
-      if (thumb) {
+      if (hasVideo) {
         var img = document.createElement('img');
-        img.src = thumb;
-        img.alt = '';
-        img.onerror = function() { this.style.display = 'none'; };
+        img.src = 'https://img.youtube.com/vi/' + v.youtubeId + '/mqdefault.jpg';
+        img.alt = v.title || '';
         thumbWrap.appendChild(img);
-      }
 
-      var ph = document.createElement('div');
-      ph.className = 'video-thumb-ph';
-      ph.style.display = thumb ? 'none' : '';
-
-      var playBtn = document.createElement('div');
-      playBtn.className = 'video-play-btn';
-      playBtn.innerHTML = hasVideo ? '&#9654;' : '&#8987;';
-      ph.appendChild(playBtn);
-
-      if (!hasVideo) {
+        var overlay = document.createElement('div');
+        overlay.className = 'video-thumb-overlay';
+        var playBtn = document.createElement('div');
+        playBtn.className = 'video-play-btn';
+        playBtn.innerHTML = '&#9654;';
+        overlay.appendChild(playBtn);
+        (function(wrap, id, title) {
+          overlay.addEventListener('click', function() {
+            var iframe = document.createElement('iframe');
+            iframe.className = 'video-embed';
+            iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
+            iframe.title = title;
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            wrap.innerHTML = '';
+            wrap.appendChild(iframe);
+          });
+        })(thumbWrap, v.youtubeId, v.title || '');
+        thumbWrap.appendChild(overlay);
+      } else {
+        var ph = document.createElement('div');
+        ph.className = 'video-thumb-ph';
+        var clockBtn = document.createElement('div');
+        clockBtn.className = 'video-play-btn';
+        clockBtn.innerHTML = '&#8987;';
+        ph.appendChild(clockBtn);
         var comingTxt = document.createElement('div');
         comingTxt.className = 'video-coming-txt';
         comingTxt.textContent = 'Coming soon';
         ph.appendChild(comingTxt);
-      }
-
-      thumbWrap.appendChild(ph);
-
-      if (hasVideo) {
-        var badge = document.createElement('div');
-        badge.className = 'video-watch-badge';
-        badge.innerHTML = '&#9654; Watch';
-        thumbWrap.appendChild(badge);
-      } else {
+        thumbWrap.appendChild(ph);
         var soonBadge = document.createElement('div');
         soonBadge.className = 'video-soon-badge';
         soonBadge.textContent = 'Coming soon';
@@ -916,17 +912,6 @@ function renderVideos() {
       var p = document.createElement('p');
       p.textContent = v.description || '';
       info.appendChild(p);
-
-      var footer = document.createElement('div');
-      footer.className = 'video-footer';
-      if (hasVideo) {
-        footer.style.color = 'var(--accent)';
-        footer.innerHTML = 'Watch on YouTube &#8594;';
-      } else {
-        footer.style.color = 'var(--muted)';
-        footer.textContent = 'Coming soon';
-      }
-      info.appendChild(footer);
 
       card.appendChild(info);
       grid.appendChild(card);
