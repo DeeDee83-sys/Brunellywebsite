@@ -6,15 +6,17 @@
 
 -- ── Articles ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS articles (
-  id          TEXT PRIMARY KEY,
-  title       TEXT NOT NULL,
-  excerpt     TEXT,
-  category    TEXT,
-  url         TEXT,
-  image       TEXT,
-  date        TEXT,
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ DEFAULT NOW()
+  id           TEXT PRIMARY KEY,
+  title        TEXT NOT NULL,
+  excerpt      TEXT,
+  category     TEXT,
+  url          TEXT,
+  image        TEXT,
+  date         TEXT,
+  content      TEXT,
+  published_at TIMESTAMPTZ,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ── Videos ───────────────────────────────────────────────

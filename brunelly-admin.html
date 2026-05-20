@@ -95,6 +95,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-auth.js"></script>
+  <script src="cms-api.js"></script>
 </head>
 <body>
 
@@ -133,7 +134,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 
     <!-- TABS -->
     <div class="tabs">
-      <button class="tab active" id="tab-articles" onclick="switchTab('articles')">Articles</button>
+      <button class="tab active" id="tab-articles" onclick="switchTab('articles')">Blog Posts</button>
       <button class="tab" id="tab-videos" onclick="switchTab('videos')">Videos</button>
       <button class="tab" id="tab-usecases" onclick="switchTab('usecases')">Use Cases</button>
       <button class="tab" id="tab-images" onclick="switchTab('images')">Feature Images</button>
@@ -145,7 +146,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
     <!-- ARTICLES VIEW -->
     <div id="view-articles">
       <div class="table-toolbar">
-        <h2>Articles <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="art-count"></span></h2>
+        <h2>Blog Posts <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);font-weight: 400;" id="art-count"></span></h2>
         <div style="display:flex;gap:.7rem;">
           <button class="btn btn-ghost" onclick="exportData('articles')">Export JSON</button>
           <button class="btn btn-ghost" onclick="triggerImport('articles')">Import JSON</button>
@@ -153,7 +154,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
         </div>
       </div>
       <table class="data-table">
-        <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
         <tbody id="articles-tbody"></tbody>
       </table>
     </div>
@@ -291,11 +292,11 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
         <input type="hidden" id="form-type" value="article">
         <input type="hidden" id="form-idx" value="">
 
-        <!-- ARTICLE FIELDS -->
+        <!-- BLOG POST FIELDS -->
         <div id="fields-article">
           <div class="form-grid">
-            <div class="form-group full"><label>Title *</label><input type="text" id="f-title" class="form-input" placeholder="Article title" /></div>
-            <div class="form-group full"><label>Excerpt *</label><textarea id="f-excerpt" class="form-textarea" placeholder="Short summary (1–2 sentences shown on the resources page)"></textarea></div>
+            <div class="form-group full"><label>Title *</label><input type="text" id="f-title" class="form-input" placeholder="Post title" /></div>
+            <div class="form-group full"><label>Excerpt *</label><textarea id="f-excerpt" class="form-textarea" placeholder="Short summary (1–2 sentences shown on listings)"></textarea></div>
             <div class="form-group"><label>Category *</label>
               <select id="f-category" class="form-select">
                 <option value="">Select category</option>
@@ -305,9 +306,26 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
                 <option value="Behind the Build">Behind the Build</option>
               </select>
             </div>
-            <div class="form-group"><label>Date</label><input type="text" id="f-date" class="form-input" placeholder="e.g. April 2026" /></div>
-            <div class="form-group full"><label>Article URL *</label><input type="url" id="f-url" class="form-input" placeholder="https://brunelly.com/article-slug/" /></div>
-            <div class="form-group full"><label>Cover Image URL</label><input type="url" id="f-image" class="form-input" placeholder="https://..." oninput="previewImg()" /><img id="img-prev" style="margin-top:.5rem;max-height:70px;border-radius:6px;border:1px solid var(--border);display:none;" /></div>
+            <div class="form-group"><label>Legacy Date</label><input type="text" id="f-date" class="form-input" placeholder="e.g. April 2026" /></div>
+            <div class="form-group full"><label>Article URL (legacy link-card mode)</label><input type="url" id="f-url" class="form-input" placeholder="https://brunelly.com/article-slug/ — leave blank for blog post mode" /></div>
+            <div class="form-group full"><label>Content</label><textarea id="f-content" class="form-textarea" style="min-height:240px;" placeholder="Full blog post content (HTML allowed). Leave blank for legacy link-card mode."></textarea></div>
+            <div class="form-group full"><label>Cover Image</label>
+              <div style="display:flex;gap:.5rem;align-items:flex-start;">
+                <input type="url" id="f-image" class="form-input" placeholder="https://... or upload below" oninput="previewImg()" style="flex:1;" />
+                <label class="btn btn-ghost" style="cursor:pointer;flex-shrink:0;">
+                  <input type="file" id="f-image-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(this)" />
+                  Upload
+                </label>
+              </div>
+              <img id="img-prev" style="margin-top:.5rem;max-height:70px;border-radius:6px;border:1px solid var(--border);display:none;" />
+            </div>
+            <div class="form-group"><label>Status</label>
+              <div class="toggle-wrap" style="margin-top:.5rem;">
+                <label class="toggle"><input type="checkbox" id="f-published"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                <span class="toggle-label">Published (visible on site)</span>
+              </div>
+            </div>
+            <div class="form-group"><label>Publish Date</label><input type="datetime-local" id="f-published-at" class="form-input" /></div>
           </div>
         </div>
 
@@ -376,34 +394,16 @@ function doLogin() {
     return;
   }
 
-  signIn(email, password).then(function(response) {
+  cmsLogin(email, password).then(function(response) {
     if (response.error) {
-      errEl.textContent = response.error.message || 'Sign in failed.';
+      errEl.textContent = response.error || 'Sign in failed.';
       errEl.style.display = 'block';
       return;
     }
-
-    window.currentSession = response.data.session;
-    window.currentUser = response.data.user;
-
-    return getUserRole().then(function(role) {
-      window.currentRole = role;
-      if (!role) {
-        errEl.textContent = 'Account not authorised. No role assigned.';
-        errEl.style.display = 'block';
-        signOut();
-        return;
-      }
-      if (role !== 'admin' && role !== 'content_editor') {
-        errEl.textContent = 'Access denied. Insufficient privileges.';
-        errEl.style.display = 'block';
-        signOut();
-        return;
-      }
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      init();
-    });
+    window.currentRole = response.role;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
   }).catch(function(e) {
     errEl.textContent = 'Sign in error: ' + (e.message || 'Unknown error');
     errEl.style.display = 'block';
@@ -411,33 +411,26 @@ function doLogin() {
 }
 
 function logout() {
-  signOut().then(function() {
+  cmsLogout().then(function() {
     window.currentSession = null;
     window.currentUser = null;
     window.currentRole = null;
+    location.reload();
+  }).catch(function() {
     location.reload();
   });
 }
 
 function requireAuthAndRole() {
-  getCurrentSession().then(function(result) {
-    var session = result.data.session;
-    if (!session) return;
-    window.currentSession = session;
-    window.currentUser = session.user;
-    getUserRole().then(function(role) {
-      window.currentRole = role;
-      if (role === 'admin' || role === 'content_editor') {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        init();
-      } else {
-        var errEl = document.getElementById('login-err');
-        errEl.textContent = 'Access denied. Insufficient privileges.';
-        errEl.style.display = 'block';
-        signOut();
-      }
-    });
+  cmsCheckSession().then(function(res) {
+    if (res.authenticated) {
+      window.currentRole = res.role;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    }
+  }).catch(function() {
+    // Stay on login screen
   });
 }
 requireAuthAndRole();
@@ -578,7 +571,7 @@ function switchTab(t) {
   });
   document.getElementById('view-form').style.display = 'none';
   document.getElementById('view-faq-form').style.display = 'none';
-  var labels = {'articles':'+ Add Article','videos':'+ Add Video','usecases':'+ Add Use Case','images':'Feature Images','faqs':'FAQs','leads':'Leads'};
+  var labels = {'articles':'+ Add Blog Post','videos':'+ Add Video','usecases':'+ Add Use Case','images':'Feature Images','faqs':'FAQs','leads':'Leads'};
   document.getElementById('add-btn').textContent = labels[t] || '+';
   document.getElementById('add-btn').style.display = (t==='images'||t==='faqs'||t==='leads') ? 'none' : 'inline-flex';
   render();
@@ -587,7 +580,7 @@ function switchTab(t) {
 // ── Stats ─────────────────────────────────────────────────────────
 function updateStats() {
   Promise.all([
-    sbGet('articles','select=id'),
+    cmsGetPosts({ limit: '1' }).then(function(r){ return r && r.data ? r.data : []; }).catch(function(){ return []; }),
     sbGet('videos','select=id,published,youtube_id'),
     sbGet('use_cases','select=id,published'),
     sbGet('feature_images','select=id,image_url'),
@@ -617,6 +610,8 @@ var CBG = {'AI':'rgba(167,139,250,.12)','Agile':'rgba(96,165,250,.1)','ChatGPT &
 // ── Safe article row builder (centralised so future edits cannot reintroduce innerHTML) ──
 function buildArticleRow(a, i) {
   var tr = document.createElement('tr');
+  var isPublished = !!a.published_at;
+  var isBlog = !!(a.content && a.content.trim());
 
   // Image cell
   var tdImg = document.createElement('td');
@@ -672,12 +667,25 @@ function buildArticleRow(a, i) {
   tdCat.appendChild(spanCat);
   tr.appendChild(tdCat);
 
-  // Date cell
-  var tdDate = document.createElement('td');
-  tdDate.style.fontFamily = "'DM Mono',monospace";
-  tdDate.style.fontSize = '.7rem';
-  tdDate.textContent = a.date || '\u2014';
-  tr.appendChild(tdDate);
+  // Status cell
+  var tdStatus = document.createElement('td');
+  var spanStatus = document.createElement('span');
+  spanStatus.className = 'published-badge ' + (isPublished ? 'pub-yes' : 'pub-no');
+  spanStatus.textContent = isPublished ? '\u25CF Published' : '\u25CB Draft';
+  tdStatus.appendChild(spanStatus);
+  tr.appendChild(tdStatus);
+
+  // Published date cell
+  var tdPub = document.createElement('td');
+  tdPub.style.fontFamily = "'DM Mono',monospace";
+  tdPub.style.fontSize = '.7rem';
+  if (a.published_at) {
+    var d = new Date(a.published_at);
+    tdPub.textContent = d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+  } else {
+    tdPub.textContent = '\u2014';
+  }
+  tr.appendChild(tdPub);
 
   // Actions cell
   var tdActions = document.createElement('td');
@@ -905,7 +913,8 @@ function buildLeadRow(l) {
 
 // ── Render tables ─────────────────────────────────────────────────
 function renderArticles() {
-  sbGet('articles').then(function(arts) {
+  cmsGetPosts({ limit: '100' }).then(function(res) {
+    var arts = res && res.data ? res.data : [];
     if (!Array.isArray(arts)) { arts = []; }
     window._cmsArticles = arts;
     document.getElementById('art-count').textContent = '(' + arts.length + ')';
@@ -914,9 +923,9 @@ function renderArticles() {
     if (arts.length === 0) {
       var trEmpty = document.createElement('tr');
       var tdEmpty = document.createElement('td');
-      tdEmpty.colSpan = 5;
+      tdEmpty.colSpan = 6;
       tdEmpty.className = 'empty-state';
-      tdEmpty.textContent = 'No articles yet. Click "+ Add Article" to create your first.';
+      tdEmpty.textContent = 'No blog posts yet. Click "+ Add Blog Post" to create your first.';
       trEmpty.appendChild(tdEmpty);
       tbody.appendChild(trEmpty);
     } else {
@@ -926,7 +935,7 @@ function renderArticles() {
     }
     updateStats();
   }).catch(function(err) {
-    showToast('Error loading articles: ' + (err && err.message ? err.message : ''), 'error');
+    showToast('Error loading posts: ' + (err && err.message ? err.message : ''), 'error');
   });
 }
 
@@ -1007,35 +1016,53 @@ window._cmsFaqsPricing = [];
 function showAdd() {
   document.getElementById('form-idx').value = '';
   document.getElementById('form-type').value = currentTab==='usecases'?'uc':currentTab==='videos'?'video':'article';
-  var labels = {'articles':'Add New Article','videos':'Add New Video','usecases':'Add New Use Case'};
+  var labels = {'articles':'Add New Blog Post','videos':'Add New Video','usecases':'Add New Use Case'};
   document.getElementById('form-heading').textContent = labels[currentTab] || 'Add New';
   resetFormFields();
   showFormView();
 }
 
 function editItem(type, id) {
-  var table = type === 'usecases' ? 'use_cases' : type === 'videos' ? 'videos' : 'articles';
   if (!id) { showToast('Cannot edit: missing item ID', 'error'); return; }
+  var t = type === 'usecases' ? 'uc' : type === 'videos' ? 'video' : 'article';
+  document.getElementById('form-idx').value = id;
+  document.getElementById('form-type').value = t;
+  document.getElementById('form-heading').textContent = 'Edit ' + (type === 'usecases' ? 'Use Case' : type === 'videos' ? 'Video' : 'Blog Post');
+  resetFormFields();
+
+  if (t === 'article') {
+    cmsGetPost(id).then(function(res) {
+      var item = res.data;
+      if (!item) { showToast('Post not found', 'error'); return; }
+      document.getElementById('f-title').value    = item.title || '';
+      document.getElementById('f-excerpt').value  = item.excerpt || '';
+      document.getElementById('f-category').value = item.category || '';
+      document.getElementById('f-date').value      = item.date || '';
+      document.getElementById('f-url').value       = item.url || '';
+      document.getElementById('f-content').value   = item.content || '';
+      document.getElementById('f-image').value     = item.image || '';
+      document.getElementById('f-published').checked = !!item.published_at;
+      if (item.published_at) {
+        var d = new Date(item.published_at);
+        var iso = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        document.getElementById('f-published-at').value = iso;
+      }
+      previewImg();
+      showFormView();
+    }).catch(function(err) {
+      showToast('Error loading post: ' + (err && err.message ? err.message : ''), 'error');
+    });
+    return;
+  }
+
+  var table = type === 'usecases' ? 'use_cases' : 'videos';
   sbGet(table, 'id=eq.' + id).then(function(rows) {
     if (!Array.isArray(rows) || rows.length === 0) {
       showToast('Item not found', 'error');
       return;
     }
     var item = rows[0];
-    var t = type === 'usecases' ? 'uc' : type === 'videos' ? 'video' : 'article';
-    document.getElementById('form-idx').value = item.id;
-    document.getElementById('form-type').value = t;
-    document.getElementById('form-heading').textContent = 'Edit ' + (type === 'usecases' ? 'Use Case' : type === 'videos' ? 'Video' : 'Article');
-    resetFormFields();
-    if (t === 'article') {
-      document.getElementById('f-title').value    = item.title || '';
-      document.getElementById('f-excerpt').value  = item.excerpt || '';
-      document.getElementById('f-category').value = item.category || '';
-      document.getElementById('f-date').value      = item.date || '';
-      document.getElementById('f-url').value       = item.url || '';
-      document.getElementById('f-image').value     = item.image || '';
-      previewImg();
-    } else if (t === 'video') {
+    if (t === 'video') {
       document.getElementById('fv-title').value  = item.title || '';
       document.getElementById('fv-desc').value   = item.description || '';
       document.getElementById('fv-url').value    = item.youtube_url || '';
@@ -1057,6 +1084,11 @@ function editItem(type, id) {
 
 function deleteItem(table, id) {
   if (!confirm('Delete this item? This cannot be undone.')) return;
+  if (table === 'articles') {
+    cmsDeletePost(id).then(function(){ render(); showToast('Deleted', 'success'); })
+      .catch(function(err){ showToast('Error deleting post: ' + (err && err.message ? err.message : ''), 'error'); });
+    return;
+  }
   sbDelete(table, id).then(function(){ render(); showToast('Deleted', 'success'); })
     .catch(function(err){ showToast('Error deleting item: ' + (err && err.message ? err.message : ''), 'error'); });
 }
@@ -1071,12 +1103,32 @@ function saveItem() {
     var title    = document.getElementById('f-title').value.trim();
     var excerpt  = document.getElementById('f-excerpt').value.trim();
     var category = document.getElementById('f-category').value;
-    var url      = document.getElementById('f-url').value.trim();
-    if (!title||!excerpt||!category||!url) { showToast('Fill in all required fields','error'); return; }
-    item = { id: id||'art-'+Date.now(), title:title, excerpt:excerpt, category:category,
-             date:document.getElementById('f-date').value.trim(),
-             url:url, image:document.getElementById('f-image').value.trim(), updated_at:now };
-    if (!id) item.created_at = now;
+    if (!title||!excerpt||!category) { showToast('Title, excerpt, and category are required','error'); return; }
+    var pubCheckbox = document.getElementById('f-published');
+    var pubAtVal = document.getElementById('f-published-at').value;
+    var published_at = pubCheckbox.checked ? (pubAtVal ? new Date(pubAtVal).toISOString() : now) : null;
+    item = {
+      title: title,
+      excerpt: excerpt,
+      category: category,
+      date: document.getElementById('f-date').value.trim(),
+      url: document.getElementById('f-url').value.trim() || null,
+      content: document.getElementById('f-content').value.trim() || null,
+      image: document.getElementById('f-image').value.trim() || null,
+      published_at: published_at
+    };
+    var savePromise;
+    if (id) {
+      savePromise = cmsUpdatePost(id, item);
+    } else {
+      item.id = 'post-' + Date.now();
+      savePromise = cmsCreatePost(item);
+    }
+    savePromise.then(function(){
+      showToast(id ? 'Post updated' : 'Post created', 'success');
+      switchTab(currentTab);
+    }).catch(function(e){ showToast('Save failed: ' + (e && e.message ? e.message : ''), 'error'); });
+    return;
   } else if (t==='video') {
     var vtitle = document.getElementById('fv-title').value.trim();
     if (!vtitle) { showToast('Video title is required','error'); return; }
@@ -1116,12 +1168,27 @@ function showFormView() {
 function cancelForm() { switchTab(currentTab); }
 
 function resetFormFields() {
-  ['f-title','f-excerpt','f-date','f-url','f-image','fv-title','fv-desc','fv-url','fv-ytid','fv-dur','fuc-title','fuc-body','fuc-icon'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
+  ['f-title','f-excerpt','f-date','f-url','f-image','f-content','fv-title','fv-desc','fv-url','fv-ytid','fv-dur','fuc-title','fuc-body','fuc-icon'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; });
   var p=document.getElementById('fv-pub'); if(p)p.checked=false;
   var q=document.getElementById('fuc-pub'); if(q)q.checked=false;
   var c=document.getElementById('f-category'); if(c)c.value='';
   var pr=document.getElementById('img-prev'); if(pr)pr.style.display='none';
   var cc=document.getElementById('fuc-color'); if(cc)cc.value='#a78bfa';
+  var pub=document.getElementById('f-published'); if(pub)pub.checked=false;
+  var pat=document.getElementById('f-published-at'); if(pat)pat.value='';
+  var up=document.getElementById('f-image-upload'); if(up)up.value='';
+}
+
+function handleImageUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  cmsUploadImage(file).then(function(res) {
+    document.getElementById('f-image').value = res.url;
+    previewImg();
+    showToast('Image uploaded', 'success');
+  }).catch(function(err) {
+    showToast('Upload failed: ' + (err && err.message ? err.message : ''), 'error');
+  });
 }
 
 function previewImg() {
@@ -1640,7 +1707,20 @@ function clearLeads() {
 function triggerImport(type) { document.getElementById('import-'+type).click(); }
 
 function exportData(type) {
-  var table = type==='articles'?'articles':type==='videos'?'videos':'use_cases';
+  if (type === 'articles') {
+    cmsGetPosts({ limit: '5000' }).then(function(res) {
+      var data = res && res.data ? res.data : [];
+      var a = document.createElement('a');
+      a.href = 'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+      a.download = 'brunelly-posts-'+new Date().toISOString().slice(0,10)+'.json';
+      a.click();
+      showToast('Exported','success');
+    }).catch(function(err){
+      showToast('Export failed: ' + (err && err.message ? err.message : ''), 'error');
+    });
+    return;
+  }
+  var table = type==='videos'?'videos':'use_cases';
   sbGet(table).then(function(data) {
     var a = document.createElement('a');
     a.href = 'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
@@ -1659,13 +1739,35 @@ function importData(event, type) {
     try {
       var data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('Invalid format');
-      var table = type==='articles'?'articles':type==='videos'?'videos':'use_cases';
-      sbUpsert(table, data).then(function(){
-        render();
-        showToast('Imported '+data.length+' items','success');
-      }).catch(function(err){
-        showToast('Import failed: ' + (err && err.message ? err.message : ''), 'error');
-      });
+      if (type === 'articles') {
+        var promises = data.map(function(item) {
+          return cmsCreatePost({
+            id: item.id || 'post-' + Date.now() + '-' + Math.round(Math.random()*1e9),
+            title: item.title,
+            excerpt: item.excerpt,
+            category: item.category,
+            url: item.url || null,
+            image: item.image || null,
+            content: item.content || null,
+            published_at: item.published_at || null,
+            date: item.date || null
+          });
+        });
+        Promise.all(promises).then(function(){
+          render();
+          showToast('Imported '+data.length+' posts','success');
+        }).catch(function(err){
+          showToast('Import failed: ' + (err && err.message ? err.message : ''), 'error');
+        });
+      } else {
+        var table = type==='videos'?'videos':'use_cases';
+        sbUpsert(table, data).then(function(){
+          render();
+          showToast('Imported '+data.length+' items','success');
+        }).catch(function(err){
+          showToast('Import failed: ' + (err && err.message ? err.message : ''), 'error');
+        });
+      }
     } catch(err) { showToast('Invalid JSON file','error'); }
   };
   reader.readAsText(file);
@@ -1684,13 +1786,27 @@ function showToast(msg, type) {
 
 // ── Seed initial data into Supabase ──────────────────────────────
 function seedIfEmpty() {
-  // Check if articles table is empty, if so seed from the built-in data
-  sbGet('articles','select=id&limit=1').then(function(rows) {
+  // Check if posts table is empty, if so seed from the built-in data via backend API
+  cmsGetPosts({ limit: '1' }).then(function(res) {
+    var rows = res && res.data ? res.data : [];
     if (Array.isArray(rows) && rows.length === 0) {
       console.log('Seeding articles...');
       var seed = window.ARTICLES_SEED || [];
       if (seed.length > 0) {
-        sbUpsert('articles', seed).then(function(){ console.log('Articles seeded'); render(); })
+        var promises = seed.map(function(item) {
+          return cmsCreatePost({
+            id: item.id,
+            title: item.title,
+            excerpt: item.excerpt,
+            category: item.category,
+            url: item.url || null,
+            image: item.image || null,
+            content: item.content || null,
+            published_at: item.published_at || null,
+            date: item.date || null
+          });
+        });
+        Promise.all(promises).then(function(){ console.log('Articles seeded'); render(); })
           .catch(function(err){ console.error('Error seeding articles:', err); });
       }
     }
@@ -1786,6 +1902,14 @@ function init() {
   var pricingFaqTbody = document.getElementById('pricing-faq-tbody');
   if (hubFaqTbody) hubFaqTbody.addEventListener('click', handleFaqClick);
   if (pricingFaqTbody) pricingFaqTbody.addEventListener('click', handleFaqClick);
+
+  window.addEventListener('cms:sessionExpired', function() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    var errEl = document.getElementById('login-err');
+    errEl.textContent = 'Session expired. Please sign in again.';
+    errEl.style.display = 'block';
+  });
 }
 
 // init() is called by requireAuthAndRole() after successful session + role check
