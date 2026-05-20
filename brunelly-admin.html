@@ -580,19 +580,19 @@ function switchTab(t) {
 // ── Stats ─────────────────────────────────────────────────────────
 function updateStats() {
   Promise.all([
-    cmsGetPosts({ limit: '1' }).then(function(r){ return r && r.data ? r.data : []; }).catch(function(){ return []; }),
+    cmsGetPosts({ limit: '1' }).then(function(r){ return r && typeof r.count === 'number' ? r.count : (r && r.data ? r.data.length : 0); }).catch(function(){ return 0; }),
     sbGet('videos','select=id,published,youtube_id'),
     sbGet('use_cases','select=id,published'),
     sbGet('feature_images','select=id,image_url'),
     sbGet('hero_images','select=id,image_url'),
   ]).then(function(results) {
-    var arts  = Array.isArray(results[0]) ? results[0] : [];
+    var artCount = typeof results[0] === 'number' ? results[0] : 0;
     var vids  = Array.isArray(results[1]) ? results[1] : [];
     var ucs   = Array.isArray(results[2]) ? results[2] : [];
     var fimgs = Array.isArray(results[3]) ? results[3] : [];
     var himgs = Array.isArray(results[4]) ? results[4] : [];
     var s = document.getElementById.bind(document);
-    s('s-articles').textContent = arts.length;
+    s('s-articles').textContent = artCount;
     s('s-videos-live').textContent = vids.filter(function(v){return v.published&&v.youtube_id;}).length;
     s('s-videos-soon').textContent = vids.filter(function(v){return !v.published||!v.youtube_id;}).length;
     s('s-uc-live').textContent = ucs.filter(function(u){return u.published;}).length;
