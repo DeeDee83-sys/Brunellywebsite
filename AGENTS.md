@@ -9,12 +9,15 @@ code/
 ├── *.html              # Static pages (public site, articles, features, CMS, analytics)
 ├── supabase-config.js  # Centralised Supabase client configuration (URL + anon key)
 ├── supabase-auth.js    # Shared Supabase Auth client + role helpers
+├── cms-api.js          # Frontend CMS API client (Story 48)
 ├── faq-renderer.js     # Shared safe FAQ accordion renderer (createElement + textContent)
 ├── error-handler.js    # Shared error-handling: logging, toast, fetch retry (Bug 11)
 ├── brunelly-supabase-setup.sql  # Database schema, tables, RLS policies, seed data
 ├── *.png               # Image assets
 ├── sitemap.xml, robots.txt, llms.txt
 ├── brunelly-responsive.css  # Shared responsive stylesheet (Story 42)
+├── static/             # Static assets (blog images uploaded via CMS)
+├── server/             # Node.js CMS backend API (Story 48)
 ├── tests/              # Automated regression tests (node --test)
 └── AGENTS.md           # This file
 ```
@@ -95,31 +98,24 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 **Bug 5: Stored XSS Vulnerability via innerHTML in FAQ Rendering on Public Pages**
 - **Status**: Complete — branch `bug/5-stored-xss-vulnerability-via-innerhtml`.
-- **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `brunelly-features-hub.html` and `brunelly-pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved. Added `id="pricing-faq-list"` to the pricing page FAQ container so the dynamic loader correctly replaces static fallback markup instead of silently failing.
-- **Step 2 (Complete)**: Extracted `renderSafeFaqItem(list, faq)` into a shared `faq-renderer.js` module loaded by both public pages. This eliminates duplication and ensures future FAQ fields cannot be accidentally added with `innerHTML`; both visible text and `data-faq-id` attributes are handled safely through the single centralised helper.
-- **Step 3 (Complete)**: Hardened the CMS/admin FAQ create/update flow with defense in depth. Added `stripHtml()` helper to `brunelly-admin.html` and applied it in `saveFaq()` to sanitize question and answer inputs before persistence. Added length validation (question ≤ 500 chars, answer ≤ 5,000 chars) with user-visible toast errors. Refactored `renderFaqs()` to build the admin FAQ table using safe DOM construction (`createElement` + `textContent` + `setAttribute`), eliminating `innerHTML` entirely for untrusted content.
-- **Step 4 (Complete)**: Verified `brunelly-supabase-setup.sql` RLS policies for the `faqs` table. Public `SELECT` is enabled for public page display. `INSERT`/`UPDATE`/`DELETE` are restricted to authenticated `admin`/`content_editor` roles via `user_has_role()`. No public/anon write policy exists.
-- **Step 5 (Complete)**: Added `tests/faq-render.test.js` with mock-DOM XSS regression tests that exercise the actual production `faq-renderer.js` helper. Tests assert malicious question/answer payloads (`<script>`, `<img onerror>`) render as inert text with zero `innerHTML` usage, and that dangerous `data-faq-id` values are stored literally via `setAttribute`. Existing `tests/rls-policies.test.js` already validates `faqs` denies anonymous writes.
+- Replaced `innerHTML` with safe DOM construction in public FAQ renderers; extracted shared `faq-renderer.js`.
+- Hardened admin FAQ create/update with `stripHtml()`, length validation, and safe DOM table builders.
+- Added `tests/faq-render.test.js` XSS regression tests.
 
 **Bug 6: Stored XSS Vulnerability via Unescaped Single Quotes in Admin Edit Button onclick Handler**
 - **Status**: Resolved on branch `bug/6-stored-xss-vulnerability-via-unescaped`.
-- **Step 1 (Complete)**: Verified that the vulnerable JSON-in-onclick pattern was already eliminated in earlier bug-fix work. `buildArticleRow()` and all other table row builders pass only safe identifiers (`data-action`, `data-type`, `data-index`, `data-id`) via `setAttribute`; event delegation in `handleTableClick()` invokes `editItem()` without embedding any user-controlled data or JSON blobs in HTML attributes.
-- **Step 2 (Complete)**: Refactored `editItem()` to fetch fresh data from Supabase by ID on every edit click. The function now accepts `type` and `id`, queries the relevant table via `sbGet(table, 'id=eq.' + id)`, and populates the edit form from the returned record. The client-side caches (`window._cmsArticles`, `window._cmsVideos`, `window._cmsUseCases`) are no longer used for edit form data, ensuring stale or poisoned cache entries cannot affect the edit flow. Added `data-id` to Edit buttons in `buildArticleRow()`, `renderVideos()`, and `renderUseCases()`. Removed the unused `_currentItems` variable. Added `.catch()` error handling with `showToast` so Supabase fetch failures are visible to the user.
-- **Step 3 (Complete)**: Hardened all remaining admin tables that built rows with `innerHTML` string concatenation. Introduced `buildVideoRow()`, `buildUseCaseRow()`, and `buildLeadRow()` helpers that construct every table cell with `document.createElement`, `textContent`, and `setAttribute`. Refactored `renderVideos()`, `renderUseCases()`, and `renderLeads()` to append rows via safe DOM builders instead of `innerHTML`. Refactored `renderImages()` and `renderHeroImages()` from `innerHTML` string building to safe DOM construction for all thumbnails, labels, badges, hints, inputs, and buttons. Added `.catch()` error handling with `showToast` to all refactored renderers. No user-controlled values in `brunelly-admin.html` now pass through `innerHTML`.
+- Eliminated JSON-in-onclick pattern via event delegation and `data-*` attributes.
+- Refactored `editItem()` to fetch fresh data by ID from Supabase instead of using client-side caches.
+- Hardened all admin table renderers to safe DOM construction (`buildVideoRow`, `buildUseCaseRow`, `buildLeadRow`).
 
 **Bug 7: Duplicate clearLeads function causes Supabase delete operation to be skipped**
 - **Status**: Resolved on branch `bug/7-duplicate-clearleads-function-causes-supabase`.
-- The duplicate `clearLeads` definition that overwrote the Supabase DELETE implementation was originally merged in commit `563b475` (Bug 2 Step 5c). This branch adds defensive UX hardening.
-- **Step 1 (Complete)**: Added `id="clear-leads-btn"` to the Clear all button and wired `clearLeads()` to disable the button (`disabled = true`) while the Supabase delete operation is in flight, preventing accidental double-submission.
-- **Step 2 (Complete)**: Added `.finally()` to the `sbDelete('leads')` promise chain to re-enable the button (`disabled = false`) regardless of success or failure, ensuring the UI is never left in a permanently disabled state.
-- The existing confirmation prompt, Supabase-first deletion, localStorage cleanup only on success, success/error toasts, and `.catch()` error handling were already in place from prior hardening and remain unchanged.
+- Added button disable/enable during `clearLeads()` Supabase delete to prevent double-submission.
 
 **Bug 8: Contact form non-functional due to missing form structure and submit handling**
 - **Status**: Resolved on branch `bug/8-contact-form-non-functional-due-to`.
-- **Step 1 (Complete)**: Converted the contact form UI shell in `brunelly-contact.html` into a real HTML form. Added `<form id="contact-form">`, stable `id`/`name` attributes, associated labels with `for`, accessibility attributes (`autocomplete`, `required`), and `type="submit"` on the button.
-- **Step 2 (Complete)**: Implemented client-side submission handling. Added `showToast` helper consistent with `brunelly-admin.html`, submit event listener with validation (required fields, email regex, length limits), button disable/enable during request, and success/error toast feedback.
-- **Step 3 (Complete)**: Wired the form submission to the Supabase `leads` table via `fetch` POST to `window.SUPA_URL + '/rest/v1/leads'` using the established header pattern (`apikey`, `Authorization`, `Prefer: return=minimal`). Payload includes `name`, `email`, `company`, `message`, `source: 'contact-form'`, and `page: window.location.pathname`. Project type is appended to the message when provided. Non-2xx responses and network failures surface user-visible error toasts; the button is re-enabled via `.finally()`.
-- **Step 4 (Complete)**: Added automated regression coverage in `tests/contact-form.test.js`. Tests assert the HTML contains a proper form with expected inputs and verify the submission script targets the correct endpoint, constructs a safe payload, and handles errors appropriately (no real Supabase connectivity required).
+- Converted `brunelly-contact.html` shell into a real accessible form with validation, Supabase `leads` POST, and toast feedback.
+- Added `tests/contact-form.test.js` regression coverage.
 
 **Bug 9: Stored XSS vulnerability in analytics dashboard via unsafe innerHTML rendering**
 - **Status**: Resolved on branch `bug/9-stored-xss-vulnerability-in-analytics`.
@@ -212,7 +208,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/42-implement-mobile-responsive-design-for` (Story 42 — current).
+- Active branches: `feature/48-create-and-securely-enhance-cms` (Story 48 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
@@ -229,9 +225,19 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - Mobile nav accessibility: `brunelly-nav-a11y.js` (linked from all public pages) provides Escape/click-outside dismissal, focus trapping, and ARIA sync. Drawer has `role="dialog"`, `aria-modal`, `aria-hidden`; hamburger has `aria-expanded`, `aria-controls`; group toggle has `aria-expanded`, `aria-controls`. Smooth `opacity`/`translateY` transition on open/close.
 - Scope excludes `brunelly-admin.html` and `brunelly-analytics.html`.
 
+### Story 48: Create and Securely Enhance CMS for Managing Blog Posts
+- Replaced direct browser-to-Supabase writes for blog posts with a secure Node.js backend API (`server/index.js`).
+- Backend endpoints: `POST /cms/login` (HTTP-only cookie session), `GET/POST /cms/posts`, `PUT/DELETE /cms/posts/:id`, `POST /cms/upload`.
+- Frontend module `cms-api.js` centralises all backend communication with automatic 401 session expiry handling.
+- `brunelly-admin.html` "Articles" tab evolved into "Blog Posts" with new fields: `content` (rich body), `published_at` (draft/publish toggle), and image upload.
+- Static assets served from `static/blog-images/`; upload endpoint validates image mimetypes and size (5MB max).
+- Database: added `content TEXT` and `published_at TIMESTAMPTZ` to `articles` table.
+- Safe DOM construction preserved; no user-controlled values pass through `innerHTML`.
+
 ## Deployment Notes
 
 - The Supabase anon key in `supabase-config.js` is a placeholder.
 - Before production deployment, generate a new anon key in the Supabase dashboard and update the placeholder value.
+- The server `.env` requires a real `SUPABASE_SERVICE_ROLE_KEY` and a strong `JWT_SECRET`.
 - Verify the old leaked key `sb_publishable_Dwq-UtleJ8vEKYDpCV4TuQ_GneAVjTD` is revoked in Supabase.
 - Create users via the Supabase Auth dashboard, then insert matching rows into `profiles` with the appropriate role.
