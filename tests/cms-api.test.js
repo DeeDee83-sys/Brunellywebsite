@@ -4,7 +4,7 @@ const assert = require('node:assert');
 // Minimal DOM / window globals for cms-api.js
 if (typeof window === 'undefined') {
   global.window = {
-    CMS_API_BASE: 'http://localhost:3001',
+    CMS_API_BASE: '',
     addEventListener: function() {},
     dispatchEvent: function() {}
   };
@@ -34,11 +34,11 @@ describe('cms-api.js', function() {
         ok: true,
         status: 200,
         json: function() {
-          if (url.indexOf('/cms/login') !== -1) return Promise.resolve({ success: true, role: 'admin' });
-          if (url.indexOf('/cms/session') !== -1) return Promise.resolve({ authenticated: true, role: 'admin' });
-          if (url.indexOf('/cms/posts') !== -1 && url.indexOf('/cms/posts/') === -1) return Promise.resolve({ data: [{ id: 'p1', title: 'Test' }], count: 1 });
-          if (url.indexOf('/cms/posts/p1') !== -1) return Promise.resolve({ data: { id: 'p1', title: 'Test' } });
-          if (url.indexOf('/cms/upload') !== -1) return Promise.resolve({ url: '/static/blog-images/img.png' });
+          if (url.indexOf('/api/cms-login.php') !== -1) return Promise.resolve({ success: true, role: 'admin' });
+          if (url.indexOf('/api/cms-session.php') !== -1) return Promise.resolve({ authenticated: true, role: 'admin' });
+          if (url.indexOf('/api/cms-posts.php') !== -1 && url.indexOf('/api/cms-post.php') === -1) return Promise.resolve({ data: [{ id: 'p1', title: 'Test' }], count: 1 });
+          if (url.indexOf('/api/cms-post.php?id=p1') !== -1) return Promise.resolve({ data: { id: 'p1', title: 'Test' } });
+          if (url.indexOf('/api/cms-upload.php') !== -1) return Promise.resolve({ url: '/static/blog-images/img.png' });
           return Promise.resolve({});
         }
       });
@@ -81,13 +81,13 @@ describe('cms-api.js', function() {
   it('cmsUpdatePost sends PUT with id in URL', async function() {
     await window.cmsUpdatePost('p1', { title: 'Updated' });
     assert.strictEqual(lastCall.options.method, 'PUT');
-    assert.ok(lastCall.url.indexOf('/cms/posts/p1') !== -1);
+    assert.ok(lastCall.url.indexOf('/api/cms-post.php?id=p1') !== -1);
   });
 
   it('cmsDeletePost sends DELETE with id in URL', async function() {
     await window.cmsDeletePost('p1');
     assert.strictEqual(lastCall.options.method, 'DELETE');
-    assert.ok(lastCall.url.indexOf('/cms/posts/p1') !== -1);
+    assert.ok(lastCall.url.indexOf('/api/cms-post.php?id=p1') !== -1);
   });
 
   it('cmsUploadImage sends POST with file payload', async function() {

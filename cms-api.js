@@ -7,7 +7,7 @@
 (function() {
   'use strict';
 
-  var API_BASE = window.CMS_API_BASE || 'http://localhost:3001';
+  var API_BASE = window.CMS_API_BASE || '';
   var DEFAULT_RETRY = 2;
 
   function resolveUrl(path) {
@@ -55,15 +55,15 @@
 
   // ── Auth ──────────────────────────────────────────────────────────
   window.cmsLogin = function(email, password) {
-    return apiFetch('/cms/login', { method: 'POST', body: { email: email, password: password } });
+    return apiFetch('/api/cms-login.php', { method: 'POST', body: { email: email, password: password } });
   };
 
   window.cmsLogout = function() {
-    return apiFetch('/cms/logout', { method: 'POST' });
+    return apiFetch('/api/cms-logout.php', { method: 'POST' });
   };
 
   window.cmsCheckSession = function() {
-    return apiFetch('/cms/session', { method: 'GET' });
+    return apiFetch('/api/cms-session.php', { method: 'GET' });
   };
 
   // ── Posts (Blog Posts) ────────────────────────────────────────────
@@ -78,30 +78,30 @@
       if (params.offset) parts.push('offset=' + encodeURIComponent(params.offset));
       if (parts.length) qs = '?' + parts.join('&');
     }
-    return apiFetch('/cms/posts' + qs, { method: 'GET' });
+    return apiFetch('/api/cms-posts.php' + qs, { method: 'GET' });
   };
 
   window.cmsGetPost = function(id) {
-    return apiFetch('/cms/posts/' + encodeURIComponent(id), { method: 'GET' });
+    return apiFetch('/api/cms-post.php?id=' + encodeURIComponent(id), { method: 'GET' });
   };
 
   window.cmsCreatePost = function(payload) {
-    return apiFetch('/cms/posts', { method: 'POST', body: payload });
+    return apiFetch('/api/cms-posts.php', { method: 'POST', body: payload });
   };
 
   window.cmsUpdatePost = function(id, payload) {
-    return apiFetch('/cms/posts/' + encodeURIComponent(id), { method: 'PUT', body: payload });
+    return apiFetch('/api/cms-post.php?id=' + encodeURIComponent(id), { method: 'PUT', body: payload });
   };
 
   window.cmsDeletePost = function(id) {
-    return apiFetch('/cms/posts/' + encodeURIComponent(id), { method: 'DELETE' });
+    return apiFetch('/api/cms-post.php?id=' + encodeURIComponent(id), { method: 'DELETE' });
   };
 
   // ── Upload ────────────────────────────────────────────────────────
   window.cmsUploadImage = function(file) {
     var formData = new FormData();
     formData.append('image', file);
-    return apiFetch('/cms/upload', { method: 'POST', body: formData });
+    return apiFetch('/api/cms-upload.php', { method: 'POST', body: formData });
   };
 
   // ── Helpers ───────────────────────────────────────────────────────
