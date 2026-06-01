@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home3/etuwvsmy/public_html
+    - /usr/bin/rsync -r --exclude='.well-known' . $DEPLOYPATH
