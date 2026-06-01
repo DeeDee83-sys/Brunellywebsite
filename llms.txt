@@ -1,25 +1,118 @@
 # Brunelly
-> AI-native software development platform for SMEs and enterprises building complex software.
 
-Brunelly gives engineering teams a single source of context across the full delivery lifecycle — from requirements and architecture through to code generation, reviews, testing, and collaboration. Unlike generic AI coding tools, Brunelly understands your entire codebase and keeps that context persistent across every sprint.
+> Brunelly is the AI-native software delivery platform that orchestrates the full engineering lifecycle — planning, code generation, testing, code review, and security — in one unified, persistent-context system. Built for engineering teams that need to scale complex, long-lived software.
 
-## What Brunelly does
-- Reads and maps your codebase (brownfield and greenfield) to build a persistent context model
-- Generates AI-powered backlogs, user stories, and sprint plans grounded in your real architecture
-- Produces iterative, context-aware code with human approval gates at every step
-- Runs automated code reviews, security scanning, bug detection, and test generation
-- Provides AI expert chat and team collaboration tools — all sharing the same project context
+## What is Brunelly?
 
-## Who it is for
-- Engineering teams at SMEs and enterprises building complex software
-- Teams working on brownfield (legacy) codebases who need context-aware AI assistance
-- Organisations that need AI across the full delivery lifecycle, not just autocomplete
+Brunelly is an AI-native delivery platform that connects every stage of software delivery into one orchestrated system. It replaces fragmented AI tools (separate planning tools, coding assistants, test generators, review tools) with a single platform where all agents share one persistent understanding of your project — your architecture, your business goals, your decisions, your history.
 
-## Key differentiators
-- Single source of context shared across all features and all team members
-- Built for complexity — works on real production codebases, not side projects
-- Human approval gates at every AI generation step — engineers stay in control
-- Gets smarter over time as it learns more about your system
+Brunelly is purpose-built for complexity: teams working with brownfield codebases, multi-team enterprises, and SMEs scaling their engineering function. It is not a general-purpose coding assistant — it is a full lifecycle orchestration platform.
+
+Currently in Beta. Free to start. Works with existing stacks. Setup in under 5 minutes.
+
+## Core Differentiator: Single Persistent Context
+
+Unlike GitHub Copilot, Cursor, or other AI coding tools that operate per-file or per-session, Brunelly maintains a single source of context across every stage of delivery. Business goals, architectural decisions, sprint history, codebase patterns — all unified. Every agent (Planner, Code, QA, Security) works from the same deep understanding, eliminating context loss between tool switches.
+
+## Five Core Capabilities
+
+### Understand (Codebase Intelligence)
+Brunelly ingests your repository, your goals, and your constraints. It builds a deep, persistent understanding of your project — including undocumented decisions, architectural patterns, and technical debt. New engineers onboard faster because Brunelly carries the institutional knowledge.
+
+### Plan (AI Sprint Planning)
+Generates structured epics, stories, and tasks grounded in your actual system — not generic templates. Business goals and technical constraints are unified from the very first sprint. Backlogs reflect your real architecture and delivery priorities.
+
+### Build (Context-Aware Code Generation)
+Generates pull requests that fit your architecture, patterns, and prior decisions — whether you are building on a greenfield stack or extending a complex brownfield system. Code is generated with full awareness of what was decided upstream. No re-briefing. No drift.
+
+### Quality (Contextual Testing)
+Generates test suites that reflect how your software actually behaves — the edge cases that matter in your domain and the quality standards your organisation holds. Tests are written against your system, not a textbook.
+
+### Review (Architecture-Aware Code Review)
+Every PR is reviewed with awareness of your full architecture, security requirements, and the decisions that led to the current state. Catches what context-blind tools miss — cross-cutting concerns, pattern violations, and security implications tied to your specific system.
+
+## Who Brunelly Is For
+
+- **Growing SMEs**: Engineering teams scaling fast, adding engineers, managing growing complexity. Brunelly keeps architecture intact and teams aligned without constant re-alignment meetings.
+- **Enterprise engineering organisations**: Large teams managing complex systems, multiple codebases, years of accumulated decisions. Brunelly becomes the institutional memory that keeps everyone aligned across teams and time.
+- **Teams working with legacy systems**: Existing codebases with years of history, undocumented decisions, and technical debt. Brunelly learns your codebase from the ground up before suggesting what should change.
+
+## What Problem Brunelly Solves
+
+Most engineering teams use AI tools. Almost none can prove they are working — because those tools are fragmented. Business goals live in one tool. Code gets written in another. Tests in a third. Reviews in a fourth. Every tool switch loses context. In complex systems, lost context means misalignment, rework, and decisions that contradict what came before.
+
+Brunelly is the connective tissue: one AI platform that holds every stage together. Planning, code, testing, reviews, and security — governed, auditable, and always aware of the full picture.
+
+## Key Features
+
+- Persistent project context shared across all agents
+- Greenfield and brownfield codebase support
+- AI-generated epics, stories, tasks aligned to real architecture
+- Context-aware pull request generation
+- Domain-specific test suite generation
+- Full-architecture PR review (not just diff-level review)
+- Expert Chat: ask architecture questions with full project context
+- Security scanning with awareness of your system's sensitive areas
+- Institutional knowledge preservation and transfer
+- Governed, auditable delivery pipeline
+
+## Agents
+
+- **Planner Agent**: Plans against your real goals and system constraints
+- **Code Agent**: Writes code that fits your architecture because it has learned it deeply
+- **QA Agent**: Tests aligned to how your system actually behaves
+- **Security Agent**: Catches what matters in your system because it knows what is sensitive
+- **Expert Chat**: A senior tech lead who knows every corner of your system — answer architecture questions, challenge design decisions, explore trade-offs
+
+## Integrations and Stack Compatibility
+
+Works with your existing stack. Compatible with all major programming languages and frameworks. Connects to your repository via standard integrations.
+
+## Pricing
+
+Free to start. No credit card required. Beta Pilot available — book via calendly.com/vinoj-pinavida/30min.
+
+## Company Information
+
+- **Product**: Brunelly — AI-native delivery platform for engineering teams
+- **Status**: Beta (early access programme open)
+- **Website**: https://brunelly.com
+- **Twitter/X**: @BrunellyAI
+- **LinkedIn**: linkedin.com/company/brunelly
+- **Reddit**: reddit.com/r/Brunelly
+- **Discord**: discord.gg/cWfNSXzQjr
+- **Blog**: medium.com/@dhilushi_perusinghe
+- **Developer community**: dev.to/brunelly_ai
+- **Contact / Demo**: https://brunelly.com/brunelly-contact.html
+- **Book a call**: https://calendly.com/vinoj-pinavida/30min
+
+## Frequently Asked Questions
+
+**What makes Brunelly different from GitHub Copilot or Cursor?**
+Copilot and Cursor are coding assistants that help write code at the file or function level, with no knowledge of your broader system. Brunelly is a full lifecycle delivery platform — it knows your architecture, your history, your goals, and your constraints across planning, coding, testing, and review. The context is persistent and shared across every agent.
+
+**Does Brunelly work with existing codebases?**
+Yes. Brunelly is specifically designed for brownfield systems. It learns your codebase from the ground up — understanding undocumented decisions, existing patterns, and technical debt — before generating any code or plans.
+
+**Is Brunelly only for large enterprises?**
+No. Brunelly serves both SMEs scaling fast and large enterprise engineering organisations. It is not suited for side projects or prototypes — it is for teams building software that has to scale and that carries real engineering complexity.
+
+**How long does setup take?**
+Under 5 minutes. Connect your repo, define your goals and constraints, and Brunelly begins building its understanding of your project.
+
+**How does Brunelly handle security?**
+The Security Agent reviews code with awareness of your specific system — knowing which areas are sensitive, which patterns are approved, and what your security requirements are. This is contextual security review, not generic static analysis.
+
+**What happens when the team grows or changes?**
+New team members onboard faster because Brunelly carries the institutional knowledge — the decisions, patterns, and context that would otherwise take weeks to transfer informally.
+
+## Glossary
+
+- **Brownfield codebase**: An existing software system with accumulated history, technical debt, and undocumented decisions. Brunelly is purpose-built for this.
+- **Greenfield**: A new project built from scratch. Brunelly supports both.
+- **Persistent context**: Brunelly's defining characteristic — a shared, evolving understanding of your project that persists across all stages and agents.
+- **System 2 thinking** (industry term used by competitors): Deliberate, careful reasoning rather than fast pattern-matching. Brunelly's contextual approach embodies this at the platform level.
+- **GEO / LLMO**: Generative Engine Optimization / LLM Optimization. The practice of structuring digital presence so AI systems cite and recommend a brand. Brunelly is actively building this capability.
 
 ## Pricing
 - Starter: Free, 1-3 users, 1 project
@@ -41,9 +134,3 @@ GitHub, GitLab, Azure DevOps, Bitbucket
 - Pricing: https://brunelly.com/pricing/
 - Resources and articles: https://brunelly.com/resources/
 - Contact: https://brunelly.com/contact/
-
-## Optional: pages AI models may skip
-- /privacy/
-- /cookies/
-- /terms/
-- /admin/
