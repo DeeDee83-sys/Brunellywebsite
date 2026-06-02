@@ -29,12 +29,12 @@
 <meta property="og:title" content="I Built a Compiler in Five Days with Claude AI | Brunelly">
 <meta property="og:description" content="This exercise was both for fun and a necessity. The orchestration system powering Brunelly, my AI tool, had gotten messy. ">
 <meta property="og:url" content="https://brunelly.com/compiler-built-with-claude-ai/">
-<meta property="og:image" content="https://scrumbuddy.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg">
+<meta property="og:image" content="https://brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg">
 <meta property="og:site_name" content="Brunelly">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@BrunellyAI">
 <meta name="twitter:title" content="I Built a Compiler in Five Days with Claude AI">
-<meta name="twitter:image" content="https://scrumbuddy.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg">
+<meta name="twitter:image" content="https://brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@200;300;400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -146,7 +146,7 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
   "headline": "I Built a Compiler in Five Days with Claude AI",
   "description": "This exercise was both for fun and a necessity. The orchestration system powering Brunelly, my AI tool, had gotten messy.",
   "url": "https://brunelly.com/compiler-built-with-claude-ai/",
-  "image": "https://scrumbuddy.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg",
+  "image": "https://brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg",
   "datePublished": "September 2025",
   "author": {
     "@type": "Person",
@@ -284,7 +284,7 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
   </div>
 </div>
 
-<div class="article-cover"><img src="https://scrumbuddy.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg" alt="I Built a Compiler in Five Days with Claude AI" /></div>
+<div class="article-cover"><img src="https://brunelly.com/wp-content/uploads/2025/09/I-Built-a-Compiler-in-Five-Days-with-Claude-AI-1.jpg" alt="I Built a Compiler in Five Days with Claude AI" /></div>
 
 <div class="article-body">
 
@@ -320,7 +320,7 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
 <h3><b>The Final Slog</b></h3>
 <p>The last day was assembly output. Compared to AST expression parsing this was the easy bit. Generate some strings with some registers, deal with depth tracking and debug.</p><p>The coding wasn’t that hard – testing it was. As we wrote more advanced programs, my debug logging grew to billions of log entries that were incomprehensible.</p><p>This is where Claude proved itself.</p><p>First, it wrote me a complex test script in my own programming language to deal with various  scenarios – recursive calls, nesting, complex expressions, etc.</p><p><img style="width:100%;border-radius:10px;margin:1.5rem 0;border:1px solid rgba(255,255,255,.07);" src="https://brunelly.com/wp-content/uploads/2025/09/20f9fa22-171c-418d-909a-157570978c7e_936x1059.webp" sizes="(max-width: 936px) 100vw, 936px" srcset="https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/20f9fa22-171c-418d-909a-157570978c7e_936x1059.webp?w=936&amp;ssl=1 936w, https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/20f9fa22-171c-418d-909a-157570978c7e_936x1059.webp?resize=265%2C300&amp;ssl=1 265w, https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/20f9fa22-171c-418d-909a-157570978c7e_936x1059.webp?resize=905%2C1024&amp;ssl=1 905w, https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/20f9fa22-171c-418d-909a-157570978c7e_936x1059.webp?resize=768%2C869&amp;ssl=1 768w" alt="" width="936" height="1059" /></p><p><b>Picture: Claude Code’s Cogniscript test suite</b></p><p>This led to revealing dozens of bugs that were difficult to trace and couldn’t be reproduced with single line tests.</p><p>Claude’s ability to digest the output assembly was a huge time saver – root causes of bugs were found in minutes, not hours, and fixes often took me seconds when I understood the cause.</p><p>Just before 5pm on day five we were done. The test suite passed. We had a full programming language, compiler, assembler, virtual machine and stdlib. We were done.</p><p><img style="width:100%;border-radius:10px;margin:1.5rem 0;border:1px solid rgba(255,255,255,.07);" src="https://brunelly.com/wp-content/uploads/2025/09/d602bcfa-02d8-4296-bbd4-c521f99fb964_936x480.webp" sizes="(max-width: 936px) 100vw, 936px" srcset="https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/d602bcfa-02d8-4296-bbd4-c521f99fb964_936x480.webp?w=936&amp;ssl=1 936w, https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/d602bcfa-02d8-4296-bbd4-c521f99fb964_936x480.webp?resize=300%2C154&amp;ssl=1 300w, https://i0.wp.com/brunelly.com/wp-content/uploads/2025/09/d602bcfa-02d8-4296-bbd4-c521f99fb964_936x480.webp?resize=768%2C394&amp;ssl=1 768w" alt="" width="936" height="480" /> <b>Picture: Claude was pretty happy with itself too</b></p>
 <h3><b>The Takeaway</b></h3>
-<p>This wasn’t about testing AI and it’s capabilities, this was about solving a real business problem; scripting AI flows as first-class citizens inside our orchestrator. You’re not going to vibe code yourself to a compiler, but AI tooling is the biggest change I’ve seen in 30+ years of being a dev. You need to know how to get the most out of it for you. For me, Claude works best as an authoritative sparring partner rather than a developer.  This project would have taken twice as long without Claude – and that’s huge. But no, it can’t write a production-ready compiler all by itself. Whether you’re orchestrating AI manually or context engineering yourself – it’s all about knowing how to use the tools you have in the best way. Where are your gaps? Where do you need support? Where do you work well? Don’t forget, it’s going to look very different if you’re a junior developer compared to a tech lead. This project was all about delivering real value. This orchestration platform is the backbone of <a href="https://brunelly.com/">Brunelly</a>. How we manage flows through different agents is the difference between us creating a tool that ships real code for customers versus just being another vibe-coding wrapper. We can now iterate and test more advanced AI flows faster than ever and that gives us the chance to respond to our users. That’s what AI tooling should ultimately be about. You can test Brunelly’s orchestration now. <a href="https://app.scrumbuddy.com/">Trial our beta product</a> and experience what AI development should ultimately be about.</p>
+<p>This wasn’t about testing AI and it’s capabilities, this was about solving a real business problem; scripting AI flows as first-class citizens inside our orchestrator. You’re not going to vibe code yourself to a compiler, but AI tooling is the biggest change I’ve seen in 30+ years of being a dev. You need to know how to get the most out of it for you. For me, Claude works best as an authoritative sparring partner rather than a developer.  This project would have taken twice as long without Claude – and that’s huge. But no, it can’t write a production-ready compiler all by itself. Whether you’re orchestrating AI manually or context engineering yourself – it’s all about knowing how to use the tools you have in the best way. Where are your gaps? Where do you need support? Where do you work well? Don’t forget, it’s going to look very different if you’re a junior developer compared to a tech lead. This project was all about delivering real value. This orchestration platform is the backbone of <a href="https://brunelly.com/">Brunelly</a>. How we manage flows through different agents is the difference between us creating a tool that ships real code for customers versus just being another vibe-coding wrapper. We can now iterate and test more advanced AI flows faster than ever and that gives us the chance to respond to our users. That’s what AI tooling should ultimately be about. You can test Brunelly’s orchestration now. <a href="https://app.brunelly.com/">Trial our beta product</a> and experience what AI development should ultimately be about.</p>
   </div>
 
   <div class="article-nav">
@@ -592,6 +592,7 @@ if(!localStorage.getItem('brunelly_cookie_consent'))document.getElementById('coo
 <script src="brunelly-nav-a11y.js"></script>
 </body>
 </html>
+
 
 
 
