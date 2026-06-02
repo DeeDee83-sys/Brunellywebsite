@@ -1,5 +1,37 @@
 
 
+# 301 redirects for renamed pages (brunelly- prefix removed)
+Redirect 301 /brunelly-admin /admin
+Redirect 301 /brunelly-analytics /analytics
+Redirect 301 /brunelly-contact /contact
+Redirect 301 /brunelly-cookies /cookies
+Redirect 301 /brunelly-features /features
+Redirect 301 /brunelly-features-build /features-build
+Redirect 301 /brunelly-features-collaborate /features-collaborate
+Redirect 301 /brunelly-features-hub /features-hub
+Redirect 301 /brunelly-features-plan /features-plan
+Redirect 301 /brunelly-features-quality /features-quality
+Redirect 301 /brunelly-features-understand /features-understand
+Redirect 301 /brunelly-pricing /pricing
+Redirect 301 /brunelly-privacy /privacy
+Redirect 301 /brunelly-resources /resources
+Redirect 301 /brunelly-terms /terms
+Redirect 301 /brunelly-article-chatgpt-orchestration /article-chatgpt-orchestration
+Redirect 301 /brunelly-article-claude-ai-coding-orchestration-containerized-workflows /article-claude-ai-coding-orchestration-containerized-workflows
+Redirect 301 /brunelly-article-compiler-built-with-claude-ai /article-compiler-built-with-claude-ai
+Redirect 301 /brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects
+Redirect 301 /brunelly-article-how-many-rs-are-there-really-in-strawberry /article-how-many-rs-are-there-really-in-strawberry
+Redirect 301 /brunelly-article-inside-chatgpts-safety-net /article-inside-chatgpts-safety-net
+Redirect 301 /brunelly-article-part-1-managing-your-ai-context-in-real-apps /article-part-1-managing-your-ai-context-in-real-apps
+Redirect 301 /brunelly-article-part-2-ai-context-in-the-real-world /article-part-2-ai-context-in-the-real-world
+Redirect 301 /brunelly-article-the-censor-behind-the-curtain /article-the-censor-behind-the-curtain
+Redirect 301 /brunelly-article-the-secret-system-behind-chatgpt /article-the-secret-system-behind-chatgpt
+Redirect 301 /brunelly-article-vibe-coding-isnt-bad-you-are /article-vibe-coding-isnt-bad-you-are
+Redirect 301 /brunelly-article-why-gpt5-feels-like-a-stranger-orchestration-changes /article-why-gpt5-feels-like-a-stranger-orchestration-changes
+Redirect 301 /brunelly-article-your-ai-product-is-not-a-real-business /article-your-ai-product-is-not-a-real-business
+Redirect 301 /brunelly-bg-options /bg-options
+Redirect 301 /brunelly-font-options /font-options
+
 # Remove .html extension from URLs
 RewriteEngine On
 RewriteCond %{THE_REQUEST} /([^.]+)\.html [NC]
