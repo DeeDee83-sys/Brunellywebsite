@@ -68,41 +68,6 @@
   }
 
   /* ── NAV ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2.5rem;
-    height: 68px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(9,9,11,0.9);
-    backdrop-filter: blur(20px);
-    gap: 2rem;
-  }
-
-  .nav-logo { text-decoration: none; display: inline-flex; align-items: center; flex-shrink: 0; }
-  .nav-logo img { height: 44px; width: auto; display: block; }
-
-  .nav-links {
-    display: flex; gap: 0; list-style: none;
-    align-items: center; flex: 1; justify-content: center;
-  }
-
-  .nav-links li a {
-    font-size: 0.76rem; letter-spacing: 0.07em; text-transform: uppercase;
-    color: var(--muted); text-decoration: none; transition: color 0.2s;
-    line-height: 1; white-space: nowrap; padding: 0 1.4rem;
-    display: inline-flex; align-items: center; height: 68px;
-    border-right: 1px solid var(--border);
-  }
-  .nav-links li:first-child a { border-left: 1px solid var(--border); }
-  .nav-links li a:hover { color: var(--white); background: rgba(255,255,255,0.02); }
-  .nav-links li a.active { color: var(--accent); }
-
-  .nav-actions { display: flex; gap: 0.65rem; align-items: center; flex-shrink: 0; }
 
   .btn-ghost {
     font-family: "DM Mono", monospace; font-size: 0.7rem; letter-spacing: 0.05em;
@@ -506,19 +471,11 @@
     .coming-soon-grid { grid-template-columns: 1fr; }
     .diff-table th:nth-child(3),
     .diff-table td:nth-child(3) { display: none; }
-    nav { padding: 0 1.5rem; }
-    .nav-links { display: none; }
     .features-hero { padding: 7rem 1.5rem 4rem; }
     .feat-section { padding: 4rem 1.5rem; }
     .pillar-header { padding: 4rem 1.5rem 0; }
   }
   /* ── Nav dropdown ── */
-  .nav-dropdown { position: relative; }
-  .nav-dropdown > a::after { content: ' ▾'; font-size: 0.7em; }
-  .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: rgba(9,9,11,0.98); border: 1px solid var(--border); min-width: 160px; list-style: none; padding: 0.4rem 0; z-index: 200; }
-  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
-  .nav-dropdown-menu li a { display: block !important; padding: 0.65rem 1.4rem !important; font-size: 0.76rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-right: none !important; border-left: none !important; height: auto !important; white-space: nowrap; }
-  .nav-dropdown-menu li a:hover { color: var(--white) !important; background: rgba(255,255,255,0.05); }
 </style>
   <link rel="stylesheet" href="brunelly-responsive.css">
 </head>
@@ -526,9 +483,6 @@
 
 <!-- NAV -->
 <div id="site-header"></div>
-  </div>
-  <a href="https://calendly.com/vinoj-pinavida/30min" class="mobile-nav-cta" target="_blank" rel="noopener noreferrer">Talk to an expert</a>
-</div>
 
 <!-- FEATURES HERO -->
 <section class="features-hero">
@@ -1173,6 +1127,8 @@
 <script src="/assets/js/components.js"></script>
 </body>
 </html>
+
+
 
 
 
