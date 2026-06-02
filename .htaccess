@@ -1,5 +1,26 @@
 
 
+# 301 redirects for restructured folders
+Redirect 301 /article-chatgpt-orchestration /articles/article-chatgpt-orchestration
+Redirect 301 /article-claude-ai-coding-orchestration-containerized-workflows /articles/article-claude-ai-coding-orchestration-containerized-workflows
+Redirect 301 /article-compiler-built-with-claude-ai /articles/article-compiler-built-with-claude-ai
+Redirect 301 /article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /articles/article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects
+Redirect 301 /article-how-many-rs-are-there-really-in-strawberry /articles/article-how-many-rs-are-there-really-in-strawberry
+Redirect 301 /article-inside-chatgpts-safety-net /articles/article-inside-chatgpts-safety-net
+Redirect 301 /article-part-1-managing-your-ai-context-in-real-apps /articles/article-part-1-managing-your-ai-context-in-real-apps
+Redirect 301 /article-part-2-ai-context-in-the-real-world /articles/article-part-2-ai-context-in-the-real-world
+Redirect 301 /article-the-censor-behind-the-curtain /articles/article-the-censor-behind-the-curtain
+Redirect 301 /article-the-secret-system-behind-chatgpt /articles/article-the-secret-system-behind-chatgpt
+Redirect 301 /article-vibe-coding-isnt-bad-you-are /articles/article-vibe-coding-isnt-bad-you-are
+Redirect 301 /article-why-gpt5-feels-like-a-stranger-orchestration-changes /articles/article-why-gpt5-feels-like-a-stranger-orchestration-changes
+Redirect 301 /article-your-ai-product-is-not-a-real-business /articles/article-your-ai-product-is-not-a-real-business
+Redirect 301 /features-build /features/features-build
+Redirect 301 /features-collaborate /features/features-collaborate
+Redirect 301 /features-hub /features/features-hub
+Redirect 301 /features-plan /features/features-plan
+Redirect 301 /features-quality /features/features-quality
+Redirect 301 /features-understand /features/features-understand
+
 # 301 redirects for renamed pages (brunelly- prefix removed)
 Redirect 301 /brunelly-admin /admin
 Redirect 301 /brunelly-analytics /analytics
