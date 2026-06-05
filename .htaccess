@@ -1,5 +1,10 @@
 
 
+# Redirect old domain to new domain
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?scrumbuddy\.com$ [NC]
+RewriteRule ^(.*)$ https://brunelly.com/$1 [R=301,L]
+
 # 301 redirects for restructured folders
 Redirect 301 /article-chatgpt-orchestration /articles/article-chatgpt-orchestration
 Redirect 301 /article-claude-ai-coding-orchestration-containerized-workflows /articles/article-claude-ai-coding-orchestration-containerized-workflows
