@@ -41,6 +41,7 @@ nav {
 .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 .nav-dropdown { position: relative; }
 .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: rgba(9,9,11,0.97); border: 1px solid var(--border); border-top: none; min-width: 160px; z-index: 200; list-style: none; padding: 0; margin: 0; }
+.nav-dropdown-menu::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
 .nav-dropdown:hover .nav-dropdown-menu { display: block; }
 .nav-dropdown-menu li a { height: auto !important; padding: 0.65rem 1.4rem !important; border: none !important; display: block !important; }
 .mobile-nav { display: none; position: fixed; top: 68px; left: 0; right: 0; background: rgba(9,9,11,0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 99; padding: 1rem 0; flex-direction: column; }
