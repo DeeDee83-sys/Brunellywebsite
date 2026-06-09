@@ -99,6 +99,19 @@
   var headerEl = document.getElementById('site-header');
   if (headerEl) headerEl.outerHTML = header;
 
+  // Click-based dropdown (nav is in DOM immediately after outerHTML replacement)
+  var dropdown = document.querySelector('.nav-dropdown');
+  if (dropdown) {
+    var trigger = dropdown.querySelector('a');
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      dropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+      if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+    });
+  }
+
   var footerEl = document.getElementById('site-footer');
   if (footerEl) footerEl.outerHTML = footer;
 })();
