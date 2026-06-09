@@ -461,6 +461,7 @@
     max-width: 780px;
     line-height: 1.8;
     animation: fadeUp 0.7s 0.3s ease both;
+    text-wrap: pretty;
   }
 
   /* ── PRIMARY CTA ── */
@@ -1814,7 +1815,7 @@ footer {
   <div class="hero-cta-wrap">
     <div class="btn-pair">
       <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-pair-left" target="_blank" rel="noopener noreferrer">Join Beta Pilot</a>
-      <a href="https://app.brunelly.com/register" class="btn-pair-right">See how it works &rarr;</a>
+      <a href="https://app.brunelly.com/register" target="_blank" rel="noopener noreferrer" class="btn-pair-right">See how it works &rarr;</a>
     </div>
   </div>
 
@@ -1826,7 +1827,7 @@ footer {
     <div class="trust-divider"></div>
     <div class="trust-stat">
       <span class="trust-stat-num">Governed</span>
-      <span class="trust-stat-label">&amp; auditable by design</span>
+      <span class="trust-stat-label">auditable by design</span>
     </div>
     <div class="trust-divider"></div>
     <div class="trust-stat">
@@ -2220,7 +2221,10 @@ footer {
     }
 
     function next() {
-      if (!paused) goTo((current + 1) % tabs.length, false);
+      if (!paused) {
+        goTo((current + 1) % tabs.length, false);
+        startProgress();
+      }
     }
 
     function resetProgressBar() {
