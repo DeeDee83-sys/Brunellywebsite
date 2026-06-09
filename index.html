@@ -1916,7 +1916,7 @@ footer {
   <div class="context-inner">
     <div class="context-header reveal">
       <span class="section-label">Built for complexity</span>
-      <h2 class="section-title">Most AI tools fall apart<br>when the system gets complex.</h2>
+      <h2 class="section-title">Most AI tools fall apart when the system gets complex.</h2>
       <p class="section-sub">Generic AI tools work fine for simple tasks. But complex, long-lived software - with evolving teams, intricate architecture, and years of accumulated decisions - needs something fundamentally different. It needs an AI that holds the full picture and gets smarter the more it learns about your project.</p>
     </div>
 
@@ -2060,10 +2060,10 @@ footer {
           <span class="agent-tag" style="color:var(--blue);border-color:rgba(59,130,246,0.3);">Development</span>
         </div>
         <div class="agent-card">
-          <div class="agent-icon" style="background:rgba(167,139,250,0.12);">🔍</div>
+          <div class="agent-icon" style="background:rgba(74,222,128,0.1);">🔍</div>
           <h4>QA Agent</h4>
           <p>Tests aligned to how your system actually behaves, not a generic checklist.</p>
-          <span class="agent-tag" style="color:var(--purple);border-color:rgba(167,139,250,0.3);">Testing</span>
+          <span class="agent-tag" style="color:#4ade80;border-color:rgba(74,222,128,0.3);">Testing</span>
         </div>
         <div class="agent-card">
           <div class="agent-icon" style="background:rgba(251,146,60,0.12);">🛡️</div>
@@ -2133,7 +2133,7 @@ footer {
       <a href="https://app.brunelly.com/register" class="btn-large">Start Building Free →</a>
       <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-large-ghost">Talk to an expert <span class="cta-arrow">→</span></a>
     </div>
-    <p style="margin-top:1.5rem;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.06em;">No credit card required · Setup in under 5 minutes · Works with your existing stack</p>
+    <p style="margin-top:1.5rem;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.06em;white-space:nowrap;">No credit card required · Setup in under 5 minutes · Works with your existing stack</p>
   </div>
 </section>
 
@@ -2165,7 +2165,7 @@ footer {
   // Workflow steps
   const steps = document.querySelectorAll('.step');
   steps.forEach(step => {
-    step.addEventListener('click', () => {
+    step.addEventListener('mouseenter', () => {
       steps.forEach(s => s.classList.remove('active'));
       step.classList.add('active');
     });
