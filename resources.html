@@ -27,7 +27,7 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://brunelly.com/resources/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Resources — Articles, Videos and Use Cases | Brunelly">
+  <meta property="og:title" content="Resources - Articles, Videos and Use Cases | Brunelly">
   <meta property="og:description" content="Brunelly Articles, videos and guides on AI orchestration, context engineering, agile planning and building complex software teams. Real insights from builders.">
   <meta property="og:url" content="https://brunelly.com/resources/">
   <meta property="og:image" content="https://brunelly.com/og-resources.png">
@@ -37,7 +37,7 @@
   <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@BrunellyAI">
-  <meta name="twitter:title" content="Resources — Articles, Videos and Use Cases | Brunelly">
+  <meta name="twitter:title" content="Resources - Articles, Videos and Use Cases | Brunelly">
   <meta name="twitter:description" content="Brunelly Articles, videos and guides on AI orchestration, context engineering, agile planning and building complex software teams. Real insights from builders.">
   <meta name="twitter:image" content="https://brunelly.com/og-resources.png">
 <script type="application/ld+json">
@@ -278,7 +278,7 @@ footer {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE — injected site-wide
+   RESPONSIVE - injected site-wide
    Breakpoints: 1200 | 900 | 600 | 400
    ═══════════════════════════════════════════════════════════════ */
 
@@ -435,7 +435,7 @@ footer {
 <section class="res-hero">
   <div class="hero-badge"><div class="badge-dot"></div> Notes from the Builder's Desk</div>
   <h1>Real reflections from <span>Guy</span> as he builds<br>Brunelly in public.</h1>
-  <p>Articles, videos, and use cases — experiments, lessons, and honest takes shared as they happen.</p>
+  <p>Articles, videos, and use cases - experiments, lessons, and honest takes shared as they happen.</p>
 </section>
 
 <div class="page-nav">
@@ -580,7 +580,7 @@ var VIDEOS_SEED   = [{"id": "v1", "title": "Platform Overview", "description": "
 var UC_SEED       = [{"id": "uc1", "icon": "\u25c8", "iconBg": "rgba(167,139,250,.12)", "iconColor": "#a78bfa", "title": "Modernising a legacy system without breaking what works", "body": "Brunelly reads a complex brownfield codebase, maps its architecture and dependencies, and generates a safe, prioritised modernisation roadmap so teams can move forward without breaking production.", "published": false}, {"id": "uc2", "icon": "\u2b21", "iconBg": "rgba(59,130,246,.1)", "iconColor": "#60a5fa", "title": "Scaling an engineering team from 5 to 25 without losing velocity", "body": "As teams grow, context gets fragmented. Brunelly acts as institutional memory so new engineers onboard faster, architectural decisions stay consistent, and no one has to re-explain sprint three decisions.", "published": false}, {"id": "uc3", "icon": "\u26a1", "iconBg": "rgba(74,222,128,.1)", "iconColor": "#4ade80", "title": "Building greenfield software with architectural integrity from day one", "body": "Starting fresh gives you the opportunity to get the architecture right. Brunelly shapes your system from the first conversation and maintains that integrity through every sprint.", "published": false}, {"id": "uc4", "icon": "\u25c9", "iconBg": "rgba(251,146,60,.1)", "iconColor": "#fb923c", "title": "Meeting compliance requirements without slowing delivery", "body": "For teams building under GDPR, SOC2, or other frameworks, Brunelly builds those constraints into its context so security and compliance checks happen automatically, not as afterthoughts.", "published": false}];
 
 // ── Storage helpers ───────────────────────────────────────────────
-// ── Data fetchers — Supabase with localStorage fallback ──────────
+// ── Data fetchers - Supabase with localStorage fallback ──────────
 function getArticles(callback) {
   sbFetch('articles', 'order=created_at.desc').then(function(data) {
     if (Array.isArray(data) && data.length > 0) { callback(data); }

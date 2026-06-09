@@ -128,7 +128,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
   <div class="login-box">
     <div class="login-logo">Brunelly <span>Analytics</span></div>
     <div class="login-sub">Marketing Dashboard</div>
-    <p class="login-note">Tracks page views, article clicks, referral sources, scroll depth, devices and newsletter conversions — from your live site. No third-party tools required.</p>
+    <p class="login-note">Tracks page views, article clicks, referral sources, scroll depth, devices and newsletter conversions - from your live site. No third-party tools required.</p>
     <input type="email" id="email-input" class="login-input" placeholder="Email" onkeydown="if(event.key==='Enter')doLogin()" />
     <input type="password" id="pw-input" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
     <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
@@ -159,12 +159,12 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
   <div class="body">
     <div class="section-title">Overview</div>
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-icon">👁️</div><div class="kpi-val" id="kpi-pageviews">—</div><div class="kpi-label">Page Views</div><div class="kpi-delta" id="kd-pageviews"></div></div>
-      <div class="kpi"><div class="kpi-icon">🖱️</div><div class="kpi-val" id="kpi-clicks">—</div><div class="kpi-label">Article Clicks</div><div class="kpi-delta" id="kd-clicks"></div></div>
-      <div class="kpi"><div class="kpi-icon">📈</div><div class="kpi-val" id="kpi-ctr">—</div><div class="kpi-label">Click-Through Rate</div><div class="kpi-delta" id="kd-ctr"></div></div>
-      <div class="kpi"><div class="kpi-icon">⏱️</div><div class="kpi-val" id="kpi-time">—</div><div class="kpi-label">Avg. Time on Page</div><div class="kpi-delta" id="kd-time"></div></div>
-      <div class="kpi"><div class="kpi-icon">📧</div><div class="kpi-val" id="kpi-subs">—</div><div class="kpi-label">Newsletter Signups</div><div class="kpi-delta" id="kd-subs"></div></div>
-      <div class="kpi"><div class="kpi-icon">📜</div><div class="kpi-val" id="kpi-scroll">—</div><div class="kpi-label">Avg. Scroll Depth</div><div class="kpi-delta" id="kd-scroll"></div></div>
+      <div class="kpi"><div class="kpi-icon">👁️</div><div class="kpi-val" id="kpi-pageviews">-</div><div class="kpi-label">Page Views</div><div class="kpi-delta" id="kd-pageviews"></div></div>
+      <div class="kpi"><div class="kpi-icon">🖱️</div><div class="kpi-val" id="kpi-clicks">-</div><div class="kpi-label">Article Clicks</div><div class="kpi-delta" id="kd-clicks"></div></div>
+      <div class="kpi"><div class="kpi-icon">📈</div><div class="kpi-val" id="kpi-ctr">-</div><div class="kpi-label">Click-Through Rate</div><div class="kpi-delta" id="kd-ctr"></div></div>
+      <div class="kpi"><div class="kpi-icon">⏱️</div><div class="kpi-val" id="kpi-time">-</div><div class="kpi-label">Avg. Time on Page</div><div class="kpi-delta" id="kd-time"></div></div>
+      <div class="kpi"><div class="kpi-icon">📧</div><div class="kpi-val" id="kpi-subs">-</div><div class="kpi-label">Newsletter Signups</div><div class="kpi-delta" id="kd-subs"></div></div>
+      <div class="kpi"><div class="kpi-icon">📜</div><div class="kpi-val" id="kpi-scroll">-</div><div class="kpi-label">Avg. Scroll Depth</div><div class="kpi-delta" id="kd-scroll"></div></div>
     </div>
 
     <div class="row-2">
@@ -451,7 +451,7 @@ function prevPeriod(events){
 }
 
 function delta(curr,prev){
-  if(prev===0)return curr>0?'New':'—';
+  if(prev===0)return curr>0?'New':'-';
   const d=((curr-prev)/prev*100).toFixed(0);
   if(d>0)return '↑ '+d+'% vs prev';
   if(d<0)return '↓ '+Math.abs(d)+'% vs prev';
@@ -540,9 +540,9 @@ function renderKPIs(curr,prev){
   set('pageviews',pv.toLocaleString(),delta(pv,pvP),deltaClass(pv,pvP));
   set('clicks',cl.toLocaleString(),delta(cl,clP),deltaClass(cl,clP));
   set('ctr',(ctrN*100).toFixed(1)+'%',delta(ctrN*100,ctrP*100),deltaClass(ctrN,ctrP));
-  set('time',avgTN>0?fmtTime(avgTN):'—',delta(avgTN,avgTP),deltaClass(avgTN,avgTP));
+  set('time',avgTN>0?fmtTime(avgTN):'-',delta(avgTN,avgTP),deltaClass(avgTN,avgTP));
   set('subs',subs.toLocaleString(),delta(subs,subsP),deltaClass(subs,subsP));
-  set('scroll',avgSN>0?avgSN.toFixed(0)+'%':'—',delta(avgSN,avgSP),deltaClass(avgSN,avgSP));
+  set('scroll',avgSN>0?avgSN.toFixed(0)+'%':'-',delta(avgSN,avgSP),deltaClass(avgSN,avgSP));
 }
 
 // ── VIEWS CHART ───────────────────────────────────────────────────
@@ -814,7 +814,7 @@ function renderNewsletter(events){
     row.style.fontSize='.78rem';
     const emailSpan=document.createElement('span');
     emailSpan.style.color='var(--white)';
-    emailSpan.textContent=e.email||'—';
+    emailSpan.textContent=e.email||'-';
     row.appendChild(emailSpan);
     const dateSpan=document.createElement('span');
     dateSpan.style.fontFamily="'DM Mono',monospace";
@@ -885,7 +885,7 @@ function renderReferrers(events){
     tdCtr.style.fontFamily="'DM Mono',monospace";
     tdCtr.style.fontSize='.72rem';
     tdCtr.style.color='var(--muted)';
-    tdCtr.textContent=d.views>0?(d.clicks/d.views*100).toFixed(1)+'%':'—';
+    tdCtr.textContent=d.views>0?(d.clicks/d.views*100).toFixed(1)+'%':'-';
     tr.appendChild(tdCtr);
     tbody.appendChild(tr);
   });
@@ -927,19 +927,19 @@ function renderEvents(){
     tdDetail.style.whiteSpace='nowrap';
     tdDetail.style.overflow='hidden';
     tdDetail.style.textOverflow='ellipsis';
-    tdDetail.textContent=e.articleTitle||e.email||'—';
+    tdDetail.textContent=e.articleTitle||e.email||'-';
     tr.appendChild(tdDetail);
     const tdSource=document.createElement('td');
     tdSource.style.fontFamily="'DM Mono',monospace";
     tdSource.style.fontSize='.68rem';
     tdSource.style.color='var(--muted)';
-    tdSource.textContent=e.source||'—';
+    tdSource.textContent=e.source||'-';
     tr.appendChild(tdSource);
     const tdDevice=document.createElement('td');
     tdDevice.style.fontFamily="'DM Mono',monospace";
     tdDevice.style.fontSize='.68rem';
     tdDevice.style.color='var(--muted)';
-    tdDevice.textContent=e.device||'—';
+    tdDevice.textContent=e.device||'-';
     tr.appendChild(tdDevice);
     tbody.appendChild(tr);
   });

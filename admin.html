@@ -20,7 +20,7 @@
     })(window, document, "clarity", "script", "t7ikzv22yu");
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Brunelly CMS — Content Manager</title>
+<title>Brunelly CMS | Content Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,.12);--accent-mid:rgba(167,139,250,.4);--green:#4ade80;--green-dim:rgba(74,222,128,.12);--green-mid:rgba(74,222,128,.3);--red:#f87171;--red-dim:rgba(248,113,113,.1);}
@@ -311,7 +311,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
         </div>
         <div class="form-group">
           <label>Answer *</label>
-          <textarea id="ff-a" class="form-textarea" style="min-height:140px;" placeholder="Full answer — plain text, no HTML needed"></textarea>
+          <textarea id="ff-a" class="form-textarea" style="min-height:140px;" placeholder="Full answer - plain text, no HTML needed"></textarea>
         </div>
         <div class="form-actions">
           <button class="btn btn-primary" onclick="saveFaq()">Save FAQ</button>
@@ -394,7 +394,7 @@ body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif
 
 <script>
 // ════════════════════════════════════════════════════════════════
-// BRUNELLY CMS — Supabase Backend
+// BRUNELLY CMS - Supabase Backend
 // ════════════════════════════════════════════════════════════════
 
 
@@ -1213,7 +1213,7 @@ function renderImages() {
         headerSpan.style.letterSpacing = '.1em';
         headerSpan.style.textTransform = 'uppercase';
         headerSpan.style.color = 'var(--accent)';
-        headerSpan.textContent = (PAGE_LABELS[s.page] || s.page) + ' — Feature Page';
+        headerSpan.textContent = (PAGE_LABELS[s.page] || s.page) + ' - Feature Page';
         headerDiv.appendChild(headerSpan);
         grid.appendChild(headerDiv);
       }
@@ -1333,7 +1333,7 @@ function saveFeatImage(input) {
   var id = input.getAttribute('data-slot');
   var url = input.value.trim();
   sbUpdate('feature_images', id, { image_url: url || null, updated_at: new Date().toISOString() })
-    .then(function(){ renderImages(); showToast(url ? 'Image saved — live immediately' : 'Image cleared', 'success'); })
+    .then(function(){ renderImages(); showToast(url ? 'Image saved - live immediately' : 'Image cleared', 'success'); })
     .catch(function(err){ showToast('Error saving image: ' + (err && err.message ? err.message : ''), 'error'); });
 }
 
@@ -1557,7 +1557,7 @@ function showFaqForm(page) {
   document.getElementById('faq-form-idx').value = '';
   document.getElementById('ff-q').value = '';
   document.getElementById('ff-a').value = '';
-  document.getElementById('faq-form-heading').textContent = 'Add FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
+  document.getElementById('faq-form-heading').textContent = 'Add FAQ - ' + (page==='hub'?'Features Hub':'Pricing Page');
 }
 
 function editFaqById(page, id) {
@@ -1571,7 +1571,7 @@ function editFaqById(page, id) {
   document.getElementById('faq-form-idx').value = id;
   document.getElementById('ff-q').value = f.question || '';
   document.getElementById('ff-a').value = f.answer || '';
-  document.getElementById('faq-form-heading').textContent = 'Edit FAQ — ' + (page==='hub'?'Features Hub':'Pricing Page');
+  document.getElementById('faq-form-heading').textContent = 'Edit FAQ - ' + (page==='hub'?'Features Hub':'Pricing Page');
 }
 
 function cancelFaqForm() {
@@ -1592,7 +1592,7 @@ function saveFaq() {
   var item = { id: id||'faq-'+Date.now(), page:page, question:q, answer:a, updated_at:now };
   if (!id) item.created_at = now;
   sbUpsert('faqs', item).then(function(){
-    showToast('FAQ saved — live immediately','success');
+    showToast('FAQ saved - live immediately','success');
     cancelFaqForm();
   }).catch(function(err){
     showToast('Error saving FAQ: ' + (err && err.message ? err.message : ''), 'error');
