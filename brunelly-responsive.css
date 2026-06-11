@@ -164,6 +164,7 @@ code { overflow-wrap: break-word; }
   .article-hero { padding: 1.5rem 1.5rem 2rem; }
   .article-cover { padding: 0 1.5rem; }
   .article-body { padding: 2rem 1.5rem 4rem; }
+  .article-content { max-width: 100%; }
   .breadcrumb { padding: 5rem 1.5rem 0; }
   .feat-section { padding: 4rem 1.5rem; }
   .sub-nav { padding: 0 1.5rem; }
@@ -241,6 +242,7 @@ code { overflow-wrap: break-word; }
   .hero-badge { font-size: 0.65rem !important; }
   .article-hero h1 { font-size: 1.7rem; }
   .article-nav { grid-template-columns: 1fr; }
+  .article-share { gap: .6rem; }
   .pillars-grid { grid-template-columns: 1fr; }
   .why-stats { grid-template-columns: 1fr; }
 
@@ -300,6 +302,7 @@ code { overflow-wrap: break-word; }
   .plan-card { padding: 1.2rem 1rem !important; }
   .feat-section { padding: 2rem 1rem; }
   .feat-copy h2 { font-size: 1.3rem; }
+  .btn-primary { font-size: 0.65rem; padding: 0.45rem 0.85rem; }
 }
 
 /* ── Landscape Tablet/Phone (640px–900px) ── */
