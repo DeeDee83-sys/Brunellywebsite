@@ -50,15 +50,15 @@ code/
 - **Step 3 (Complete)**: Locked down RLS policies. Public access is read-only for published content (or all content where no publish flag exists). All writes restricted to authenticated users with verified roles via `user_has_role()` helper.
 - **Step 4 (Complete)**: Refactored admin and analytics dashboards to use `supabaseClient.from()` for all reads/writes. Removed raw `fetch()` helpers and `sbHeaders()`. Public pages continue to use the anon-key global for minimum required reads.
 - **Step 5 (Complete)**: Fixed `sbGet` and `sbFetchAna` query-string filter parsing to support PostgREST operator syntax (e.g., `page=eq.hub`, `ts=gte.12345`).
-- **Step 6 (Complete)**: Fixed pre-existing JavaScript syntax errors in `brunelly-admin.html` inline script block (unescaped single quotes inside single-quoted string literals).
+- **Step 6 (Complete)**: Fixed pre-existing JavaScript syntax errors in `admin.html` inline script block (unescaped single quotes inside single-quoted string literals).
 
 **Bug 2: Hardcoded admin password in client-side JavaScript / sessionStorage auth bypass**
 - **Status (Complete)**: Resolved during Bug 1 Step 2. The hardcoded password (`var PASS = 'brunelly2026'`) and insecure `sessionStorage.setItem('cms_auth','1')` bypass were removed in commit `3a77ab0`.
-- Both `brunelly-admin.html` and `brunelly-analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
+- Both `admin.html` and `analytics.html` now use Supabase Auth with server-side session validation and role-based access control.
 - **Defensive hardening (Steps 1–13, Complete)**: Eliminated residual injection vectors and brittle patterns across both dashboards. This includes XSS remediation via `escapeHtml()` and `isSafeUrl()`, event delegation replacing inline handlers, comprehensive `.catch()` error handling, `sbDelete()` filter support, analytics cache correctness, and automated test coverage with `node --test`. See `BUG2_PR_DESCRIPTION.md` for full details.
 
 **Bug 3: Stored XSS vulnerability via unsafe innerHTML in admin panel article rendering**
-- **Status (Complete)**: Refactored `renderArticles` in `brunelly-admin.html` to eliminate `innerHTML` string concatenation for untrusted article data.
+- **Status (Complete)**: Refactored `renderArticles` in `admin.html` to eliminate `innerHTML` string concatenation for untrusted article data.
 - Introduced centralised `buildArticleRow()` helper that constructs each table row using `document.createElement`, `document.createTextNode`, and `textContent`. No user-controlled values pass through `innerHTML`.
 - All URL-bearing attributes (`img.src`, `a.href`) are validated with `isSafeUrl()` before assignment; unsafe URLs fall back to plain text or placeholder elements.
 - Added `tests/article-render.test.js` with mock-DOM XSS regression tests that exercise the exact production helper, verifying malicious payloads (`<script>`, `<img onerror>`, `javascript:` URLs) are rendered only as inert text and unsafe URLs are rejected.
@@ -84,7 +84,7 @@ All hardening steps on the Bug 2 branch are complete. Residual injection vectors
 - Added `isSafeCssValue` unit tests and updated RLS policy tests.
 
 ### Story 21: Reliable Pageview Tracking (Complete)
-Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with a robust, consent-gated lifecycle:
+Replaced the legacy analytics tracking IIFE in `features/features-hub.html` with a robust, consent-gated lifecycle:
 - **Schema**: Added `event_id TEXT` column with unique index (`idx_analytics_event_id`) to `analytics_events` to enable PostgREST upsert deduplication.
 - **Consent gate**: Tracking initializes only when `localStorage.getItem('brunelly_cookie_consent') === 'all'`.
 - **Per-page ID**: `pageViewId` is generated once per page load (`crypto.randomUUID` or `Date.now()` fallback). No shared mutable `fired` boolean.
@@ -95,9 +95,9 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 **Bug 5: Stored XSS Vulnerability via innerHTML in FAQ Rendering on Public Pages**
 - **Status**: Complete — branch `bug/5-stored-xss-vulnerability-via-innerhtml`.
-- **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `brunelly-features-hub.html` and `brunelly-pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved. Added `id="pricing-faq-list"` to the pricing page FAQ container so the dynamic loader correctly replaces static fallback markup instead of silently failing.
+- **Step 1 (Complete)**: Replaced raw string concatenation + `innerHTML` with safe DOM construction (`createElement` + `textContent`) in `features/features-hub.html` and `pricing.html`. FAQ `id`, `question`, and `answer` values are now assigned via `setAttribute` and `textContent`, preventing execution of injected HTML/JS payloads. Accordion markup, CSS classes, and open/close behavior are preserved. Added `id="pricing-faq-list"` to the pricing page FAQ container so the dynamic loader correctly replaces static fallback markup instead of silently failing.
 - **Step 2 (Complete)**: Extracted `renderSafeFaqItem(list, faq)` into a shared `faq-renderer.js` module loaded by both public pages. This eliminates duplication and ensures future FAQ fields cannot be accidentally added with `innerHTML`; both visible text and `data-faq-id` attributes are handled safely through the single centralised helper.
-- **Step 3 (Complete)**: Hardened the CMS/admin FAQ create/update flow with defense in depth. Added `stripHtml()` helper to `brunelly-admin.html` and applied it in `saveFaq()` to sanitize question and answer inputs before persistence. Added length validation (question ≤ 500 chars, answer ≤ 5,000 chars) with user-visible toast errors. Refactored `renderFaqs()` to build the admin FAQ table using safe DOM construction (`createElement` + `textContent` + `setAttribute`), eliminating `innerHTML` entirely for untrusted content.
+- **Step 3 (Complete)**: Hardened the CMS/admin FAQ create/update flow with defense in depth. Added `stripHtml()` helper to `admin.html` and applied it in `saveFaq()` to sanitize question and answer inputs before persistence. Added length validation (question ≤ 500 chars, answer ≤ 5,000 chars) with user-visible toast errors. Refactored `renderFaqs()` to build the admin FAQ table using safe DOM construction (`createElement` + `textContent` + `setAttribute`), eliminating `innerHTML` entirely for untrusted content.
 - **Step 4 (Complete)**: Verified `brunelly-supabase-setup.sql` RLS policies for the `faqs` table. Public `SELECT` is enabled for public page display. `INSERT`/`UPDATE`/`DELETE` are restricted to authenticated `admin`/`content_editor` roles via `user_has_role()`. No public/anon write policy exists.
 - **Step 5 (Complete)**: Added `tests/faq-render.test.js` with mock-DOM XSS regression tests that exercise the actual production `faq-renderer.js` helper. Tests assert malicious question/answer payloads (`<script>`, `<img onerror>`) render as inert text with zero `innerHTML` usage, and that dangerous `data-faq-id` values are stored literally via `setAttribute`. Existing `tests/rls-policies.test.js` already validates `faqs` denies anonymous writes.
 
@@ -105,7 +105,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Status**: Resolved on branch `bug/6-stored-xss-vulnerability-via-unescaped`.
 - **Step 1 (Complete)**: Verified that the vulnerable JSON-in-onclick pattern was already eliminated in earlier bug-fix work. `buildArticleRow()` and all other table row builders pass only safe identifiers (`data-action`, `data-type`, `data-index`, `data-id`) via `setAttribute`; event delegation in `handleTableClick()` invokes `editItem()` without embedding any user-controlled data or JSON blobs in HTML attributes.
 - **Step 2 (Complete)**: Refactored `editItem()` to fetch fresh data from Supabase by ID on every edit click. The function now accepts `type` and `id`, queries the relevant table via `sbGet(table, 'id=eq.' + id)`, and populates the edit form from the returned record. The client-side caches (`window._cmsArticles`, `window._cmsVideos`, `window._cmsUseCases`) are no longer used for edit form data, ensuring stale or poisoned cache entries cannot affect the edit flow. Added `data-id` to Edit buttons in `buildArticleRow()`, `renderVideos()`, and `renderUseCases()`. Removed the unused `_currentItems` variable. Added `.catch()` error handling with `showToast` so Supabase fetch failures are visible to the user.
-- **Step 3 (Complete)**: Hardened all remaining admin tables that built rows with `innerHTML` string concatenation. Introduced `buildVideoRow()`, `buildUseCaseRow()`, and `buildLeadRow()` helpers that construct every table cell with `document.createElement`, `textContent`, and `setAttribute`. Refactored `renderVideos()`, `renderUseCases()`, and `renderLeads()` to append rows via safe DOM builders instead of `innerHTML`. Refactored `renderImages()` and `renderHeroImages()` from `innerHTML` string building to safe DOM construction for all thumbnails, labels, badges, hints, inputs, and buttons. Added `.catch()` error handling with `showToast` to all refactored renderers. No user-controlled values in `brunelly-admin.html` now pass through `innerHTML`.
+- **Step 3 (Complete)**: Hardened all remaining admin tables that built rows with `innerHTML` string concatenation. Introduced `buildVideoRow()`, `buildUseCaseRow()`, and `buildLeadRow()` helpers that construct every table cell with `document.createElement`, `textContent`, and `setAttribute`. Refactored `renderVideos()`, `renderUseCases()`, and `renderLeads()` to append rows via safe DOM builders instead of `innerHTML`. Refactored `renderImages()` and `renderHeroImages()` from `innerHTML` string building to safe DOM construction for all thumbnails, labels, badges, hints, inputs, and buttons. Added `.catch()` error handling with `showToast` to all refactored renderers. No user-controlled values in `admin.html` now pass through `innerHTML`.
 
 **Bug 7: Duplicate clearLeads function causes Supabase delete operation to be skipped**
 - **Status**: Resolved on branch `bug/7-duplicate-clearleads-function-causes-supabase`.
@@ -116,22 +116,22 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 **Bug 8: Contact form non-functional due to missing form structure and submit handling**
 - **Status**: Resolved on branch `bug/8-contact-form-non-functional-due-to`.
-- **Step 1 (Complete)**: Converted the contact form UI shell in `brunelly-contact.html` into a real HTML form. Added `<form id="contact-form">`, stable `id`/`name` attributes, associated labels with `for`, accessibility attributes (`autocomplete`, `required`), and `type="submit"` on the button.
-- **Step 2 (Complete)**: Implemented client-side submission handling. Added `showToast` helper consistent with `brunelly-admin.html`, submit event listener with validation (required fields, email regex, length limits), button disable/enable during request, and success/error toast feedback.
+- **Step 1 (Complete)**: Converted the contact form UI shell in `contact.html` into a real HTML form. Added `<form id="contact-form">`, stable `id`/`name` attributes, associated labels with `for`, accessibility attributes (`autocomplete`, `required`), and `type="submit"` on the button.
+- **Step 2 (Complete)**: Implemented client-side submission handling. Added `showToast` helper consistent with `admin.html`, submit event listener with validation (required fields, email regex, length limits), button disable/enable during request, and success/error toast feedback.
 - **Step 3 (Complete)**: Wired the form submission to the Supabase `leads` table via `fetch` POST to `window.SUPA_URL + '/rest/v1/leads'` using the established header pattern (`apikey`, `Authorization`, `Prefer: return=minimal`). Payload includes `name`, `email`, `company`, `message`, `source: 'contact-form'`, and `page: window.location.pathname`. Project type is appended to the message when provided. Non-2xx responses and network failures surface user-visible error toasts; the button is re-enabled via `.finally()`.
 - **Step 4 (Complete)**: Added automated regression coverage in `tests/contact-form.test.js`. Tests assert the HTML contains a proper form with expected inputs and verify the submission script targets the correct endpoint, constructs a safe payload, and handles errors appropriately (no real Supabase connectivity required).
 
 **Bug 9: Stored XSS vulnerability in analytics dashboard via unsafe innerHTML rendering**
 - **Status**: Resolved on branch `bug/9-stored-xss-vulnerability-in-analytics`.
-- **Step 1 (Complete)**: Identified every place attacker-controlled analytics data (from localStorage `brunelly_analytics` and Supabase `analytics_events`) is rendered into the DOM via `innerHTML` in `brunelly-analytics.html`. Vulnerable fields: `e.source`, `e.device`, `e.articleTitle`, `e.category`, `e.email`, `e.type`.
+- **Step 1 (Complete)**: Identified every place attacker-controlled analytics data (from localStorage `brunelly_analytics` and Supabase `analytics_events`) is rendered into the DOM via `innerHTML` in `analytics.html`. Vulnerable fields: `e.source`, `e.device`, `e.articleTitle`, `e.category`, `e.email`, `e.type`.
 - **Step 2 (Complete)**: Refactored `renderSources()`, `renderTopArticles()`, `renderCategoryChart()`, `renderNewsletter()`, `renderReferrers()`, and `renderEvents()` to use safe DOM construction (`document.createElement`, `textContent`, `appendChild`) instead of `innerHTML` template literals. No user-controlled values pass through `innerHTML`.
-- **Step 3 (Complete)**: Added `escapeHtml()` defensive helper to `brunelly-analytics.html` for any future rendering that cannot avoid `innerHTML`.
+- **Step 3 (Complete)**: Added `escapeHtml()` defensive helper to `analytics.html` for any future rendering that cannot avoid `innerHTML`.
 - **Step 4 (Complete)**: Verified safe functions (`renderScrollDepth`, `renderDevices`, `renderHeatmap`, `renderViewsChart`, `renderKPIs`) require no changes — they use only hardcoded values, computed numbers, or constrained enums.
 
 **Bug 10: Security vulnerability — Client-side authentication bypass for analytics dashboard**
 - **Status**: Resolved on branch `bug/10-security-vulnerability-client-side-authentication-bypass`.
 - **Root cause**: The analytics dashboard relied on a hardcoded plaintext password (`const PASS='brunelly2026'`) and an easily forged `sessionStorage` flag (`sessionStorage.getItem('analytics_auth')==='1'`) for authentication. This allowed trivial bypass by opening browser developer tools and manually setting the storage key.
-- **Remediation**: Replaced the client-side password gate with **Supabase Auth** email/password login and server-validated JWT sessions. `sessionStorage` and hardcoded secrets were removed entirely from `brunelly-analytics.html`. Access is now gated by `requireAuthAndRole()`, which verifies an active Supabase session and checks the user's role against the `profiles` table (`admin` or `analytics_viewer`). Unauthenticated or unauthorised users are rejected before any analytics data is loaded.
+- **Remediation**: Replaced the client-side password gate with **Supabase Auth** email/password login and server-validated JWT sessions. `sessionStorage` and hardcoded secrets were removed entirely from `analytics.html`. Access is now gated by `requireAuthAndRole()`, which verifies an active Supabase session and checks the user's role against the `profiles` table (`admin` or `analytics_viewer`). Unauthenticated or unauthorised users are rejected before any analytics data is loaded.
 - **Note on HTTP-only cookies**: The work item answer specified server-side sessions with HTTP-only cookies. Within the current static-HTML architecture, Supabase Auth JWT sessions provide the practical equivalent: passwords are verified server-side, sessions are managed by Supabase's authentication service, and the client holds only a time-bound access token. A full HTTP-only cookie implementation would require a dedicated backend (e.g., NestJS) and is tracked as a separate architectural initiative.
 
 **Bug 11: Swallowed exceptions in Supabase fetch calls causing silent failures**
@@ -151,11 +151,11 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - **Remediation**:
   - Replaced the weak `@` check with a simplified regex `/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/` that requires a non-empty local part, exactly one `@`, a non-empty domain, and a TLD of at least two characters.
   - Added a per-page `validateEmail(email)` helper inside each affected page's analytics IIFE to avoid new global config patterns.
-  - Added an inline `.newsletter-error` element and corresponding CSS to `brunelly-resources.html` for user-visible validation feedback.
+  - Added an inline `.newsletter-error` element and corresponding CSS to `resources.html` for user-visible validation feedback.
   - Updated submit handlers across all affected pages to hide previous errors, validate before any side effects, and keep the submit button enabled when validation fails so users can correct input.
   - Invalid emails are silently rejected — no `pushEvent`/`fireEvent`/`trackInteraction` call, no Supabase write, no localStorage write, and no analytics tracking of the invalid attempt.
   - Added `tests/validate-email.test.js` with `node --test` regression coverage for the regex.
-- **Pages affected**: `brunelly-resources.html`, all 14 article pages, 5 feature pages, `brunelly-features-hub.html`, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-terms.html`, and `brunelly-redesign.html` (including chat-bot email capture).
+- **Pages affected**: `resources.html`, all 14 article pages, 5 feature pages, `features/features-hub.html`, `contact.html`, `cookies.html`, `pricing.html`, `privacy.html`, `terms.html`, and `index.html` (including chat-bot email capture).
 
 **Bug 13: Race condition in pageview tracking causes missed or delayed analytics events**
 - **Status**: Complete on branch `bug/13-race-condition-in-pageview-tracking`.
@@ -167,20 +167,20 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
   - `trackPageview(true)` is wired to `visibilitychange` (hidden) and `pagehide` for reliable unload delivery.
   - `sendReliably()` provides three-tier transport: `fetch(keepalive)` primary, `navigator.sendBeacon` fallback, synchronous `XMLHttpRequest` for very old browsers.
   - `unloadSent` boolean guards only the unload path, preventing redundant network requests without blocking the load-time send.
-  - Standardised all interaction tracking (article clicks, video clicks, newsletter signups) under `trackInteraction()` while preserving page-specific behaviours such as `brunelly-resources.html` localStorage backup.
+  - Standardised all interaction tracking (article clicks, video clicks, newsletter signups) under `trackInteraction()` while preserving page-specific behaviours such as `resources.html` localStorage backup.
   - **Endpoint alignment**: Both load-time `trackPageview(false)` and unload-time `trackPageview(true)` now use `UPSERT_URL` with `Prefer: return=minimal, resolution=merge-duplicates` and the same `event_id`, eliminating any race where a load INSERT could fail after an unload UPSERT already created the row.
-- **Pages affected**: All 14 article pages, `brunelly-contact.html`, `brunelly-cookies.html`, `brunelly-features-build.html`, `brunelly-features-collaborate.html`, `brunelly-features-plan.html`, `brunelly-features-quality.html`, `brunelly-features-understand.html`, `brunelly-pricing.html`, `brunelly-privacy.html`, `brunelly-redesign.html`, `brunelly-resources.html`, and `brunelly-terms.html`.
+- **Pages affected**: All 14 article pages, `contact.html`, `cookies.html`, `features/features-build.html`, `features/features-collaborate.html`, `features/features-plan.html`, `features/features-quality.html`, `features/features-understand.html`, `pricing.html`, `privacy.html`, `index.html`, `resources.html`, and `terms.html`.
 
 ### Auth Architecture
 - **Supabase JS client** loaded from CDN (`https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js`).
 - **Shared module**: `supabase-auth.js` initialises `window.supabaseClient`, exposes `signIn()`, `signOut()`, `getCurrentSession()`, `getUserRole()`.
 - **Session state**: `window.currentSession`, `window.currentUser`, `window.currentRole` are kept in sync via `onAuthStateChange`.
 - **Role gating**:
-  - `brunelly-admin.html` allows `admin` and `content_editor`.
-  - `brunelly-analytics.html` allows `admin` and `analytics_viewer`.
+  - `admin.html` allows `admin` and `content_editor`.
+  - `analytics.html` allows `admin` and `analytics_viewer`.
 - **Fetch helpers**:
-  - `sbGet(table, params)` in `brunelly-admin.html`: parses query-string params into Supabase query-builder calls. Supports `select`, `order`, `limit`, and PostgREST operators (`eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `like`, `ilike`, `is`) encoded in the value (e.g., `page=eq.hub`).
-  - `sbFetchAna(params)` in `brunelly-analytics.html`: similar filter parsing for `analytics_events` queries.
+  - `sbGet(table, params)` in `admin.html`: parses query-string params into Supabase query-builder calls. Supports `select`, `order`, `limit`, and PostgREST operators (`eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `like`, `ilike`, `is`) encoded in the value (e.g., `page=eq.hub`).
+  - `sbFetchAna(params)` in `analytics.html`: similar filter parsing for `analytics_events` queries.
   - Both helpers attach the user's `access_token` when available, falling back to the anon key for unauthenticated requests.
 
 ### Key Rules
@@ -194,7 +194,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 - Supabase Auth supports optional MFA (TOTP via authenticator apps).
 - MFA is **not currently enforced** for any role. To enable it:
   1. Enable MFA in the Supabase Auth dashboard (Authentication → Providers → Phone/OTP or Authenticator App).
-  2. Update the login flow in `brunelly-admin.html` and `brunelly-analytics.html` to challenge for a TOTP code after successful password verification.
+  2. Update the login flow in `admin.html` and `analytics.html` to challenge for a TOTP code after successful password verification.
   3. Store the `aal` (Authenticator Assurance Level) requirement per role in the `profiles` table if granular enforcement is needed.
 - For now, single-factor auth is sufficient. Document any future MFA mandate as a separate security initiative.
 
@@ -212,7 +212,7 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Git Workflow
 
-- Active branches: `feature/42-implement-mobile-responsive-design-for` (Story 42 — current).
+- Active branches: `feature/54-implement-a-robust-mobile-responsive` (Story 54 — current).
 - Commit message conventions:
   - Security work: `security(bug-N): brief description` or `docs(bug-N): brief description`
   - Analytics work: `analytics(story-21): brief description`
@@ -221,13 +221,14 @@ Replaced the legacy analytics tracking IIFE in `brunelly-features-hub.html` with
 
 ## Responsive Design
 
-**Story 42**: Canonical mobile-responsive styles for all public pages.
+**Story 42 & 54**: Canonical mobile-responsive styles for all public pages.
 - Shared stylesheet: `brunelly-responsive.css` (linked from every public HTML page).
 - Standard breakpoints: Desktop (default), Laptop `(max-width: 1199px)`, Tablet `(max-width: 900px)`, Mobile `(max-width: 600px)`, Small Mobile `(max-width: 400px)`, plus Landscape/Portrait orientation queries.
 - Global rules: `overflow-x: hidden`, fluid images (`max-width: 100%`), `code { overflow-wrap: break-word }`, minimum 44×44px touch targets.
 - Landscape grids: 2-column overrides for `.articles-grid`, `.videos-grid`, `.kpi-grid`, `.use-cases-grid`, `.row-3`, `.scroll-grid` at ≤900px and ≤600px landscape.
 - Mobile nav accessibility: `brunelly-nav-a11y.js` (linked from all public pages) provides Escape/click-outside dismissal, focus trapping, and ARIA sync. Drawer has `role="dialog"`, `aria-modal`, `aria-hidden`; hamburger has `aria-expanded`, `aria-controls`; group toggle has `aria-expanded`, `aria-controls`. Smooth `opacity`/`translateY` transition on open/close.
-- Scope excludes `brunelly-admin.html` and `brunelly-analytics.html`.
+- **Story 54 fixes**: `components.js` must load before `brunelly-nav-a11y.js` so the nav markup exists when a11y helpers initialise. Removed dead inline responsive CSS duplication from 11 pages. Added missing shared rules for `.article-content`, `.article-share`, and `.btn-primary` at small breakpoints.
+- Scope excludes `admin.html` and `analytics.html`.
 
 ## Deployment Notes
 
