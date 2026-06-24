@@ -3,22 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YE6B6QRM36"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-YE6B6QRM36');
-</script>
-<!-- Microsoft Clarity -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "t7ikzv22yu");
-</script>
+<script src="/assets/js/consent.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Inside ChatGPT’s Safety Net: What Really Happens When You Cross the Line | Brunelly</title>
 <meta name="description" content="ChatGPT&#x27;s orchestration is the most interesting part of ChatGPT. The orchestration isn’t just a helpful assistant, it’s also the bouncer, the censor, and the cr">
@@ -265,15 +250,11 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:1.2rem 2.5rem;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
   <p style="font-size:.85rem;color:var(--light);flex:1;min-width:260px;">We use cookies to improve your experience. <a href="cookies" style="color:var(--accent);text-decoration:none;">Cookie Policy</a></p>
   <div style="display:flex;gap:.7rem;">
-    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;">Essential only</button>
+    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;">Decline</button>
     <button onclick="setCookieConsent('all')" style="font-family:'DM Mono',monospace;font-size:.72rem;padding:.5rem 1.2rem;background:var(--accent);border:none;border-radius:6px;color:var(--black);cursor:pointer;font-weight:500;">Accept all</button>
   </div>
 </div>
 
-<script>
-function setCookieConsent(l){localStorage.setItem('brunelly_cookie_consent',l);document.getElementById('cookie-banner').style.display='none';}
-if(!localStorage.getItem('brunelly_cookie_consent'))document.getElementById('cookie-banner').style.display='flex';
-</script>
 
 <script>
 (function() {
