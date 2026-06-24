@@ -3,22 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YE6B6QRM36"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-YE6B6QRM36');
-</script>
-<!-- Microsoft Clarity -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "t7ikzv22yu");
-</script>
+<script src="/assets/js/consent.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brunelly Pricing | AI Native Software Delivery Platform Plans</title>
   <!-- SEO / AEO START -->
@@ -901,21 +886,10 @@ footer {
     <p style="font-size:.85rem;color:var(--light);line-height:1.65;">We use cookies to improve your experience and analyse site usage. By clicking <strong style="color:var(--white)">Accept all</strong> you agree to our use of cookies. <a href="cookies" style="color:var(--accent);text-decoration:none;">Cookie Policy</a></p>
   </div>
   <div style="display:flex;gap:.7rem;flex-shrink:0;">
-    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;transition:all .2s;">Essential only</button>
+    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;transition:all .2s;">Decline</button>
     <button onclick="setCookieConsent('all')" style="font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:.5rem 1.2rem;background:var(--accent);border:none;border-radius:6px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;">Accept all</button>
   </div>
 </div>
-<script>
-function setCookieConsent(level){
-  localStorage.setItem('brunelly_cookie_consent',level);
-  localStorage.setItem('brunelly_cookie_date',new Date().toISOString());
-  document.getElementById('cookie-banner').style.display='none';
-}
-(function(){
-  const consent=localStorage.getItem('brunelly_cookie_consent');
-  if(!consent){document.getElementById('cookie-banner').style.display='flex';}
-})();
-</script>
 
 <script>
 (function() {
