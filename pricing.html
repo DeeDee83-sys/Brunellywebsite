@@ -194,7 +194,26 @@
   .plan-feature { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.83rem; color: var(--light); line-height: 1.5; }
   .plan-check { color: var(--green); flex-shrink: 0; font-size: 0.75rem; margin-top: 0.1rem; }
 
-  .plan-cta { display: block; text-align: center; font-family: "DM Mono", monospace; font-size: 0.75rem; letter-spacing: 0.06em; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; width: 100%; margin-top: auto; }
+  .plan-cta { display: block; text-align: center; font-family: "DM Mono", monospace; font-size: 0.75rem; letter-spacing: 0.06em; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; width: 100%; }
+
+  /* ── Pricing comparison table ── */
+  .pricing-table { display: grid; grid-template-columns: 180px repeat(4, 1fr); max-width: 1300px; margin: 0 auto; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .pt-label-header { background: var(--off-black); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .pt-header-cell { background: var(--off-black); padding: 2rem 1.5rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; position: relative; transition: background 0.2s; }
+  .pt-header-cell:last-child { border-right: none; }
+  .pt-header-cell.featured { background: var(--surface); border-top: 2px solid var(--accent); }
+  .pt-header-cell:hover { background: var(--surface); }
+  .pt-header-cell .plan-cta { margin-top: auto; }
+  .pt-section-row { grid-column: 1 / -1; background: var(--black); padding: 0.45rem 1.5rem; font-family: "DM Mono", monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
+  .pt-row-label { background: var(--off-black); padding: 0.7rem 1.5rem; font-size: 0.82rem; color: var(--muted); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; }
+  .pt-row-label.last { border-bottom: none; }
+  .pt-cell { background: var(--off-black); padding: 0.7rem 1rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--light); font-family: "DM Mono", monospace; font-size: 0.78rem; }
+  .pt-cell:last-child { border-right: none; }
+  .pt-cell.featured { background: var(--surface); }
+  .pt-cell.last { border-bottom: none; }
+  .pt-y { color: var(--green); font-size: 0.9rem; }
+  .pt-n { color: #ef4444; font-size: 0.85rem; }
+  @media (max-width: 1000px) { .pricing-section { overflow-x: auto; -webkit-overflow-scrolling: touch; } .pricing-table { min-width: 760px; } }
   .plan-cta-primary { background: var(--accent); color: var(--black); font-weight: 500; }
   .plan-cta-primary:hover { background: #c4b5fd; box-shadow: 0 0 24px rgba(167,139,250,0.4); }
   .plan-cta-ghost { background: none; color: var(--muted); border: 1px solid var(--border); }
@@ -536,7 +555,7 @@ footer {
   <div class="billing-toggle">
     <span class="toggle-label active" id="label-monthly">Monthly</span>
     <label class="toggle-switch">
-      <input type="checkbox" id="billing-toggle" />
+      <input type="checkbox" id="billing-toggle" checked />
       <div class="toggle-track"></div>
       <div class="toggle-thumb"></div>
     </label>
@@ -547,119 +566,133 @@ footer {
 
 <!-- PRICING CARDS -->
 <section class="pricing-section">
-  <div class="pricing-grid reveal">
+  <section aria-label="AI development platform pricing for complex engineering organisations" style="padding:0;margin:0;"></section>
+  <section aria-label="enterprise AI development platform cost and custom pricing for large teams" style="padding:0;margin:0;"></section>
+  <section aria-label="credit-based AI development tool pricing model" style="padding:0;margin:0;"></section>
+  <section aria-label="free AI development platform no credit card required" style="padding:0;margin:0;"></section>
+  <div class="pricing-table reveal">
 
-    <!-- STARTER -->
-     <section aria-label="AI development platform pricing for complex engineering organisations" style="padding: 0; margin: 0;"></section>
-    <div class="plan-card">
+    <!-- ── PLAN HEADERS ── -->
+    <div class="pt-label-header"></div>
+
+    <div class="pt-header-cell">
       <div class="plan-name">Starter</div>
       <div class="plan-price"><span class="plan-price-free">Free</span></div>
-      <div class="plan-annual"></div>
       <div class="plan-billing-note">No credit card required</div>
-      <div class="plan-divider"></div>
-      <div class="plan-meta">
-        <div class="plan-meta-item"><span class="plan-meta-icon">👥</span>1–3 users</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">📁</span>1 project</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">⚡</span>0 credits / month</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">🛒</span>$0.06 / extra credit</div>
-      </div>
-      <div class="plan-desc">For users starting with Brunelly and working on small solo projects. A free AI coding tool built for developers getting started.</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="plan-check">✓</span>Enough to get going</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Build your spec</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Basic code generation included</div>
-      </div>
+      <div class="plan-annual" style="min-height:22px;"></div>
       <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-ghost">Get Started Free</a>
     </div>
 
-    <!-- PROFESSIONAL -->
-     <section aria-label="enterprise AI development platform cost and custom pricing for large teams" style="padding: 0; margin: 0;"></section>
-    <div class="plan-card">
+    <div class="pt-header-cell">
       <div class="plan-name">Professional</div>
       <div class="plan-price">
-        <span class="plan-price-num" data-monthly="25" data-annual="25">$25</span>
+        <span class="plan-price-num" data-monthly="29" data-annual="25">$25</span>
         <span class="plan-price-per">/user/month</span>
-      </div>
-      <div class="plan-annual">
         <span class="plan-original" data-monthly="" data-annual="$29">$29</span>
         <span class="plan-discount" data-monthly="" data-annual="-14%">-14%</span>
       </div>
       <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription">with 12 month subscription</div>
-      <div class="plan-divider"></div>
-      <div class="plan-meta">
-        <div class="plan-meta-item"><span class="plan-meta-icon">👥</span>1–25 users</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">📁</span>5 projects</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">⚡</span>300 credits / month</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">🛒</span>$0.05 / extra credit</div>
-      </div>
-      <div class="plan-desc">AI software tool pricing for individual developers and small teams getting started with AI powered development.</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="plan-check">✓</span>All core features including code generation and advanced models</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>300 AI credits included monthly</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Up to 5 projects</div>
-      </div>
       <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-ghost">Start Professional</a>
     </div>
 
-    <!-- BUSINESS -->
-     <section aria-label="credit-based AI development tool pricing model" style="padding: 0; margin: 0;"></section>
-    <div class="plan-card featured">
+    <div class="pt-header-cell featured">
       <div class="plan-popular">Most Popular</div>
       <div class="plan-name">Business</div>
       <div class="plan-price">
-        <span class="plan-price-num" data-monthly="69" data-annual="69">$69</span>
+        <span class="plan-price-num" data-monthly="79" data-annual="69">$69</span>
         <span class="plan-price-per">/user/month</span>
-      </div>
-      <div class="plan-annual">
         <span class="plan-original" data-monthly="" data-annual="$79">$79</span>
         <span class="plan-discount" data-monthly="" data-annual="-13%">-13%</span>
       </div>
       <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription">with 12 month subscription</div>
-      <div class="plan-divider"></div>
-      <div class="plan-meta">
-        <div class="plan-meta-item"><span class="plan-meta-icon">👥</span>5+ users</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">📁</span>50 projects</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">⚡</span>1,000 credits / month</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">🛒</span>$0.04 / extra credit</div>
-      </div>
-      <div class="plan-desc">For growing teams that need the full Brunelly software delivery platform.</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="plan-check">✓</span>All features unlocked</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>1,000 AI credits included monthly</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Up to 50 projects</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Minimum 5 seats</div>
-      </div>
       <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-primary">Start Business</a>
     </div>
 
-    <!-- ENTERPRISE -->
-     <section aria-label="free AI development platform no credit card required" style="padding: 0; margin: 0;"></section>
-    <div class="plan-card">
+    <div class="pt-header-cell">
       <div class="plan-name">Enterprise</div>
-      <div class="plan-price">
-        <span class="plan-price-free" style="font-size:2rem;letter-spacing:-0.01em;">Custom pricing</span>
-      </div>
-      <div class="plan-annual"></div>
+      <div class="plan-price"><span class="plan-price-free">Custom</span></div>
       <div class="plan-billing-note">Tailored to your organisation</div>
-      <div class="plan-divider"></div>
-      <div class="plan-meta">
-        <div class="plan-meta-item"><span class="plan-meta-icon">👥</span>25+ users</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">📁</span>Unlimited projects</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">⚡</span>15,000+ credits / month</div>
-        <div class="plan-meta-item"><span class="plan-meta-icon">🛒</span>Volume credit pricing</div>
-      </div>
-      <div class="plan-desc">For organisations that need scale, security, and dedicated support with flexible enterprise AI development pricing.</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="plan-check">✓</span>All features unlocked</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>15,000+ AI credits included monthly</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Unlimited projects</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Minimum 25 seats</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Dedicated infrastructure options</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Compliance controls &amp; SLA</div>
-        <div class="plan-feature"><span class="plan-check">✓</span>Dedicated account manager</div>
-      </div>
+      <div class="plan-annual" style="min-height:22px;"></div>
       <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-contact">Talk to Sales</a>
     </div>
+
+    <!-- ── PRICING ── -->
+    <div class="pt-section-row">Pricing</div>
+    <div class="pt-row-label">Credits / month</div>
+    <div class="pt-cell">0</div>
+    <div class="pt-cell">300</div>
+    <div class="pt-cell featured">1,000</div>
+    <div class="pt-cell">15,000+</div>
+
+    <div class="pt-row-label">Extra credit price</div>
+    <div class="pt-cell">$0.06</div>
+    <div class="pt-cell">$0.05</div>
+    <div class="pt-cell featured">$0.04</div>
+    <div class="pt-cell">Volume pricing</div>
+
+    <!-- ── LIMITS ── -->
+    <div class="pt-section-row">Limits</div>
+    <div class="pt-row-label">Users</div>
+    <div class="pt-cell">1–3</div>
+    <div class="pt-cell">1–25</div>
+    <div class="pt-cell featured">5+</div>
+    <div class="pt-cell">25+</div>
+
+    <div class="pt-row-label">Projects</div>
+    <div class="pt-cell">1</div>
+    <div class="pt-cell">5</div>
+    <div class="pt-cell featured">50</div>
+    <div class="pt-cell">Unlimited</div>
+
+    <!-- ── FEATURES ── -->
+    <div class="pt-section-row">Features</div>
+    <div class="pt-row-label">Boards</div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Code Generation</div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Documentation</div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Architecture Reviews</div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Bug Hunt</div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Code Reviews</div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label">Tests</div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell"><span class="pt-n">✕</span></div>
+    <div class="pt-cell featured"><span class="pt-y">✓</span></div>
+    <div class="pt-cell"><span class="pt-y">✓</span></div>
+
+    <div class="pt-row-label last">Advanced Models</div>
+    <div class="pt-cell last"><span class="pt-n">✕</span></div>
+    <div class="pt-cell last"><span class="pt-y">✓</span></div>
+    <div class="pt-cell featured last"><span class="pt-y">✓</span></div>
+    <div class="pt-cell last"><span class="pt-y">✓</span></div>
 
   </div>
 </section>
@@ -798,7 +831,7 @@ footer {
     labelMonthly.classList.toggle("active", !isAnnual);
     labelAnnual.classList.toggle("active", isAnnual);
 
-    const cards = document.querySelectorAll(".plan-card");
+    const cards = document.querySelectorAll(".pt-header-cell");
     cards.forEach(card => {
       const numEl = card.querySelector(".plan-price-num");
       const origEl = card.querySelector(".plan-original");
@@ -806,6 +839,7 @@ footer {
       const noteEl = card.querySelector(".plan-billing-note");
       if (!numEl) return;
 
+      numEl.textContent = "$" + (isAnnual ? numEl.dataset.annual : numEl.dataset.monthly);
       if (isAnnual) {
         if (origEl) origEl.style.display = "inline";
         if (discEl) discEl.style.display = "inline";
@@ -818,9 +852,14 @@ footer {
     });
   });
 
-  // Trigger once to set monthly state
-  document.querySelectorAll(".plan-original, .plan-discount").forEach(el => el.style.display = "none");
-  document.querySelectorAll(".plan-billing-note").forEach(el => { if (el.textContent.includes("12 month")) el.textContent = ""; });
+  // Initialise to annual state
+  labelMonthly.classList.remove("active");
+  labelAnnual.classList.add("active");
+  document.querySelectorAll(".plan-original, .plan-discount").forEach(el => el.style.display = "inline");
+  document.querySelectorAll(".pt-header-cell").forEach(card => {
+    const noteEl = card.querySelector(".plan-billing-note");
+    if (noteEl && card.querySelector(".plan-price-num")) noteEl.textContent = "with 12 month subscription";
+  });
 
   // FAQ accordion
   document.querySelectorAll(".faq-q").forEach(q => {
