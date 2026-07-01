@@ -145,9 +145,11 @@ code { overflow-wrap: break-word; }
 /* ── Tablet ── */
 @media (max-width: 900px) {
   /* Nav */
-  nav { padding: 0 1.5rem; gap: 1rem; }
+  nav { padding: 0 1.5rem; gap: 0.6rem; justify-content: flex-start; }
+  .nav-logo { margin-right: auto; }
   .nav-links { display: none !important; }
   .nav-hamburger { display: flex !important; }
+  .nav-actions { margin-left: 0; }
   .nav-actions .btn-ghost { display: none; }
 
   /* Typography */

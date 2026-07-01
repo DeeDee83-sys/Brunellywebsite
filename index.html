@@ -176,6 +176,9 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* SEO/AEO anchor tags are empty by design - must never take up layout space */
+  section[aria-label]:empty { padding: 0 !important; margin: 0 !important; min-height: 0 !important; }
+
   html { scroll-behavior: smooth; }
 
   body {
@@ -319,10 +322,10 @@
     border-right-color: rgba(255,255,255,0.15);
     color: var(--white);
     font-weight: 500;
-    background: rgba(255,255,255,0.06);
+    background: var(--surface);
   }
   .hero-cta-wrap .btn-pair-left:hover {
-    background: rgba(255,255,255,0.12);
+    background: #1c1c22;
     color: var(--white);
   }
 
@@ -448,6 +451,10 @@
     line-height: 1.8;
     animation: fadeUp 0.7s 0.3s ease both;
     text-wrap: pretty;
+  }
+
+  @media (max-width: 700px) {
+    .hero-sub-break { display: none; }
   }
 
   /* ── PRIMARY CTA ── */
@@ -1611,11 +1618,29 @@ footer {
   /* Pricing */
   .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
 
+  /* Home page grids */
+  .workflow-inner { grid-template-columns: 1fr !important; gap: 3rem !important; }
+  .problem-inner { grid-template-columns: 1fr !important; gap: 3rem !important; }
+  .context-pillars { grid-template-columns: repeat(2, 1fr) !important; }
+  .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .roles-content { grid-template-columns: 1fr !important; gap: 2rem !important; }
+  .agent-cards { grid-template-columns: 1fr !important; }
+  .for-cards { grid-template-columns: 1fr !important; }
+  .cta-section p[style*="white-space:nowrap"] { white-space: normal !important; }
+
+  /* Showcase tabs - wrap into two rows so headings don't overflow */
+  .showcase-tabs { flex-wrap: wrap; border-radius: 12px 12px 0 0; }
+  .showcase-tab { flex: 1 1 33.333%; white-space: normal; border-bottom: 1px solid var(--border); padding: 0.7rem 0.4rem; font-size: 0.66rem; }
+  .showcase-tab:nth-child(3) { border-right: none; }
+  .showcase-tab:nth-child(4),
+  .showcase-tab:nth-child(5) { flex-basis: 50%; border-bottom: none; }
+  .showcase-tab.active { margin-bottom: 0; }
+
   /* Footer */
-  
-  
-  
-  
+
+
+
+
 
   /* Cookie banner */
   #cookie-banner { padding: 1rem 1.5rem !important; flex-direction: column !important; align-items: flex-start !important; }
@@ -1667,6 +1692,10 @@ footer {
   .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
   .use-cases-grid, .row-3, .scroll-grid { grid-template-columns: 1fr !important; }
   .source-row { grid-template-columns: 24px 1fr auto !important; }
+
+  /* Home page grids */
+  .context-pillars { grid-template-columns: 1fr !important; }
+  .features-grid { grid-template-columns: 1fr !important; }
 
   /* Nav */
 
@@ -1799,8 +1828,8 @@ footer {
   </h1>
   <section aria-label="AI native development platform overview" style="padding: 0;"></section>
   <p class="hero-sub">
-    Your teams are using AI. Your pipeline is still fragmented. Brunelly is the AI software development platform that connects every stage into one governed, auditable delivery system your engineering organisation has always needed.<br><br>
-    One AI delivery platform. Planning, code, testing, reviews, and security orchestrated<br>
+    Your teams are using AI. Your pipeline is still fragmented. Brunelly is the AI software development platform that connects every stage into one governed, auditable delivery system your engineering organisation has always needed.<br class="hero-sub-break"><br class="hero-sub-break">
+    One AI delivery platform. Planning, code, testing, reviews, and security orchestrated<br class="hero-sub-break">
     end to end. Governed, auditable, and built for engineering teams scaling without losing context.
   </p>
 
