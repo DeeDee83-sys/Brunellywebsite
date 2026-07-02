@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+<script src="/assets/js/consent.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What Is AI-Native Development? | Brunelly</title>
+<meta name="description" content="Most AI tools help with code. AI-native development goes further — orchestrating your entire delivery lifecycle. Here's the real difference.">
+<meta name="keywords" content="AI-native development, AI-assisted vs AI-native development, AI-native development platform, AI software engineering OS, spec-driven development, vibe coding, AI orchestration software delivery, context loss AI coding">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://brunelly.com/blog/what-is-ai-native-development">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What Is AI-Native Development? | Brunelly">
+<meta property="og:description" content="Most AI tools help with code. AI-native development goes further — orchestrating your entire delivery lifecycle. Here's the real difference.">
+<meta property="og:url" content="https://brunelly.com/blog/what-is-ai-native-development">
+<meta property="og:image" content="https://brunelly.com/assets/images/Brunelly_LinkedIn_Article_Cover.webp">
+<meta property="og:site_name" content="Brunelly">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@BrunellyAI">
+<meta name="twitter:title" content="What Is AI-Native Development?">
+<meta name="twitter:image" content="https://brunelly.com/assets/images/Brunelly_LinkedIn_Article_Cover.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@200;300;400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,.12);--accent-mid:rgba(167,139,250,.4);--green:#4ade80;--orange:#fb923c;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;font-weight:400;line-height:1.7;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:999;}
+
+.btn-ghost { font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.05em; color: var(--light); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.5rem 1.1rem; cursor: pointer; transition: all 0.2s; text-decoration: none; line-height: 1; display: inline-flex; align-items: center; white-space: nowrap; }
+  .btn-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.25); }
+  .btn-primary { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--black); background: var(--accent); border: none; border-radius: 6px; padding: 0.5rem 1.1rem; cursor: pointer; transition: all 0.2s; text-decoration: none; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; white-space: nowrap; }
+  .btn-primary:hover { background: #c4b5fd; box-shadow: 0 0 20px rgba(167,139,250,0.4); }
+.breadcrumb{padding:5.5rem 3rem 0;max-width:820px;margin:0 auto;}
+.breadcrumb-inner{display:flex;align-items:center;gap:.5rem;font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.07em;color:var(--muted);flex-wrap:wrap;}
+.breadcrumb-inner a{color:var(--muted);text-decoration:none;transition:color .2s;}
+.breadcrumb-inner a:hover{color:var(--accent);}
+.breadcrumb-sep{color:#3a3a45;}
+.breadcrumb-current{color:var(--light);}
+.article-hero{padding:2rem 3rem 3rem;max-width:820px;margin:0 auto;}
+.article-meta-top{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.article-category{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.1em;padding:.28rem .8rem;border-radius:100px;border:1px solid var(--accent-mid);background:var(--accent-dim);color:var(--accent);font-weight:500;}
+.article-date{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.07em;color:var(--muted);}
+.article-read-time{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.07em;color:var(--muted);}
+.article-dot{width:3px;height:3px;border-radius:50%;background:var(--muted);}
+.article-hero h1{font-family:"Geologica",sans-serif;font-weight:300;font-size:clamp(2rem,4vw,3rem);line-height:1.1;letter-spacing:-.02em;margin-bottom:1.2rem;}
+.article-hero h1 span{color:var(--accent);}
+.article-excerpt{font-size:1.1rem;color:var(--light);line-height:1.75;font-weight:400;max-width:680px;margin-bottom:2rem;}
+.article-author{display:flex;align-items:center;gap:.8rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;display:inline-flex;}
+.author-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent-mid);display:flex;align-items:center;justify-content:center;font-family:"Geologica",sans-serif;font-weight:300;font-size:.9rem;color:var(--accent);flex-shrink:0;}
+.author-name{font-size:.88rem;color:var(--white);font-weight:500;}
+.author-title{font-family:"DM Mono",monospace;font-size:.65rem;color:var(--muted);letter-spacing:.05em;margin-top:.15rem;}
+.article-cover{width:100%;max-width:820px;margin:0 auto 0;padding:0 3rem;}
+.article-cover img{width:100%;border-radius:12px;display:block;border:1px solid var(--border);}
+.article-body{max-width:820px;margin:0 auto;padding:3rem 3rem 5rem;}
+.article-content{max-width:680px;}
+.article-content p{font-size:1rem;color:var(--light);line-height:1.85;margin-bottom:1.5rem;font-weight:400;}
+.article-content h2{font-family:"Geologica",sans-serif;font-weight:300;font-size:1.7rem;letter-spacing:-.02em;color:var(--white);margin:2.8rem 0 1rem;line-height:1.2;}
+.article-content h3{font-family:"Geologica",sans-serif;font-weight:300;font-size:1.25rem;letter-spacing:-.01em;color:var(--white);margin:2rem 0 .8rem;}
+.article-content h4{font-family:"DM Mono",monospace;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:1.8rem 0 .6rem;}
+.article-content strong{color:var(--white);font-weight:500;}
+.article-content em{color:var(--light);font-style:italic;}
+.article-content a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-mid);transition:border-color .2s;}
+.article-content a:hover{border-color:var(--accent);}
+.article-content ul,.article-content ol{padding-left:1.5rem;margin-bottom:1.5rem;}
+.article-content li{font-size:1rem;color:var(--light);line-height:1.8;margin-bottom:.5rem;}
+.article-content ul li::marker{color:var(--accent);}
+.article-content ol li::marker{color:var(--accent);font-family:"DM Mono",monospace;font-size:.85rem;}
+.article-content blockquote{border-left:3px solid var(--accent);padding:.8rem 1.5rem;margin:2rem 0;background:var(--surface);border-radius:0 8px 8px 0;}
+.article-content blockquote p{color:var(--light);font-size:1.05rem;font-style:italic;margin:0;}
+.article-content code{font-family:"DM Mono",monospace;font-size:.85rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:.15rem .4rem;color:var(--accent);}
+.article-content pre{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;overflow-x:auto;margin:1.5rem 0;}
+.article-content pre code{background:none;border:none;padding:0;color:#b4b4be;font-size:.85rem;line-height:1.7;}
+.article-content img{width:100%;border-radius:10px;margin:2rem 0;border:1px solid var(--border);}
+.article-content hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+.article-share{display:flex;align-items:center;gap:1rem;padding:1.5rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:2.5rem;flex-wrap:wrap;}
+.share-label{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.share-btn{font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.06em;padding:.4rem .9rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;}
+.share-btn:hover{color:var(--white);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);}
+.article-nav{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2.5rem;}
+.article-nav-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;text-decoration:none;transition:all .2s;display:flex;flex-direction:column;gap:.4rem;}
+.article-nav-card:hover{background:#1c1c22;border-color:rgba(255,255,255,.12);}
+.article-nav-card.prev{align-items:flex-start;}
+.article-nav-card.next{align-items:flex-end;text-align:right;}
+.nav-card-dir{font-family:"DM Mono",monospace;font-size:.65rem;letter-spacing:.07em;color:var(--muted);}
+.nav-card-title{font-size:.85rem;color:var(--white);font-weight:500;}
+.article-cta{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem;text-align:center;margin-bottom:3rem;position:relative;overflow:hidden;}
+.article-cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(167,139,250,.06) 0%,transparent 70%);pointer-events:none;}
+.article-cta h3{font-family:"Geologica",sans-serif;font-weight:300;font-size:1.4rem;letter-spacing:-.01em;margin-bottom:.6rem;}
+.article-cta p{font-size:.9rem;color:var(--light);line-height:1.7;margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-btn{display:inline-flex;font-family:"DM Mono",monospace;font-size:.78rem;letter-spacing:.06em;padding:.8rem 1.8rem;background:var(--accent);color:var(--black);border:none;border-radius:8px;cursor:pointer;font-weight:500;text-decoration:none;transition:all .2s;}
+.cta-btn:hover{background:#c4b5fd;box-shadow:0 0 24px rgba(167,139,250,.4);}
+footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-template-columns:160px 1fr auto;gap:2.5rem;align-items:start;}
+.footer-logo{text-decoration:none;display:inline-flex;align-items:center;}
+.footer-logo img{height:32px;width:auto;display:block;opacity:.85;transition:opacity .2s;}
+.footer-logo:hover img{opacity:1;}
+.footer-cols{display:flex;gap:2.5rem;flex-wrap:wrap;}
+.footer-col h4{font-family:"DM Mono",monospace;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem;}
+.footer-col a{display:block;font-size:.82rem;color:var(--light);text-decoration:none;margin-bottom:.5rem;transition:color .2s;}
+.footer-col a:hover{color:var(--white);}
+.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:1rem;}
+.footer-socials{display:flex;gap:.6rem;}
+.social-btn{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--muted);font-size:.8rem;transition:all .2s;}
+.social-btn:hover{border-color:var(--accent-mid);color:var(--accent);background:var(--accent-dim);}
+.footer-policy{display:flex;gap:1rem;flex-wrap:wrap;justify-content:flex-end;}
+.footer-policy a{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);text-decoration:none;letter-spacing:.04em;transition:color .2s;}
+.footer-policy a:hover{color:var(--white);}
+.footer-copy{font-family:"DM Mono",monospace;font-size:.63rem;color:var(--muted);letter-spacing:.04em;text-align:right;}
+@media (max-width:900px){
+  .breadcrumb{padding:5rem 1.5rem 0;}
+  .article-hero{padding:1.5rem 1.5rem 2rem;}
+  .article-cover{padding:0 1.5rem;}
+  .article-body{padding:2rem 1.5rem 4rem;}
+  .article-content{max-width:100%;}
+  .article-nav{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr;gap:2rem;padding:2rem 1.5rem;}
+  .footer-right{align-items:flex-start;}
+  .footer-copy{text-align:left;}
+  .footer-policy{justify-content:flex-start;}
+}
+@media (max-width:600px){
+  .article-hero h1{font-size:1.8rem;}
+  .article-share{gap:.6rem;}
+}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What is AI-native development?",
+  "description": "Most AI tools help with code. AI-native development goes further — orchestrating your entire delivery lifecycle.",
+  "author": {
+    "@type": "Person",
+    "name": "Guy Powell",
+    "jobTitle": "Chief Technology Officer"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Brunelly",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://brunelly.com/assets/images/logo-brunelly.webp"
+    }
+  },
+  "mainEntityOfPage": "https://brunelly.com/blog/what-is-ai-native-development",
+  "image": "https://brunelly.com/assets/images/Brunelly_LinkedIn_Article_Cover.webp"
+}
+</script>
+<script src="supabase-config.js"></script>
+<script src="error-handler.js"></script>
+<link rel="stylesheet" href="/brunelly-responsive.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="/">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="resources">Resources</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">What Is AI-Native Development?</span>
+  </div>
+</div>
+
+<!-- ARTICLE HERO -->
+<div class="article-hero">
+  <div class="article-meta-top">
+    <span class="article-category">Insights</span>
+    <span class="article-dot"></span>
+    <span class="article-date">July 2026</span>
+    <span class="article-dot"></span>
+    <span class="article-read-time">7 min read</span>
+  </div>
+  <h1>What Is <span>AI-Native</span> Development?</h1>
+  <p class="article-excerpt">And why it is not the same as using Copilot.</p>
+  <div class="article-author">
+    <div class="author-avatar">G</div>
+    <div>
+      <div class="author-name">Guy Powell</div>
+      <div class="author-title">CTO, Brunelly</div>
+    </div>
+  </div>
+</div>
+
+<!-- COVER IMAGE -->
+<div class="article-cover">
+  <img src="/assets/images/Brunelly_LinkedIn_Article_Cover.webp" alt="Diagram showing AI-native development connecting planning, code generation, and review in one governed system" />
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="article-body">
+
+  <!-- SHARE BAR -->
+  <div class="article-share">
+    <span class="share-label">Share</span>
+    <a href="https://www.linkedin.com/company/brunelly/" target="_blank" class="share-btn">in LinkedIn</a>
+    <a href="https://x.com/BrunellyAI" target="_blank" class="share-btn">𝕏 Twitter</a>
+    <a href="https://www.reddit.com/r/Brunelly/" target="_blank" class="share-btn">r/ Reddit</a>
+  </div>
+
+  <!-- ARTICLE CONTENT -->
+  <div class="article-content">
+
+    <p>We want to be straightforward with you before we get into the substance of this. Most articles that try to define a new category are quietly written to make the author's product sound good. This one is not exempt from that. Brunelly is an AI-native development platform, so we obviously have a view on this topic.</p>
+
+    <p>But the reason we are writing this is not to sell you anything. It is because the term "AI-native development" is being used loosely right now, in ways that are creating real confusion for engineering leaders who are trying to make serious decisions about their tooling and their delivery architecture. That confusion has costs.</p>
+
+    <p>So let's try to be precise.</p>
+
+    <h2>The difference between AI-assisted and AI-native</h2>
+    <p>Most of what engineering teams call AI development today is actually AI-assisted development. GitHub Copilot. Cursor. Claude in your IDE. These are tools that help individual developers work faster at the file or function level. They are genuinely useful. Our own engineers use them. Most people we know who are serious about software engineering use them.</p>
+
+    <p>But they are not AI-native development. The distinction matters, and the cleanest way to explain it is this:</p>
+
+    <blockquote>
+      <p>AI-assisted development puts AI inside your existing process. AI-native development replaces the process itself.</p>
+    </blockquote>
+
+    <p>AI-assisted tools operate at the level of the individual developer, in their editor, on the file they have open. They autocomplete. They suggest. They help you move faster through the act of writing code. What they do not do is hold any understanding of the wider system you are building into.</p>
+
+    <p>An AI that has read your current file does not know what was decided in your architecture review last month. It does not know why the auth flow is structured the way it is, or which service integration is sensitive to timing changes, or what constraints your client imposed on the data model in sprint three. When that context lives only in your team's heads and their collective memory, it cannot be handed to a stateless tool and expected to produce sensible output.</p>
+
+    <p>AI-native development starts from a different assumption. It assumes that the AI needs to understand the entire system, not just the file, before it generates anything. Planning, requirements, architecture decisions, existing code, constraints, previous decisions: all of it feeds into a persistent model that the AI works from, and that model gets more accurate the more it learns about your project.</p>
+
+    <h2>Why this is not just a scale argument</h2>
+    <p>We have heard the counterargument a few times. It usually goes something like: AI-assisted tools are fine for teams that are disciplined about documentation and communication. You just need good engineers who write good specs and keep the context in their heads.</p>
+
+    <p>There is some truth in that. On a small greenfield project, with a senior team that has been working together for years, a good engineer using Copilot can produce excellent results. The context problem is manageable because the team is the context.</p>
+
+    <p>But that scenario is not the one most engineering leaders are dealing with. Most of them are managing:</p>
+
+    <ul>
+      <li>Teams that are growing, where new engineers need to get productive on complex codebases quickly</li>
+      <li>Brownfield systems that carry years of accumulated decisions, some documented, most not</li>
+      <li>Multiple concurrent workstreams where context is being lost at every handoff</li>
+      <li>Delivery timelines that do not allow for the weeks of onboarding that complex systems used to require</li>
+      <li>A senior-to-junior ratio that is being squeezed as teams scale</li>
+    </ul>
+
+    <p>In those environments, relying on human memory to carry the context is not a failure of discipline. It is just an impossible ask. The context is too large, too distributed, and too dynamic.</p>
+
+    <p>AI-native development is a response to that reality, not a workaround for lazy teams.</p>
+
+    <h2>What AI-native development actually looks like in practice</h2>
+    <p>Let's get specific, because this is where definitions tend to get vague.</p>
+
+    <p>In an AI-native development system, the AI does not start at the code generation step. It starts at the requirements step. Before a line of code is written, the system builds a structured understanding of what you are trying to build, why, and under what constraints. That understanding is not a prompt. It is a persistent model that every subsequent step in the delivery process runs against.</p>
+
+    <p>When sprint planning happens, it happens against that model. When code is generated, it is generated with full knowledge of the architecture, the existing patterns in your codebase, the decisions that have already been made, and the constraints that apply. When reviews happen, they are not checking style or syntax in isolation. They are checking whether the code is consistent with the broader system it is being written into.</p>
+
+    <p>This is how we built Brunelly's delivery chain:</p>
+
+    <ul>
+      <li>Structured requirements capture, not a vague prompt to start with</li>
+      <li>Architecture and constraint modelling, so the AI knows what it is working within</li>
+      <li>Sprint planning grounded in what actually exists in the system, not generic best practice</li>
+      <li>Code generation that writes to your patterns, your conventions, and your existing decisions</li>
+      <li>Review and quality checks that have access to the full picture, not just the diff</li>
+      <li>Traceable lineage, so every piece of code can be traced back to the requirement that produced it</li>
+    </ul>
+
+    <p>The key architectural difference is that nothing in this chain is stateless. Every step is informed by everything that came before it, and that accumulated context persists across sprints, across team members, and across time.</p>
+
+    <h2>The governance question that most people skip</h2>
+    <p>There is a conversation happening in engineering leadership right now that we think is underweighted. It is not "how do we get more output from AI?" It is "how do we know what our AI is producing, why it produced it, and whether it is consistent with our architecture?"</p>
+
+    <p>This is not a philosophical concern. It is a practical one. When AI tools generate code in isolation, with no persistent understanding of the system they are contributing to, you get a specific type of problem. The code might be individually correct. It might pass review. It might even work. But over time, it drifts. Decisions get made in one part of the codebase that contradict decisions in another. Architectural constraints that were set early in the project quietly get violated by agents that had no way of knowing those constraints existed.</p>
+
+    <p>We have watched this happen, building our own platform and working alongside teams who came to us after living through it. The code looks fine on the day it ships. Three sprints later, something breaks in a way that is hard to trace and expensive to fix.</p>
+
+    <p>Governance in AI-native development means that the system has a record of why every decision was made, what constraints applied, and what requirements drove each piece of output. That <a href="/platform">traceable software lineage</a> is not just useful for audits. It is what allows you to catch drift before it compounds.</p>
+
+    <h2>The spec-first principle</h2>
+    <p>One of the things we are most deliberate about at Brunelly is what we call <a href="/how-it-works">spec-driven development</a>. It sounds almost obvious when you say it out loud. Software should be generated from validated requirements, not from open-ended prompts. And yet the dominant pattern in AI-assisted development is the opposite: start with a vague instruction, iterate until the output looks roughly right, and deal with the architectural implications later.</p>
+
+    <blockquote>
+      <p>Vibe coding is not a development methodology. It is technical debt generation at scale.</p>
+    </blockquote>
+
+    <p>Spec-first means that before the AI generates anything executable, there is a structured artefact that defines what is being built: the requirements, the acceptance criteria, the constraints, the dependencies, the architectural decisions that apply. The code that gets generated is a function of that spec, not a guess at what the user probably meant.</p>
+
+    <p>This changes what AI-native development produces. It is not faster vibe coding. It is disciplined, traceable, governed delivery that happens to be powered by AI rather than by manual coordination overhead. It is the opposite of vibe coding, and we built Brunelly around that distinction on purpose.</p>
+
+    <h2>What this means for engineering leaders making tooling decisions</h2>
+    <p>If you are a CTO or a head of engineering trying to figure out what to do with AI right now, here is how we would frame it.</p>
+
+    <p>AI-assisted tools are for individual developer productivity. They are worthwhile, they work, and you should be using them if you are not already. But they do not change your delivery architecture. They make individuals faster within the existing process.</p>
+
+    <p>AI-native development is a different decision. It is a decision about how software delivery itself is structured. It has implications for how requirements are captured, how sprints are planned, how code is reviewed, and how you demonstrate to your board that your engineering investment is producing the outcomes you claim it is.</p>
+
+    <p>The question worth asking is not which AI tool makes my developers fastest. It is: what does my software delivery system look like at scale, and is AI embedded into that system in a way that is governed, traceable, and consistent?</p>
+
+    <p>Those are different questions. They have different answers.</p>
+
+    <hr>
+
+    <p><em>Brunelly is an AI-native software engineering OS for engineering teams building real-world, production-grade software.</em></p>
+
+  </div>
+
+  <!-- IN-ARTICLE CTA -->
+  <div class="article-cta">
+    <h3>See what Brunelly knows about your codebase</h3>
+    <p>Connect your repo in under 5 minutes. No credit card required. Brunelly starts reading your system immediately.</p>
+    <a href="https://app.brunelly.com/register" class="cta-btn">Start Building Free →</a>
+  </div>
+
+</div>
+
+<div id="site-footer"></div>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:1.2rem 2.5rem;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+  <p style="font-size:.85rem;color:var(--light);flex:1;min-width:260px;">We use cookies to improve your experience. <a href="cookies" style="color:var(--accent);text-decoration:none;">Cookie Policy</a></p>
+  <div style="display:flex;gap:.7rem;">
+    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;">Decline</button>
+    <button onclick="setCookieConsent('all')" style="font-family:'DM Mono',monospace;font-size:.72rem;padding:.5rem 1.2rem;background:var(--accent);border:none;border-radius:6px;color:var(--black);cursor:pointer;font-weight:500;">Accept all</button>
+  </div>
+</div>
+
+<script src="brunelly-nav-a11y.js"></script>
+<script src="/assets/js/components.js"></script>
+</body>
+</html>

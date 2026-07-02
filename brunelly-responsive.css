@@ -94,6 +94,11 @@ nav {
 }
 .btn-primary:hover { background: #c4b5fd; box-shadow: 0 0 20px rgba(167,139,250,0.4); }
 
+/* ── SEO/AEO anchor tags are empty by design - must never take up layout space ──
+   display:contents drops them out of flex/grid box flow entirely (no gap contribution)
+   while keeping the element (and its aria-label) in the DOM for crawlers. ── */
+section[aria-label]:empty { display: contents; padding: 0 !important; margin: 0 !important; min-height: 0 !important; }
+
 /* ── Global overflow & fluid media ── */
 html, body { overflow-x: hidden; }
 img, video, iframe, svg, canvas, embed, object {
@@ -131,6 +136,14 @@ code { overflow-wrap: break-word; }
   .pill-btn, .tab-btn, .nav-hamburger {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Prevent nowrap items in horizontally-scrolling flex navs from shrinking
+     below their content width (an explicit min-width above overrides the
+     browser's default content-based flex minimum, which otherwise allows
+     shrinkage and causes nowrap text to overflow and overlap neighbours) */
+  .sub-nav-item, .sub-nav-sep, .page-nav-btn, .page-nav-item {
+    flex-shrink: 0;
   }
 }
 
@@ -209,8 +222,9 @@ code { overflow-wrap: break-word; }
 
   /* Feature pages */
   .feat-visual { min-height: 240px !important; }
-  .sub-nav { overflow-x: auto; padding: 0 1rem; justify-content: flex-start; }
-  .sub-nav-item { white-space: nowrap; padding: 0.8rem 1rem; font-size: 0.65rem; }
+  .sub-nav { flex-wrap: wrap; overflow-x: visible; justify-content: center; padding: 0.4rem 1rem; row-gap: 0.2rem; }
+  .sub-nav-item { white-space: nowrap; padding: 0.6rem 0.9rem; font-size: 0.65rem; }
+  .sub-nav-sep { display: none; }
   .page-nav-section { padding: 1.2rem 1.5rem; }
   .prev-next { flex-direction: column; gap: 1rem; padding: 2rem 1.5rem; }
 
