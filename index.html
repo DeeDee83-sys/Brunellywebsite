@@ -177,7 +177,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* SEO/AEO anchor tags are empty by design - must never take up layout space */
-  section[aria-label]:empty { padding: 0 !important; margin: 0 !important; min-height: 0 !important; }
+  section[aria-label]:empty { display: contents; padding: 0 !important; margin: 0 !important; min-height: 0 !important; }
 
   html { scroll-behavior: smooth; }
 
