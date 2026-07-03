@@ -115,3 +115,13 @@
   var footerEl = document.getElementById('site-footer');
   if (footerEl) footerEl.outerHTML = footer;
 })();
+
+// SEO/AEO placeholder <section aria-label> tags must never affect layout.
+// Some contain only whitespace/HTML comments (e.g. "<!-- Contact Form -->"),
+// which the CSS ":empty" selector does not match, so we tag true content-less
+// anchors here and let CSS collapse them out of flex/grid flow entirely.
+(function () {
+  document.querySelectorAll('section[aria-label]').forEach(function (el) {
+    if (!el.textContent.trim()) el.classList.add('seo-anchor');
+  });
+})();
