@@ -582,7 +582,7 @@ footer {
   <h1>Start free. Scale<br><span>as your team grows.</span></h1>
   <p>Four plans built around how real engineering teams work from solo developers to large enterprises. This AI development platform delivers AI native software delivery with credit based usage, so you only pay for what you actually use.</p>
 
-  <div class="billing-toggle">
+  <div class="billing-toggle" style="display:none;">
     <span class="toggle-label active" id="label-monthly">Monthly</span>
     <label class="toggle-switch">
       <input type="checkbox" id="billing-toggle" checked />
@@ -613,61 +613,59 @@ footer {
 
     <div class="pt-header-cell" data-plan="0">
       <div class="plan-name">Starter</div>
-      <div class="plan-price"><span class="plan-price-free">Free</span></div>
+      <div class="plan-price" style="display:none;"><span class="plan-price-free">Free</span></div>
       <div class="plan-billing-note">No credit card required</div>
-      <div class="plan-annual" style="min-height:22px;"></div>
-      <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-ghost">Get Started Free</a>
+      <div class="plan-annual" style="min-height:22px;display:none;"></div>
+      <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-ghost">Talk to an Expert</a>
     </div>
 
     <div class="pt-header-cell" data-plan="1">
       <div class="plan-name">Professional</div>
-      <div class="plan-price">
+      <div class="plan-price" style="display:none;">
         <span class="plan-price-num" data-monthly="29" data-annual="25">$25</span>
         <span class="plan-price-per">/user/month</span>
         <span class="plan-original" data-monthly="" data-annual="$29">$29</span>
         <span class="plan-discount" data-monthly="" data-annual="-14%">-14%</span>
       </div>
-      <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription">with 12 month subscription</div>
-      <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-ghost">Start Professional</a>
+      <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription"></div>
+      <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-ghost">Talk to an Expert</a>
     </div>
 
     <div class="pt-header-cell featured" data-plan="2">
       <div class="plan-popular">Most Popular</div>
       <div class="plan-name">Business</div>
-      <div class="plan-price">
+      <div class="plan-price" style="display:none;">
         <span class="plan-price-num" data-monthly="79" data-annual="69">$69</span>
         <span class="plan-price-per">/user/month</span>
         <span class="plan-original" data-monthly="" data-annual="$79">$79</span>
         <span class="plan-discount" data-monthly="" data-annual="-13%">-13%</span>
       </div>
-      <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription">with 12 month subscription</div>
-      <a href="https://app.brunelly.com/register" class="plan-cta plan-cta-primary">Start Business</a>
+      <div class="plan-billing-note" data-monthly="" data-annual="with 12 month subscription"></div>
+      <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-primary">Talk to an Expert</a>
     </div>
 
     <div class="pt-header-cell" data-plan="3">
       <div class="plan-name">Enterprise</div>
-      <div class="plan-price"><span class="plan-price-free">Custom</span></div>
+      <div class="plan-price" style="display:none;"><span class="plan-price-free">Custom</span></div>
       <div class="plan-billing-note">Tailored to your organisation</div>
-      <div class="plan-annual" style="min-height:22px;"></div>
-      <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-contact">Talk to Sales</a>
+      <div class="plan-annual" style="min-height:22px;display:none;"></div>
+      <a href="https://calendly.com/vinoj-pinavida/30min" class="plan-cta plan-cta-contact">Talk to an Expert</a>
     </div>
 
-    <!-- ── PRICING ── -->
-    <div class="pt-section-row">Pricing</div>
+    <!-- ── LIMITS ── -->
+    <div class="pt-section-row">Limits</div>
     <div class="pt-row-label">Credits / month</div>
     <div class="pt-cell" data-plan="0">0</div>
     <div class="pt-cell" data-plan="1">300</div>
     <div class="pt-cell featured" data-plan="2">1,000</div>
     <div class="pt-cell" data-plan="3">15,000+</div>
 
-    <div class="pt-row-label">Extra credit price</div>
-    <div class="pt-cell" data-plan="0">$0.06</div>
-    <div class="pt-cell" data-plan="1">$0.05</div>
-    <div class="pt-cell featured" data-plan="2">$0.04</div>
-    <div class="pt-cell" data-plan="3">Volume pricing</div>
+    <div class="pt-row-label" style="display:none;">Extra credit price</div>
+    <div class="pt-cell" data-plan="0" style="display:none;">$0.06</div>
+    <div class="pt-cell" data-plan="1" style="display:none;">$0.05</div>
+    <div class="pt-cell featured" data-plan="2" style="display:none;">$0.04</div>
+    <div class="pt-cell" data-plan="3" style="display:none;">Volume pricing</div>
 
-    <!-- ── LIMITS ── -->
-    <div class="pt-section-row">Limits</div>
     <div class="pt-row-label">Users</div>
     <div class="pt-cell" data-plan="0">1–3</div>
     <div class="pt-cell" data-plan="1">1–25</div>
@@ -834,8 +832,8 @@ footer {
     <section aria-label="AI software tool pricing per seat for growing engineering teams" style="padding: 0; margin: 0;"></section>
     <p>No credit card required. Connect your repo in under 5 minutes and explore Brunelly’s AI native platform knows about your codebase immediately.</p>
     <div class="btn-pair">
-      <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-pair-left">Talk to an expert</a>
-      <a href="https://app.brunelly.com/register" class="btn-pair-right">Start Building Free →</a>
+      <a href="https://calendly.com/vinoj-pinavida/30min" class="btn-pair-left" style="border-right:none;">Talk to an expert</a>
+      <a href="https://app.brunelly.com/register" class="btn-pair-right" style="display:none;">Start Building Free →</a>
     </div>
     <p style="margin-top:1.2rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.06em;">Works with GitHub · GitLab · Azure DevOps · Bitbucket</p>
   </div>
@@ -851,50 +849,47 @@ footer {
   }, { threshold: 0.08 });
   reveals.forEach(el => io.observe(el));
 
-  // Billing toggle
+  // Billing toggle (hidden in UI, kept for future re-enable)
   const toggle = document.getElementById("billing-toggle");
   const labelMonthly = document.getElementById("label-monthly");
   const labelAnnual = document.getElementById("label-annual");
 
-  const prices = {
-    professional: { monthly: "25", annual: "25", originalAnnual: "$29", discountAnnual: "-14%" },
-    business:     { monthly: "69", annual: "69", originalAnnual: "$79", discountAnnual: "-13%" },
-  };
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      const isAnnual = toggle.checked;
+      labelMonthly.classList.toggle("active", !isAnnual);
+      labelAnnual.classList.toggle("active", isAnnual);
 
-  toggle.addEventListener("change", () => {
-    const isAnnual = toggle.checked;
-    labelMonthly.classList.toggle("active", !isAnnual);
-    labelAnnual.classList.toggle("active", isAnnual);
+      const cards = document.querySelectorAll(".pt-header-cell");
+      cards.forEach(card => {
+        const numEl = card.querySelector(".plan-price-num");
+        const origEl = card.querySelector(".plan-original");
+        const discEl = card.querySelector(".plan-discount");
+        const noteEl = card.querySelector(".plan-billing-note");
+        if (!numEl) return;
 
-    const cards = document.querySelectorAll(".pt-header-cell");
-    cards.forEach(card => {
-      const numEl = card.querySelector(".plan-price-num");
-      const origEl = card.querySelector(".plan-original");
-      const discEl = card.querySelector(".plan-discount");
-      const noteEl = card.querySelector(".plan-billing-note");
-      if (!numEl) return;
-
-      numEl.textContent = "$" + (isAnnual ? numEl.dataset.annual : numEl.dataset.monthly);
-      if (isAnnual) {
-        if (origEl) origEl.style.display = "inline";
-        if (discEl) discEl.style.display = "inline";
-        if (noteEl) noteEl.textContent = "with 12 month subscription";
-      } else {
-        if (origEl) origEl.style.display = "none";
-        if (discEl) discEl.style.display = "none";
-        if (noteEl) noteEl.textContent = "";
-      }
+        numEl.textContent = "$" + (isAnnual ? numEl.dataset.annual : numEl.dataset.monthly);
+        if (isAnnual) {
+          if (origEl) origEl.style.display = "inline";
+          if (discEl) discEl.style.display = "inline";
+          if (noteEl) noteEl.textContent = "with 12 month subscription";
+        } else {
+          if (origEl) origEl.style.display = "none";
+          if (discEl) discEl.style.display = "none";
+          if (noteEl) noteEl.textContent = "";
+        }
+      });
     });
-  });
 
-  // Initialise to annual state
-  labelMonthly.classList.remove("active");
-  labelAnnual.classList.add("active");
-  document.querySelectorAll(".plan-original, .plan-discount").forEach(el => el.style.display = "inline");
-  document.querySelectorAll(".pt-header-cell").forEach(card => {
-    const noteEl = card.querySelector(".plan-billing-note");
-    if (noteEl && card.querySelector(".plan-price-num")) noteEl.textContent = "with 12 month subscription";
-  });
+    // Initialise to annual state
+    labelMonthly.classList.remove("active");
+    labelAnnual.classList.add("active");
+    document.querySelectorAll(".plan-original, .plan-discount").forEach(el => el.style.display = "inline");
+    document.querySelectorAll(".pt-header-cell").forEach(card => {
+      const noteEl = card.querySelector(".plan-billing-note");
+      if (noteEl && card.querySelector(".plan-price-num")) noteEl.textContent = "with 12 month subscription";
+    });
+  }
 
   // Mobile pricing table tabs - show one plan column at a time
   const priceTable = document.querySelector(".pricing-table");
