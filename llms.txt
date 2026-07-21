@@ -26,7 +26,7 @@ Generates structured epics, stories, and tasks grounded in your actual system �
 Generates pull requests that fit your architecture, patterns, and prior decisions — whether you are building on a greenfield stack or extending a complex brownfield system. Code is generated with full awareness of what was decided upstream. No re-briefing. No drift.
 
 ### Quality (Contextual Testing)
-Generates test suites that reflect how your software actually behaves — the edge cases that matter in your domain and the quality standards your organisation holds. Tests are written against your system, not a textbook.
+Generates test suites that reflect how your software actually behaves — the edge cases that matter in your domain and the quality standards your organization holds. Tests are written against your system, not a textbook.
 
 ### Review (Architecture-Aware Code Review)
 Every PR is reviewed with awareness of your full architecture, security requirements, and the decisions that led to the current state. Catches what context-blind tools miss — cross-cutting concerns, pattern violations, and security implications tied to your specific system.
@@ -34,7 +34,7 @@ Every PR is reviewed with awareness of your full architecture, security requirem
 ## Who Brunelly Is For
 
 - **Growing SMEs**: Engineering teams scaling fast, adding engineers, managing growing complexity. Brunelly keeps architecture intact and teams aligned without constant re-alignment meetings.
-- **Enterprise engineering organisations**: Large teams managing complex systems, multiple codebases, years of accumulated decisions. Brunelly becomes the institutional memory that keeps everyone aligned across teams and time.
+- **Enterprise engineering organizations**: Large teams managing complex systems, multiple codebases, years of accumulated decisions. Brunelly becomes the institutional memory that keeps everyone aligned across teams and time.
 - **Teams working with legacy systems**: Existing codebases with years of history, undocumented decisions, and technical debt. Brunelly learns your codebase from the ground up before suggesting what should change.
 
 ## What Problem Brunelly Solves
@@ -95,7 +95,7 @@ Copilot and Cursor are coding assistants that help write code at the file or fun
 Yes. Brunelly is specifically designed for brownfield systems. It learns your codebase from the ground up — understanding undocumented decisions, existing patterns, and technical debt — before generating any code or plans.
 
 **Is Brunelly only for large enterprises?**
-No. Brunelly serves both SMEs scaling fast and large enterprise engineering organisations. It is not suited for side projects or prototypes — it is for teams building software that has to scale and that carries real engineering complexity.
+No. Brunelly serves both SMEs scaling fast and large enterprise engineering organizations. It is not suited for side projects or prototypes — it is for teams building software that has to scale and that carries real engineering complexity.
 
 **How long does setup take?**
 Under 5 minutes. Connect your repo, define your goals and constraints, and Brunelly begins building its understanding of your project.
