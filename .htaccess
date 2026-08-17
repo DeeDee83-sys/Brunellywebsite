@@ -9,7 +9,7 @@ RewriteRule ^(.*)$ https://brunelly.com/$1 [R=301,L]
 Redirect 301 /article-chatgpt-orchestration /articles/article-chatgpt-orchestration
 Redirect 301 /article-claude-ai-coding-orchestration-containerized-workflows /articles/article-claude-ai-coding-orchestration-containerized-workflows
 Redirect 301 /article-compiler-built-with-claude-ai /articles/article-compiler-built-with-claude-ai
-Redirect 301 /article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /articles/article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects
+Redirect 301 /article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /resources
 Redirect 301 /article-how-many-rs-are-there-really-in-strawberry /articles/article-how-many-rs-are-there-really-in-strawberry
 Redirect 301 /article-inside-chatgpts-safety-net /articles/article-inside-chatgpts-safety-net
 Redirect 301 /article-part-1-managing-your-ai-context-in-real-apps /articles/article-part-1-managing-your-ai-context-in-real-apps
@@ -45,7 +45,7 @@ Redirect 301 /brunelly-terms /terms
 Redirect 301 /brunelly-article-chatgpt-orchestration /article-chatgpt-orchestration
 Redirect 301 /brunelly-article-claude-ai-coding-orchestration-containerized-workflows /article-claude-ai-coding-orchestration-containerized-workflows
 Redirect 301 /brunelly-article-compiler-built-with-claude-ai /article-compiler-built-with-claude-ai
-Redirect 301 /brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects
+Redirect 301 /brunelly-article-from-scrumbuddy-to-brunelly-bad-requirements-are-still-killing-software-projects /resources
 Redirect 301 /brunelly-article-how-many-rs-are-there-really-in-strawberry /article-how-many-rs-are-there-really-in-strawberry
 Redirect 301 /brunelly-article-inside-chatgpts-safety-net /article-inside-chatgpts-safety-net
 Redirect 301 /brunelly-article-part-1-managing-your-ai-context-in-real-apps /article-part-1-managing-your-ai-context-in-real-apps
