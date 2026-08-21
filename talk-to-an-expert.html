@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+<script src="/assets/js/consent.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talk to an Expert | Brunelly AI Development Platform Demo</title>
+  <!-- SEO / AEO START -->
+  <meta name="keywords" content="talk to an expert, book AI development platform demo, Brunelly demo, AI development platform demo, Brunelly sales">
+  <meta name="description" content="Book a 30-minute call with the Brunelly team. See Brunelly's AI-native software delivery platform running on your own codebase, no commitment.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://brunelly.com/talk-to-an-expert/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Talk to an Expert - Brunelly">
+  <meta property="og:description" content="Book a 30-minute call with the Brunelly team. See Brunelly's AI-native software delivery platform running on your own codebase, no commitment.">
+  <meta property="og:url" content="https://brunelly.com/talk-to-an-expert/">
+  <meta property="og:image" content="https://brunelly.com/og-home.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Brunelly">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@BrunellyAI">
+  <meta name="twitter:title" content="Talk to an Expert - Brunelly">
+  <meta name="twitter:description" content="Book a 30-minute call with the Brunelly team. See Brunelly's AI-native software delivery platform running on your own codebase, no commitment.">
+  <meta name="twitter:image" content="https://brunelly.com/og-home.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Brunelly",
+  "url": "https://brunelly.com",
+  "description": "AI-native software development platform for SMEs and enterprises building complex software.",
+  "foundingDate": "2024",
+  "sameAs": [
+    "https://www.linkedin.com/company/brunelly/",
+    "https://x.com/BrunellyAI",
+    "https://www.reddit.com/r/Brunelly/",
+    "https://discord.gg/cWfNSXzQjr"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "hello@brunelly.com",
+    "contactType": "sales"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Brunelly",
+  "url": "https://brunelly.com"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://brunelly.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Talk to an Expert",
+      "item": "https://brunelly.com/talk-to-an-expert/"
+    }
+  ]
+}
+</script>
+  <!-- SEO / AEO END -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100;200;300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root{--black:#09090b;--off-black:#111114;--surface:#16161a;--border:rgba(255,255,255,0.07);--white:#f4f4f5;--muted:#71717a;--light:#b4b4be;--accent:#a78bfa;--accent-dim:rgba(167,139,250,0.12);--accent-mid:rgba(167,139,250,0.4);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.1);--orange:#fb923c;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;font-weight: 400;line-height:1.6;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");opacity:0.025;pointer-events:none;z-index:999;}
+
+  .btn-ghost{font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.05em;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:.5rem 1rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;}
+  .btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.25);}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  .expert-hero{padding:9rem 3rem 6rem;position:relative;overflow:hidden;}
+  .expert-hero::before{content:"";position:absolute;top:-20%;right:-10%;width:600px;height:600px;background:radial-gradient(ellipse,rgba(167,139,250,.06) 0%,transparent 70%);pointer-events:none;}
+  .expert-hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
+  .expert-hero h1{font-family:"Geologica",sans-serif;font-weight:400;font-size:clamp(2.4rem,5vw,3.8rem);line-height:1.05;letter-spacing:-.02em;margin-bottom:1.2rem;}
+  .expert-hero h1 span{color:var(--accent);}
+  .expert-hero p{font-size:1rem;color:var(--light);line-height:1.75;margin-bottom:2rem;}
+  .expert-bullets{display:flex;flex-direction:column;gap:.7rem;}
+  .expert-bullet{display:flex;align-items:center;gap:.7rem;font-size:.88rem;color:var(--light);}
+  .expert-check{color:var(--accent);font-family:"DM Mono",monospace;font-size:.8rem;}
+
+  .expert-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+  .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+  .form-group label{font-family:"DM Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .form-input,.form-select,.form-textarea{font-family:"DM Sans",sans-serif;font-size:.88rem;padding:.7rem 1rem;background:var(--off-black);border:1px solid var(--border);border-radius:8px;color:var(--white);outline:none;transition:border-color .2s;width:100%;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent-mid);}
+  .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+  .form-submit{width:100%;font-family:"DM Mono",monospace;font-size:.8rem;letter-spacing:.06em;padding:.9rem;background:var(--accent);border:none;border-radius:8px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;margin-top:.5rem;}
+  .form-submit:hover{background:#c4b5fd;box-shadow:0 0 24px rgba(167,139,250,.4);}
+  .form-submit:disabled{opacity:.6;cursor:not-allowed;}
+  .toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.9rem 1.5rem;border-radius:8px;font-family:"DM Mono",monospace;font-size:.75rem;letter-spacing:.06em;display:none;align-items:center;gap:.6rem;}
+  .toast.success{background:var(--green-dim);border:1px solid var(--green);color:var(--green);}
+  .toast.error{background:var(--red-dim);border:1px solid var(--red);color:var(--red);}
+  .form-note{font-size:.75rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.6;}
+
+  @media (max-width:900px){.expert-hero-inner{grid-template-columns:1fr;gap:3rem;}.form-row{grid-template-columns:1fr;}.expert-hero{padding:7rem 1.5rem 3rem;}}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem;
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  gap: 2.5rem;
+  align-items: start;
+}
+.footer-logo {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.footer-logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.footer-logo:hover img { opacity: 1; }
+.footer-cols {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+.footer-col h4 {
+  font-family: "DM Mono", monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+}
+.footer-col a {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--light);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--white); }
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+.footer-socials {
+  display: flex;
+  gap: 0.6rem;
+}
+.social-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.social-btn:hover {
+  border-color: var(--accent-mid);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+.footer-policy {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.footer-policy a {
+  font-family: "DM Mono", monospace;
+  font-size: 0.63rem;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.footer-policy a:hover { color: var(--white); }
+.footer-copy {
+  font-family: "DM Mono", monospace;
+  font-size: 0.63rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  h1, .expert-hero h1 { font-size: clamp(2rem, 8vw, 3rem) !important; }
+  .expert-hero { padding: 6rem 1.5rem 3rem !important; }
+}
+
+@media (max-width: 600px) {
+  .expert-hero { padding: 5rem 1.2rem 2.5rem !important; }
+}
+</style>
+  <script src="supabase-config.js"></script>
+  <script src="error-handler.js"></script>
+  <link rel="stylesheet" href="brunelly-responsive.css">
+<!-- Reddit Pixel -->
+<script>
+!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_i9abtv4r2aom",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','a2_i9abtv4r2aom');rdt('track', 'PageVisit');
+</script>
+<!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
+<!-- End Reddit Pixel -->
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="expert-hero">
+  <div class="expert-hero-inner">
+    <div class="reveal">
+      <h1>Talk to <span>an expert.</span></h1>
+      <p>Book a 30-minute call with our product team. We'll walk through Brunelly on your own codebase, answer your questions, and show how AI-native software delivery works in practice.</p>
+      <div class="expert-bullets">
+        <div class="expert-bullet"><span class="expert-check">✓</span> Live demo on your actual codebase</div>
+        <div class="expert-bullet"><span class="expert-check">✓</span> No sales pitch - just a real conversation</div>
+        <div class="expert-bullet"><span class="expert-check">✓</span> Enterprise pricing and custom plans available</div>
+        <div class="expert-bullet"><span class="expert-check">✓</span> 30 minutes, no commitment</div>
+      </div>
+    </div>
+
+    <div class="expert-form-wrap reveal">
+      <form id="expert-form">
+        <div class="form-group">
+          <label for="full-name">Name</label>
+          <input type="text" id="full-name" name="name" class="form-input" placeholder="Jane Smith" autocomplete="name" required />
+        </div>
+        <div class="form-group">
+          <label for="work-email">Work email</label>
+          <input type="email" id="work-email" name="email" class="form-input" placeholder="jane@company.com" autocomplete="email" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company-name">Company name</label>
+            <input type="text" id="company-name" name="company_name" class="form-input" placeholder="Acme Inc." autocomplete="organization" required />
+          </div>
+          <div class="form-group">
+            <label for="company-website">Company website</label>
+            <input type="url" id="company-website" name="company_website" class="form-input" placeholder="https://acme.com" autocomplete="url" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="demo-date">Preferred date</label>
+            <input type="date" id="demo-date" name="demo_date" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label for="demo-time">Preferred time</label>
+            <input type="time" id="demo-time" name="demo_time" class="form-input" required />
+          </div>
+        </div>
+        <button type="submit" class="form-submit" id="expert-submit-btn">Request a call →</button>
+        <p class="form-note">We'll confirm your slot by email within 1 business day.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:1.2rem 2.5rem;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+  <div style="flex:1;min-width:260px;">
+    <p style="font-size:.85rem;color:var(--light);line-height:1.65;">We use cookies to improve your experience and analyse site usage. By clicking <strong style="color:var(--white)">Accept all</strong> you agree to our use of cookies. <a href="cookies" style="color:var(--accent);text-decoration:none;">Cookie Policy</a></p>
+  </div>
+  <div style="display:flex;gap:.7rem;flex-shrink:0;">
+    <button onclick="setCookieConsent('essential')" style="font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:.5rem 1rem;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;transition:all .2s;">Decline</button>
+    <button onclick="setCookieConsent('all')" style="font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:.5rem 1.2rem;background:var(--accent);border:none;border-radius:6px;color:var(--black);cursor:pointer;font-weight:500;transition:all .2s;">Accept all</button>
+  </div>
+</div>
+<script>
+const reveals=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver((e)=>{e.forEach((el,i)=>{if(el.isIntersecting){setTimeout(()=>el.target.classList.add('visible'),i*70);io.unobserve(el.target);}});},{threshold:0.08});
+reveals.forEach(el=>io.observe(el));
+</script>
+
+<script>
+(function() {
+  var consent = localStorage.getItem('brunelly_cookie_consent');
+  if (consent !== 'all') return;
+
+  var EVENT_URL = SUPA_URL + '/rest/v1/analytics_events';
+  var UPSERT_URL = EVENT_URL + '?on_conflict=event_id';
+  var JSON_TYPE = 'application/json';
+
+  function generateId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  var pageViewId = generateId();
+  var t0 = Date.now();
+  var maxS = 0;
+  var unloadSent = false;
+
+  function getSource() {
+    var r = document.referrer || '';
+    if (!r) return 'direct';
+    if (/google/i.test(r)) return 'google';
+    if (/linkedin/i.test(r)) return 'linkedin';
+    if (/twitter|x\.com/i.test(r)) return 'twitter';
+    if (/reddit/i.test(r)) return 'reddit';
+    if (/discord/i.test(r)) return 'discord';
+    return 'direct';
+  }
+
+  function getDevice() {
+    var u = navigator.userAgent;
+    if (/tablet|ipad/i.test(u)) return 'tablet';
+    if (/mobile|android|iphone/i.test(u)) return 'mobile';
+    return 'desktop';
+  }
+
+  var src = getSource();
+  var dev = getDevice();
+
+  window.addEventListener('scroll', function() {
+    var p = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+    if (p > maxS) maxS = p;
+  }, { passive: true });
+
+  function buildPayload(evt) {
+    return {
+      type: evt.type,
+      ts: evt.ts,
+      source: evt.source || src,
+      device: evt.device || dev,
+      scroll_depth: evt.scrollDepth != null ? evt.scrollDepth : maxS,
+      time_on_page: evt.timeOnPage != null ? evt.timeOnPage : (Date.now() - t0),
+      article_id: evt.articleId || null,
+      article_title: evt.articleTitle || null,
+      category: evt.category || null,
+      video_title: evt.videoTitle || null,
+      email: evt.email || null,
+      page_url: window.location.pathname,
+      created_at: new Date().toISOString()
+    };
+  }
+
+  function buildPageviewPayload(evt) {
+    var payload = buildPayload(evt);
+    payload.event_id = pageViewId;
+    return payload;
+  }
+
+  function sendReliably(payload) {
+    var keepaliveSupported = (function() {
+      try {
+        return 'keepalive' in new Request('about:blank');
+      } catch (e) {
+        return false;
+      }
+    })();
+
+    if (keepaliveSupported) {
+      try {
+        var headers = {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        };
+        fetchWithRetry(UPSERT_URL, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload),
+          keepalive: true
+        }, 'Analytics unload pageview').catch(function(){});
+        return;
+      } catch (e) {}
+    }
+
+    if (navigator.sendBeacon) {
+      var url = UPSERT_URL + '&apikey=' + encodeURIComponent(SUPA_KEY);
+      var blob = new Blob([JSON.stringify(payload)], { type: JSON_TYPE });
+      try {
+        if (navigator.sendBeacon(url, blob)) {
+          return;
+        }
+      } catch (e) {}
+    }
+
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', UPSERT_URL, false);
+      xhr.setRequestHeader('Content-Type', JSON_TYPE);
+      xhr.setRequestHeader('apikey', SUPA_KEY);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + SUPA_KEY);
+      xhr.setRequestHeader('Prefer', 'return=minimal, resolution=merge-duplicates');
+      xhr.send(JSON.stringify(payload));
+    } catch (e) {}
+  }
+
+  function trackPageview(isUnload) {
+    if (isUnload && unloadSent) return;
+
+    var payload = buildPageviewPayload({
+      type: 'pageview',
+      ts: t0,
+      source: src,
+      device: dev,
+      scrollDepth: maxS,
+      timeOnPage: Date.now() - t0
+    });
+
+    if (isUnload) {
+      unloadSent = true;
+      sendReliably(payload);
+    } else {
+      fetchWithRetry(UPSERT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': JSON_TYPE,
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal, resolution=merge-duplicates'
+        },
+        body: JSON.stringify(payload)
+      }, 'Analytics pageview').catch(function(){});
+    }
+  }
+
+  function trackInteraction(evt) {
+    var payload = buildPayload(evt);
+    fetchWithRetry(EVENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': JSON_TYPE,
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    }, 'Analytics interaction').catch(function(){});
+  }
+
+  trackPageview(false);
+
+  function onHidden() {
+    if (document.visibilityState === 'hidden') {
+      trackPageview(true);
+    }
+  }
+
+  document.addEventListener('visibilitychange', onHidden);
+  window.addEventListener('pagehide', function() {
+    trackPageview(true);
+  });
+})();
+</script>
+<script>
+(function() {
+  'use strict';
+
+  function showToast(msg, type) {
+    type = type || 'success';
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    el.className = 'toast ' + type;
+    el.style.display = 'flex';
+    setTimeout(function() { el.style.display = 'none'; }, 3000);
+  }
+
+  var form = document.getElementById('expert-form');
+  var submitBtn = document.getElementById('expert-submit-btn');
+  if (!form || !submitBtn) return;
+
+  var demoDateInput = document.getElementById('demo-date');
+  if (demoDateInput) {
+    demoDateInput.min = new Date().toISOString().slice(0, 10);
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var fullName       = (document.getElementById('full-name').value || '').trim();
+    var email          = (document.getElementById('work-email').value || '').trim();
+    var companyName    = (document.getElementById('company-name').value || '').trim();
+    var companyWebsite = (document.getElementById('company-website').value || '').trim();
+    var demoDate       = (document.getElementById('demo-date').value || '').trim();
+    var demoTime       = (document.getElementById('demo-time').value || '').trim();
+
+    if (!fullName) {
+      showToast('Please enter your name.', 'error');
+      return;
+    }
+    if (fullName.length > 150) {
+      showToast('Name must be 150 characters or fewer.', 'error');
+      return;
+    }
+    if (!email) {
+      showToast('Please enter your work email.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    if (email.length > 255) {
+      showToast('Email must be 255 characters or fewer.', 'error');
+      return;
+    }
+    if (!companyName) {
+      showToast('Please enter your company name.', 'error');
+      return;
+    }
+    if (companyName.length > 150) {
+      showToast('Company name must be 150 characters or fewer.', 'error');
+      return;
+    }
+    if (companyWebsite && !/^https?:\/\/[^\s]+\.[^\s]{2,}$/i.test(companyWebsite)) {
+      showToast('Please enter a valid company website (starting with http:// or https://).', 'error');
+      return;
+    }
+    if (companyWebsite.length > 255) {
+      showToast('Company website must be 255 characters or fewer.', 'error');
+      return;
+    }
+    if (!demoDate) {
+      showToast('Please choose a preferred date.', 'error');
+      return;
+    }
+    if (!demoTime) {
+      showToast('Please choose a preferred time.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    var fullMessage = 'Preferred demo slot: ' + demoDate + ' at ' + demoTime;
+    if (companyWebsite) {
+      fullMessage += '\nCompany website: ' + companyWebsite;
+    }
+
+    var payload = {
+      name: fullName,
+      email: email,
+      company: companyName,
+      message: fullMessage,
+      source: 'talk-to-an-expert-form',
+      page: window.location.pathname
+    };
+
+    fetch(window.SUPA_URL + '/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': window.SUPA_KEY,
+        'Authorization': 'Bearer ' + window.SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r) {
+        if (!r.ok) {
+          throw new Error('Server returned ' + r.status);
+        }
+        showToast('Request sent. We\'ll confirm your slot soon.', 'success');
+        form.reset();
+      })
+      .catch(function(err) {
+        showToast('Error sending request: ' + (err && err.message ? err.message : 'Please try again.'), 'error');
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request a call →';
+      });
+  });
+})();
+</script>
+<script src="brunelly-nav-a11y.js"></script>
+<script src="/assets/js/components.js"></script>
+</body>
+</html>

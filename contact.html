@@ -458,7 +458,7 @@ footer {
         </section>
         <div class="contact-detail-text">
           <h2>Book a call</h2>
-          <p>Speak directly with the product team - <a href="#contact-form">pick a date and time in the form</a></p>
+          <p>Speak directly with the product team - <a href="https://calendly.com/vinoj-pinavida/30min" target="_blank">book a 30-minute slot</a></p>
         </div>
       </div>
 
@@ -500,19 +500,9 @@ footer {
           <label for="work-email">Work email</label>
           <input type="email" id="work-email" name="email" class="form-input" placeholder="jane@company.com" autocomplete="email" required />
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="company-name">Company name</label>
-            <input type="text" id="company-name" name="company_name" class="form-input" placeholder="Acme Inc." autocomplete="organization" required />
-          </div>
-          <div class="form-group">
-            <label for="company-website">Company website</label>
-            <input type="url" id="company-website" name="company_website" class="form-input" placeholder="https://acme.com" autocomplete="url" />
-          </div>
-        </div>
         <div class="form-group">
           <label for="company-size">Company / team size</label>
-          <select id="company-size" name="company_size" class="form-select">
+          <select id="company-size" name="company_size" class="form-select" autocomplete="organization">
             <option value="">Select team size</option>
             <option>Solo developer</option>
             <option>2–10 people</option>
@@ -532,22 +522,12 @@ footer {
             <option>Other</option>
           </select>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="demo-date">Preferred demo date</label>
-            <input type="date" id="demo-date" name="demo_date" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label for="demo-time">Preferred demo time</label>
-            <input type="time" id="demo-time" name="demo_time" class="form-input" />
-          </div>
-        </div>
         <div class="form-group">
           <label for="message">Message (optional)</label>
           <textarea id="message" name="message" class="form-textarea" placeholder="Tell us a bit about your project or what you'd like to know..." autocomplete="off"></textarea>
         </div>
         <button type="submit" class="form-submit" id="contact-submit-btn">Send message →</button>
-        <p class="form-note">We reply within 1 business day to confirm your demo slot (if picked) or answer your message. No spam, ever.</p>
+        <p class="form-note">We reply within 1 business day. No spam, ever.</p>
       </form>
     </div>
   </div>
@@ -570,7 +550,7 @@ footer {
           <div class="cal-bullet"><span class="cal-check">✓</span> Enterprise pricing and custom plans available</div>
           <div class="cal-bullet"><span class="cal-check">✓</span> 30 minutes, no commitment</div>
         </div>
-        <a href="#contact-form" class="calendly-btn">Pick a date and time →</a>
+        <a href="https://calendly.com/vinoj-pinavida/30min" target="_blank" class="calendly-btn">Book a 30-min call →</a>
       </div>
     </div>
     <div class="reveal">
@@ -578,12 +558,14 @@ footer {
       <!-- Community / CTA Section -->
       </section>
       <div class="calendly-visual">
-        <div style="font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted);margin-bottom:1.2rem;text-transform:uppercase;">How it works</div>
-        <div class="cal-slot"><span class="cal-slot-time">Step 1</span><span class="cal-slot-label">Fill in your details in the form</span></div>
-        <div class="cal-slot"><span class="cal-slot-time">Step 2</span><span class="cal-slot-label">Pick your preferred date and time</span></div>
-        <div class="cal-slot"><span class="cal-slot-time">Step 3</span><span class="cal-slot-label">We confirm your slot by email within 1 business day</span></div>
+        <div style="font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted);margin-bottom:1.2rem;text-transform:uppercase;">Available slots this week</div>
+        <div class="cal-slot"><span class="cal-slot-time">Mon 10:00</span><span class="cal-slot-label">Product walkthrough · 30 min</span></div>
+        <div class="cal-slot"><span class="cal-slot-time">Mon 14:00</span><span class="cal-slot-label">Product walkthrough · 30 min</span></div>
+        <div class="cal-slot"><span class="cal-slot-time">Tue 11:00</span><span class="cal-slot-label">Product walkthrough · 30 min</span></div>
+        <div class="cal-slot"><span class="cal-slot-time">Wed 09:00</span><span class="cal-slot-label">Product walkthrough · 30 min</span></div>
+        <div class="cal-slot"><span class="cal-slot-time">Thu 15:00</span><span class="cal-slot-label">Product walkthrough · 30 min</span></div>
         <div style="text-align:center;margin-top:1rem;">
-          <a href="#contact-form" style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);text-decoration:none;letter-spacing:.06em;">Go to the form →</a>
+          <a href="https://calendly.com/vinoj-pinavida/30min" target="_blank" style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);text-decoration:none;letter-spacing:.06em;">View all available times →</a>
         </div>
       </div>
     </div>
@@ -841,24 +823,15 @@ reveals.forEach(el=>io.observe(el));
   var submitBtn = document.getElementById('contact-submit-btn');
   if (!form || !submitBtn) return;
 
-  var demoDateInput = document.getElementById('demo-date');
-  if (demoDateInput) {
-    demoDateInput.min = new Date().toISOString().slice(0, 10);
-  }
-
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    var firstName      = (document.getElementById('first-name').value || '').trim();
-    var lastName       = (document.getElementById('last-name').value || '').trim();
-    var email          = (document.getElementById('work-email').value || '').trim();
-    var companyName    = (document.getElementById('company-name').value || '').trim();
-    var companyWebsite = (document.getElementById('company-website').value || '').trim();
-    var companySize    = (document.getElementById('company-size').value || '').trim();
-    var project        = (document.getElementById('project-type').value || '').trim();
-    var demoDate       = (document.getElementById('demo-date').value || '').trim();
-    var demoTime       = (document.getElementById('demo-time').value || '').trim();
-    var message        = (document.getElementById('message').value || '').trim();
+    var firstName = (document.getElementById('first-name').value || '').trim();
+    var lastName  = (document.getElementById('last-name').value || '').trim();
+    var email     = (document.getElementById('work-email').value || '').trim();
+    var company   = (document.getElementById('company-size').value || '').trim();
+    var project   = (document.getElementById('project-type').value || '').trim();
+    var message   = (document.getElementById('message').value || '').trim();
 
     if (!firstName) {
       showToast('Please enter your first name.', 'error');
@@ -888,23 +861,7 @@ reveals.forEach(el=>io.observe(el));
       showToast('Email must be 255 characters or fewer.', 'error');
       return;
     }
-    if (!companyName) {
-      showToast('Please enter your company name.', 'error');
-      return;
-    }
-    if (companyName.length > 150) {
-      showToast('Company name must be 150 characters or fewer.', 'error');
-      return;
-    }
-    if (companyWebsite && !/^https?:\/\/[^\s]+\.[^\s]{2,}$/i.test(companyWebsite)) {
-      showToast('Please enter a valid company website (starting with http:// or https://).', 'error');
-      return;
-    }
-    if (companyWebsite.length > 255) {
-      showToast('Company website must be 255 characters or fewer.', 'error');
-      return;
-    }
-    if (companySize.length > 100) {
+    if (company.length > 100) {
       showToast('Company / team size must be 100 characters or fewer.', 'error');
       return;
     }
@@ -921,23 +878,14 @@ reveals.forEach(el=>io.observe(el));
     submitBtn.textContent = 'Sending\u2026';
 
     var fullMessage = message;
-    if (demoDate) {
-      fullMessage = (fullMessage ? fullMessage + '\n\n' : '') + 'Preferred demo slot: ' + demoDate + (demoTime ? ' at ' + demoTime : '');
-    }
-    if (companyWebsite) {
-      fullMessage = (fullMessage ? fullMessage + '\n' : '') + 'Company website: ' + companyWebsite;
-    }
-    if (companySize) {
-      fullMessage = (fullMessage ? fullMessage + '\n' : '') + 'Company size: ' + companySize;
-    }
     if (project) {
-      fullMessage = (fullMessage ? fullMessage + '\n' : '') + 'Project type: ' + project;
+      fullMessage = (fullMessage ? fullMessage + '\n\n' : '') + 'Project type: ' + project;
     }
 
     var payload = {
       name: firstName + ' ' + lastName,
       email: email,
-      company: companyName,
+      company: company || null,
       message: fullMessage || null,
       source: 'contact-form',
       page: window.location.pathname
