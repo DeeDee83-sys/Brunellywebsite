@@ -115,6 +115,8 @@
   .toast.success{background:var(--green-dim);border:1px solid var(--green);color:var(--green);}
   .toast.error{background:var(--red-dim);border:1px solid var(--red);color:var(--red);}
   .form-note{font-size:.75rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.6;}
+  input[type="date"].form-input,input[type="time"].form-input{color-scheme:dark;}
+  input[type="date"].form-input::-webkit-calendar-picker-indicator,input[type="time"].form-input::-webkit-calendar-picker-indicator{cursor:pointer;}
 
   @media (max-width:900px){.expert-hero-inner{grid-template-columns:1fr;gap:3rem;}.form-row{grid-template-columns:1fr;}.expert-hero{padding:7rem 1.5rem 3rem;}}
 
