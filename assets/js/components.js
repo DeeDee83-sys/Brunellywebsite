@@ -30,7 +30,7 @@
     '  </ul>',
     '  <div class="nav-actions">',
     '    <a href="/talk-to-an-expert" class="btn-ghost">Talk to an expert</a>',
-    '    <a href="https://app.brunelly.com/register" class="btn-primary">Sign in</a>',
+    '    <a href="https://app.brunelly.com/login" class="btn-primary">Sign in</a>',
     '  </div>',
     '  <button class="nav-hamburger" id="nav-hamburger" onclick="var n=document.getElementById(\'mobile-nav\');var h=document.getElementById(\'nav-hamburger\');n.classList.toggle(\'open\');h.classList.toggle(\'open\');h.setAttribute(\'aria-expanded\',n.classList.contains(\'open\'));n.setAttribute(\'aria-hidden\',!n.classList.contains(\'open\'));" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-nav">',
     '    <span></span><span></span><span></span>',
